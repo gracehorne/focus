@@ -1457,25 +1457,40 @@ async function knMarkCardDone(cardText, cardId = null) {
   if (!resolvedId) throw new Error('could not resolve kinopio card id');
   saveKnCardId(cardText, resolvedId);
 
-  let resp = await fetch('https://api.kinopio.club/card', {
-    method: 'PATCH',
-    headers: { 'Authorization': KN_API_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id: resolvedId, isDone: true }),
-  });
+  const headersList = [
+    { 'Authorization': KN_API_KEY, 'Content-Type': 'application/json' },
+    { 'Authorization': `Bearer ${KN_API_KEY}`, 'Content-Type': 'application/json' },
+  ];
+  const attempts = [
+    { url: 'https://api.kinopio.club/card', method: 'PATCH', body: { id: resolvedId, isDone: true } },
+    { url: 'https://api.kinopio.club/card', method: 'PATCH', body: { id: resolvedId, completed: true } },
+    { url: 'https://api.kinopio.club/card', method: 'PATCH', body: { id: resolvedId, name: `[x] ${cardText}` } },
+    { url: `https://api.kinopio.club/card/${encodeURIComponent(resolvedId)}`, method: 'PATCH', body: { isDone: true } },
+    { url: `https://api.kinopio.club/cards/${encodeURIComponent(resolvedId)}`, method: 'PATCH', body: { isDone: true } },
+  ];
 
-  if (!resp.ok) {
-    // Some Kinopio API versions rely on checkbox text rather than isDone.
-    resp = await fetch('https://api.kinopio.club/card', {
-      method: 'PATCH',
-      headers: { 'Authorization': KN_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: resolvedId, name: `[x] ${cardText}` }),
-    });
+  let lastStatus = null;
+  let lastDetails = '';
+  for (const req of attempts) {
+    for (const headers of headersList) {
+      let resp;
+      try {
+        resp = await fetch(req.url, {
+          method: req.method,
+          headers,
+          body: JSON.stringify(req.body),
+        });
+      } catch (err) {
+        lastDetails = (err && err.message) ? err.message : String(err || 'network error');
+        continue;
+      }
+      if (resp.ok) return;
+      lastStatus = resp.status;
+      lastDetails = await resp.text().catch(() => '');
+    }
   }
 
-  if (!resp.ok) {
-    const details = await resp.text().catch(() => '');
-    throw new Error(`kinopio update failed (${resp.status})${details ? ': ' + details : ''}`);
-  }
+  throw new Error(`kinopio update failed${lastStatus ? ` (${lastStatus})` : ''}${lastDetails ? ': ' + lastDetails : ''}`);
 }
 
 async function syncFromKinopio(opts = {}) {
