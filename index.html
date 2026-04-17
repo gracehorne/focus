@@ -142,7 +142,7 @@
     }
     .today-btn:hover { color: var(--accent); border-color: var(--accent); }
 
-    .integrations-btn {
+    .calendar-config-btn {
       background: none;
       border: 1px solid var(--border);
       border-radius: 3px;
@@ -152,7 +152,7 @@
       font-size: 10px;
       padding: 2px 7px;
     }
-    .integrations-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .calendar-config-btn:hover { color: var(--accent); border-color: var(--accent); }
 
     .sync-indicator {
       font-family: var(--font-mono);
@@ -469,8 +469,10 @@
 
     .right-section-title { font-size: 10px; font-family: var(--font-mono); color: var(--text-muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
 
-    .cal-refresh-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 11px; padding: 0; }
+    .cal-refresh-btn { background: none; border: 1px solid transparent; color: var(--text-muted); cursor: pointer; font-size: 11px; padding: 2px 7px; border-radius: 3px; }
     .cal-refresh-btn:hover { color: var(--accent); }
+    .cal-refresh-btn.calendar-config-btn { border-color: var(--border); }
+    .cal-refresh-btn.calendar-config-btn:hover { border-color: var(--accent); }
 
     .cal-event { display: flex; align-items: center; gap: 6px; font-size: 11px; padding: 3px 0; }
     .cal-event-time { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); width: 84px; flex-shrink: 0; }
@@ -513,6 +515,8 @@
       display: inline-flex; align-items: center; justify-content: center;
       width: 14px; color: var(--text-muted); cursor: grab;
       font-size: 12px; line-height: 1; opacity: 0; flex-shrink: 0;
+      touch-action: none;
+      -webkit-user-select: none;
       user-select: none;
     }
     .task-item:hover .drag-handle,
@@ -559,10 +563,6 @@
     }
     .template-card:hover .tpl-edit-btn { opacity: 1; }
     .template-card .tpl-edit-btn:hover { color: var(--accent); background: var(--surface2); }
-    .template-card.dragging { opacity: 0.35; }
-    .template-card.drop-before { box-shadow: inset 2px 0 0 0 var(--accent); }
-    .template-card.drop-after  { box-shadow: inset -2px 0 0 0 var(--accent); }
-
     .modal-box.wide { width: 420px; max-width: calc(100vw - 32px); }
     .tpl-delete-btn {
       background: none; border: 1px solid rgba(231,130,132,0.4);
@@ -645,6 +645,7 @@
 
       /* --- task items --- */
       .task-item { padding: 12px 12px; gap: 10px; }
+      .drag-handle { opacity: 0.7; font-size: 16px; width: 20px; padding-right: 4px; }
 
       /* bigger visual checkbox */
       .task-check {
@@ -694,6 +695,7 @@
       /* --- right col --- */
       .right-section { padding: 14px 14px; }
       .cal-event-time { font-size: 10px; width: 76px; }
+      .calendar-config-btn { padding: 5px 10px; font-size: 11px; min-height: 30px; }
 
       /* --- template grid: single column --- */
       .template-grid { grid-template-columns: 1fr; gap: 8px; padding: 12px; }
@@ -702,6 +704,7 @@
 
       /* --- inbox --- */
       .inbox-item { padding: 10px 14px; }
+      .inbox-item .drag-handle { opacity: 0.7; font-size: 16px; width: 20px; padding-right: 4px; }
       .inbox-text { font-size: 14px; }
       .inbox-add-btn, .inbox-done-btn, .inbox-readd-btn {
         padding: 6px 10px; font-size: 11px; min-height: 30px;
@@ -730,7 +733,6 @@
       <button class="date-nav-btn" id="next-day-btn">&#x203a;</button>
     </div>
     <button class="today-btn" id="go-today-btn">today</button>
-    <button class="integrations-btn" id="integrations-btn">integrations</button>
     <span class="sync-indicator" id="sync-indicator">saving&#x2026;</span>
     <span id="dev-mode-badge" style="display:none;font-family:var(--font-mono);font-size:10px;color:var(--peach);border:1px solid rgba(239,159,118,0.5);background:rgba(239,159,118,0.1);padding:2px 7px;border-radius:3px;letter-spacing:0.05em;">DEV MODE</span>
     <button class="logout-btn" id="logout-btn" title="sign out">&#x2192; out</button>
@@ -761,9 +763,7 @@
         </section>
         <section id="tab-templates" class="tab-content">
           <div class="template-toolbar">
-            <label for="tpl-sort">sort</label>
             <select id="tpl-sort">
-              <option value="manual">manual</option>
               <option value="popular">most popular</option>
               <option value="alpha">alphabetical</option>
             </select>
@@ -919,12 +919,12 @@ const DEV_MODE = new URLSearchParams(location.search).has('dev');
 // 2. Load them in api.php using environment variables
 // 3. Have the frontend proxy API requests through api.php
 //
-// If you are running this as a static app without api.php, use the Integrations
-// button in the header to save runtime config into localStorage for this browser.
+// If you are running this as a static app without api.php, the app falls back
+// to localStorage for integrations config.
 
 const INTEGRATIONS_STORE_KEY = 'df-integrations-config';
+const INTEGRATIONS_ACCOUNT_KEY = '__integrations__';
 
-// Placeholder — these will be configured server-side
 let LOG_WEBHOOK_URL = '';
 let GCAL_SCRIPT_URL = '';
 let KN_API_KEY = '';
@@ -962,29 +962,77 @@ const DEFAULT_TEMPLATES = [
 // live template list (loaded from localStorage on init; defaults to DEFAULT_TEMPLATES)
 let TEMPLATES = DEFAULT_TEMPLATES.slice();
 const TPL_STORE_KEY = 'df-templates';
-const TPL_ORDER_KEY = 'df-tpl-order';     // manual order: array of template ids
-
-function loadIntegrationsConfig() {
-  let saved = {};
+function getLocalIntegrationsConfig() {
   try {
-    saved = JSON.parse(localStorage.getItem(INTEGRATIONS_STORE_KEY) || '{}');
-  } catch {}
-  const runtime = (typeof window !== 'undefined' && window.FOCUS_CONFIG && typeof window.FOCUS_CONFIG === 'object')
-    ? window.FOCUS_CONFIG
-    : {};
-
-  LOG_WEBHOOK_URL = String(runtime.LOG_WEBHOOK_URL || saved.LOG_WEBHOOK_URL || '').trim();
-  GCAL_SCRIPT_URL = String(runtime.GCAL_SCRIPT_URL || saved.GCAL_SCRIPT_URL || '').trim();
-  KN_API_KEY = String(runtime.KN_API_KEY || saved.KN_API_KEY || '').trim();
+    return JSON.parse(localStorage.getItem(INTEGRATIONS_STORE_KEY) || '{}');
+  } catch {
+    return {};
+  }
 }
 
-function saveIntegrationsConfig() {
+function getRuntimeIntegrationsConfig() {
+  return (typeof window !== 'undefined' && window.FOCUS_CONFIG && typeof window.FOCUS_CONFIG === 'object')
+    ? window.FOCUS_CONFIG
+    : {};
+}
+
+function applyIntegrationsConfig(config) {
+  LOG_WEBHOOK_URL = String(config.LOG_WEBHOOK_URL || '').trim();
+  GCAL_SCRIPT_URL = String(config.GCAL_SCRIPT_URL || '').trim();
+  KN_API_KEY = String(config.KN_API_KEY || '').trim();
+}
+
+async function loadAccountIntegrationsConfig() {
+  if (DEV_MODE) return {};
+  try {
+    const result = await apiPost({ action: 'get_tasks', date: INTEGRATIONS_ACCOUNT_KEY });
+    const entry = Array.isArray(result.tasks) ? result.tasks.find(task => task && typeof task.content === 'string' && task.content.trim()) : null;
+    if (!entry) return {};
+    const parsed = JSON.parse(entry.content);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+async function loadIntegrationsConfig() {
+  const runtime = getRuntimeIntegrationsConfig();
+  const local = getLocalIntegrationsConfig();
+  const account = await loadAccountIntegrationsConfig();
+  applyIntegrationsConfig({ ...local, ...account, ...runtime });
+}
+
+async function saveIntegrationsConfig() {
   const payload = {
     LOG_WEBHOOK_URL: LOG_WEBHOOK_URL || '',
     GCAL_SCRIPT_URL: GCAL_SCRIPT_URL || '',
     KN_API_KEY: KN_API_KEY || '',
   };
   try { localStorage.setItem(INTEGRATIONS_STORE_KEY, JSON.stringify(payload)); } catch {}
+  if (!DEV_MODE) {
+    try {
+      await apiPost({
+        action: 'save_tasks',
+        date: INTEGRATIONS_ACCOUNT_KEY,
+        tasks: [{
+          id: 'integrations-config',
+          content: JSON.stringify(payload),
+          marker: 'META',
+          subtasks: [],
+          dueDate: null,
+          carriedFrom: null,
+          estimate: '',
+          actual: '',
+          createdAt: new Date().toISOString(),
+          fromKinopio: false,
+          knCardId: null,
+          priority: null,
+          defers: 0,
+        }],
+      });
+    } catch {}
+  }
+  return payload;
 }
 
 function openIntegrationsModal(focusField) {
@@ -1004,12 +1052,17 @@ function closeIntegrationsModal() {
   document.getElementById('integrations-modal').style.display = 'none';
 }
 
-function saveIntegrationsFromModal() {
+async function saveIntegrationsFromModal() {
   KN_API_KEY = (document.getElementById('kn-api-key-input').value || '').trim();
   GCAL_SCRIPT_URL = (document.getElementById('gcal-script-url-input').value || '').trim();
   LOG_WEBHOOK_URL = (document.getElementById('log-webhook-url-input').value || '').trim();
-  saveIntegrationsConfig();
+  await saveIntegrationsConfig();
   closeIntegrationsModal();
+  if (GCAL_SCRIPT_URL && state.currentDate) {
+    state.calendarEvents = null;
+    renderRightCol();
+    loadCalendarEvents(state.currentDate).catch(() => {});
+  }
   showToast('integration settings saved', 'success');
 }
 
@@ -1031,9 +1084,8 @@ function requireCalendarConfig(interactive=false) {
   return false;
 }
 
-loadIntegrationsConfig();
 const TPL_USES_KEY  = 'df-tpl-uses';      // use counts: { [id]: number }
-const TPL_SORT_KEY  = 'df-tpl-sort';      // 'manual' | 'popular' | 'alpha'
+const TPL_SORT_KEY  = 'df-tpl-sort';      // 'popular' | 'alpha'
 
 function loadTemplates() {
   try {
@@ -1051,30 +1103,19 @@ function loadTemplates() {
 function saveTemplates() {
   try { localStorage.setItem(TPL_STORE_KEY, JSON.stringify(TEMPLATES)); } catch {}
 }
-function getTplOrder() { try { return JSON.parse(localStorage.getItem(TPL_ORDER_KEY) || '[]'); } catch { return []; } }
-function saveTplOrder(order) { try { localStorage.setItem(TPL_ORDER_KEY, JSON.stringify(order)); } catch {} }
 function getTplUses()  { try { return JSON.parse(localStorage.getItem(TPL_USES_KEY)  || '{}'); } catch { return {}; } }
 function bumpTplUse(id) { const u = getTplUses(); u[id] = (u[id]||0) + 1; try { localStorage.setItem(TPL_USES_KEY, JSON.stringify(u)); } catch {} }
-function getTplSort()  { return localStorage.getItem(TPL_SORT_KEY) || 'manual'; }
-function saveTplSort(v) { try { localStorage.setItem(TPL_SORT_KEY, v); } catch {} }
+function getTplSort()  { const v = localStorage.getItem(TPL_SORT_KEY) || 'alpha'; return v === 'popular' ? 'popular' : 'alpha'; }
+function saveTplSort(v) { try { localStorage.setItem(TPL_SORT_KEY, v === 'popular' ? 'popular' : 'alpha'); } catch {} }
 
 // returns templates in the currently-selected sort order
 function getSortedTemplates() {
   const mode = getTplSort();
-  if (mode === 'alpha') {
-    return TEMPLATES.slice().sort((a,b) => a.name.localeCompare(b.name));
-  }
   if (mode === 'popular') {
     const uses = getTplUses();
     return TEMPLATES.slice().sort((a,b) => (uses[b.id]||0) - (uses[a.id]||0) || a.name.localeCompare(b.name));
   }
-  // manual: use saved order, append any templates not yet in the order list
-  const order = getTplOrder();
-  const byId = Object.fromEntries(TEMPLATES.map(t => [t.id, t]));
-  const out = [];
-  for (const id of order) if (byId[id]) { out.push(byId[id]); delete byId[id]; }
-  for (const t of TEMPLATES) if (byId[t.id]) out.push(byId[t.id]);
-  return out;
+  return TEMPLATES.slice().sort((a,b) => a.name.localeCompare(b.name));
 }
 
 // ============================================================
@@ -1193,6 +1234,7 @@ async function doLogin() {
   try {
     const result = await apiPost({ action: 'login', password: pw });
     if (result.ok) {
+      await loadIntegrationsConfig();
       hideLogin();
       document.getElementById('login-pw').value = '';
       setDate(isoToday());
@@ -1555,8 +1597,7 @@ async function loadCalendarEvents(dateISO) {
   if (DEV_MODE) { state.calendarEvents = []; renderRightCol(); return; }
   if (!requireCalendarConfig(false)) {
     state.calendarEvents = [];
-    const calEl = document.getElementById('cal-events');
-    if (calEl) calEl.innerHTML = '<div class="cal-loading" style="font-size:11px">calendar not configured &mdash; set it in integrations</div>';
+    renderRightCol();
     return;
   }
   try {
@@ -1954,9 +1995,6 @@ function saveTemplateFromEditor() {
   } else {
     const id = slugifyTplName(name);
     TEMPLATES.push({ id, name, tasks });
-    // append to the manual order so new ones show up at the end
-    const order = getTplOrder();
-    if (!order.includes(id)) { order.push(id); saveTplOrder(order); }
   }
   saveTemplates();
   closeTemplateEditor();
@@ -1971,8 +2009,6 @@ function deleteTemplateFromEditor() {
   if (!confirm('delete this template?')) return;
   TEMPLATES = TEMPLATES.filter(t => t.id !== id);
   saveTemplates();
-  // clean up order + uses so nothing stale lingers
-  const order = getTplOrder().filter(x => x !== id); saveTplOrder(order);
   const uses = getTplUses(); delete uses[id];
   try { localStorage.setItem(TPL_USES_KEY, JSON.stringify(uses)); } catch {}
   closeTemplateEditor();
@@ -2127,11 +2163,10 @@ function renderTemplatesTab() {
   if (sortSelect && sortSelect.value !== sort) sortSelect.value = sort;
   const uses = getTplUses();
   const list = getSortedTemplates();
-  const canDrag = sort === 'manual';
   document.getElementById('template-grid').innerHTML=list.map(t=>{
     const count = uses[t.id] || 0;
     const meta  = `${t.tasks.length} steps${count>0?` \u00b7 used ${count}\u00d7`:''}`;
-    return `<div class="template-card" data-tpl-id="${esc(t.id)}"${canDrag?' draggable="true"':''}>
+    return `<div class="template-card" data-tpl-id="${esc(t.id)}">
       <button class="tpl-edit-btn" data-tpl-edit="${esc(t.id)}" title="edit template">edit</button>
       <div class="template-name">${esc(t.name)}</div>
       <div class="template-count">${meta}</div>
@@ -2140,9 +2175,18 @@ function renderTemplatesTab() {
 }
 
 async function renderRightCol() {
+  const calendarConfigured = !!GCAL_SCRIPT_URL;
+  const refreshBtn = document.getElementById('cal-refresh-btn');
+  if (refreshBtn) {
+    refreshBtn.textContent = calendarConfigured ? '\u21bb' : 'set up';
+    refreshBtn.classList.toggle('calendar-config-btn', !calendarConfigured);
+    refreshBtn.title = calendarConfigured ? 'refresh calendar' : 'connect calendar';
+  }
+
   // calendar
   const calEl=document.getElementById('cal-events');
-  if (state.calendarEvents===null) { calEl.innerHTML='<div class="cal-loading">loading&#x2026;</div>'; }
+  if (!calendarConfigured) { calEl.innerHTML='<div class="cal-loading" style="font-size:11px">calendar not configured &mdash; connect it to load events</div>'; }
+  else if (state.calendarEvents===null) { calEl.innerHTML='<div class="cal-loading">loading&#x2026;</div>'; }
   else if (state.calendarEvents.length===0) { calEl.innerHTML='<div class="cal-loading">no events</div>'; }
   else {
     calEl.innerHTML=state.calendarEvents.map(ev=>{
@@ -2291,7 +2335,7 @@ function bindDynamicEvents() {
 
   bindTaskDragEvents();
   bindInboxDragEvents();
-  bindTemplateDragEvents();
+  bindTouchReorderListeners();
 }
 
 // ============================================================
@@ -2302,6 +2346,153 @@ function clearDropHints(selector) {
   document.querySelectorAll(selector).forEach(el => {
     el.classList.remove('drop-above','drop-below','drop-before','drop-after');
   });
+}
+
+const touchDragState = {
+  active: false,
+  kind: null,
+  pointerId: null,
+  sourceEl: null,
+  sourceId: null,
+  sourceSpace: null,
+  targetEl: null,
+  before: true,
+};
+
+function getTouchDropTarget(kind, clientX, clientY) {
+  const el = document.elementFromPoint(clientX, clientY);
+  if (!el) return null;
+  return el.closest(kind === 'task' ? '.task-item[draggable="true"]' : '.inbox-item[draggable="true"]');
+}
+
+function updateTouchDropHint(kind, targetEl, clientX, clientY) {
+  const selector = kind === 'task' ? '.task-item' : '.inbox-item';
+  clearDropHints(selector);
+  if (!targetEl) return true;
+  const rect = targetEl.getBoundingClientRect();
+  const before = (clientY - rect.top) < (rect.height / 2);
+  targetEl.classList.add(before ? 'drop-above' : 'drop-below');
+  touchDragState.targetEl = targetEl;
+  touchDragState.before = before;
+  return before;
+}
+
+function beginTouchDrag(kind, itemEl, pointerId) {
+  touchDragState.active = true;
+  touchDragState.kind = kind;
+  touchDragState.pointerId = pointerId;
+  touchDragState.sourceEl = itemEl;
+  touchDragState.sourceId = kind === 'task' ? itemEl.dataset.id : itemEl.dataset.knKey;
+  touchDragState.sourceSpace = kind === 'task' ? null : itemEl.dataset.knSpace;
+  touchDragState.targetEl = itemEl;
+  touchDragState.before = true;
+  itemEl.classList.add('dragging');
+}
+
+function cancelTouchDrag() {
+  if (!touchDragState.active) return;
+  if (touchDragState.sourceEl) touchDragState.sourceEl.classList.remove('dragging');
+  clearDropHints(touchDragState.kind === 'task' ? '.task-item' : '.inbox-item');
+  touchDragState.active = false;
+  touchDragState.kind = null;
+  touchDragState.pointerId = null;
+  touchDragState.sourceEl = null;
+  touchDragState.sourceId = null;
+  touchDragState.sourceSpace = null;
+  touchDragState.targetEl = null;
+  touchDragState.before = true;
+}
+
+async function commitTouchDrag(clientX, clientY) {
+  if (!touchDragState.active) return;
+  const { kind, sourceEl, sourceId, sourceSpace } = touchDragState;
+  const targetEl = getTouchDropTarget(kind, clientX, clientY);
+  const before = updateTouchDropHint(kind, targetEl, clientX, clientY);
+  if (!targetEl || !sourceEl) {
+    cancelTouchDrag();
+    return;
+  }
+
+  if (kind === 'task') {
+    const dstId = targetEl.dataset.id;
+    if (!sourceId || !dstId || sourceId === dstId) {
+      cancelTouchDrag();
+      return;
+    }
+    const srcIdx = state.tasks.findIndex(t => t.id === sourceId);
+    const dstIdx = state.tasks.findIndex(t => t.id === dstId);
+    if (srcIdx < 0 || dstIdx < 0) { cancelTouchDrag(); return; }
+    const [moved] = state.tasks.splice(srcIdx, 1);
+    const adjustedDstIdx = state.tasks.findIndex(t => t.id === dstId);
+    state.tasks.splice(before ? adjustedDstIdx : adjustedDstIdx + 1, 0, moved);
+    await persistTasks(state.currentDate, state.tasks);
+    render();
+    return;
+  }
+
+  const dstKey = targetEl.dataset.knKey;
+  if (!sourceId || !dstKey || sourceId === dstKey || sourceSpace !== targetEl.dataset.knSpace) {
+    cancelTouchDrag();
+    return;
+  }
+  const cards = state.kinopioGroups[sourceSpace] || [];
+  const srcKey = sourceId.split('::').slice(1).join('::');
+  const dstTextKey = dstKey.split('::').slice(1).join('::');
+  const srcIdx = cards.findIndex(c => textKey(c.text) === srcKey);
+  const dstIdx = cards.findIndex(c => textKey(c.text) === dstTextKey);
+  if (srcIdx < 0 || dstIdx < 0) { cancelTouchDrag(); return; }
+  const [moved] = cards.splice(srcIdx, 1);
+  const adjustedDstIdx = cards.findIndex(c => textKey(c.text) === dstTextKey);
+  cards.splice(before ? adjustedDstIdx : adjustedDstIdx + 1, 0, moved);
+  state.kinopioGroups[sourceSpace] = cards;
+  saveKnOrder(sourceSpace, cards.map(c => textKey(c.text)));
+  renderInboxTab();
+  bindDynamicEvents();
+}
+
+function bindTouchReorderListeners() {
+  if (document.__dfTouchReorderBound) return;
+  document.__dfTouchReorderBound = true;
+  document.addEventListener('pointermove', e => {
+    if (!touchDragState.active || e.pointerId !== touchDragState.pointerId) return;
+    e.preventDefault();
+    const targetEl = getTouchDropTarget(touchDragState.kind, e.clientX, e.clientY);
+    updateTouchDropHint(touchDragState.kind, targetEl, e.clientX, e.clientY);
+  }, { passive: false });
+  document.addEventListener('pointerup', e => {
+    if (!touchDragState.active || e.pointerId !== touchDragState.pointerId) return;
+    commitTouchDrag(e.clientX, e.clientY).catch(() => cancelTouchDrag());
+    cancelTouchDrag();
+  });
+  document.addEventListener('pointercancel', e => {
+    if (!touchDragState.active || e.pointerId !== touchDragState.pointerId) return;
+    cancelTouchDrag();
+  });
+}
+
+function reorderTaskByPointer(srcId, dstId, before) {
+  const srcIdx = state.tasks.findIndex(t => t.id === srcId);
+  const dstIdx = state.tasks.findIndex(t => t.id === dstId);
+  if (srcIdx < 0 || dstIdx < 0) return false;
+  const [moved] = state.tasks.splice(srcIdx, 1);
+  const adjustedDstIdx = state.tasks.findIndex(t => t.id === dstId);
+  state.tasks.splice(before ? adjustedDstIdx : adjustedDstIdx + 1, 0, moved);
+  return true;
+}
+
+function reorderInboxCardByPointer(space, srcKey, dstKey, before) {
+  const cards = state.kinopioGroups[space] || [];
+  const srcIdx = cards.findIndex(c => textKey(c.text) === srcKey);
+  if (srcIdx < 0) return false;
+  const [moved] = cards.splice(srcIdx, 1);
+  const adjustedDstIdx = cards.findIndex(c => textKey(c.text) === dstKey);
+  if (adjustedDstIdx < 0) {
+    cards.push(moved);
+  } else {
+    cards.splice(before ? adjustedDstIdx : adjustedDstIdx + 1, 0, moved);
+  }
+  state.kinopioGroups[space] = cards;
+  return true;
 }
 
 function bindTaskDragEvents() {
@@ -2337,17 +2528,19 @@ function bindTaskDragEvents() {
       if (!srcId || !dstId || srcId === dstId) return;
       const rect = item.getBoundingClientRect();
       const above = (e.clientY - rect.top) < (rect.height / 2);
-      const srcIdx = state.tasks.findIndex(t => t.id === srcId);
-      if (srcIdx < 0) return;
-      const [moved] = state.tasks.splice(srcIdx, 1);
-      let dstIdx = state.tasks.findIndex(t => t.id === dstId);
-      if (dstIdx < 0) { state.tasks.push(moved); }
-      else {
-        state.tasks.splice(above ? dstIdx : dstIdx + 1, 0, moved);
-      }
+      if (!reorderTaskByPointer(srcId, dstId, above)) return;
       await persistTasks(state.currentDate, state.tasks);
       render();
     });
+
+    const handle = item.querySelector('.drag-handle');
+    if (handle) {
+      handle.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse') return;
+        e.preventDefault();
+        beginTouchDrag('task', item, e.pointerId);
+      });
+    }
   });
 }
 
@@ -2388,69 +2581,22 @@ function bindInboxDragEvents() {
       // find indices by textKey (knKey = space::textKey)
       const srcKey = drag.key.split('::').slice(1).join('::');
       const dstKey = item.dataset.knKey.split('::').slice(1).join('::');
-      const srcIdx = cards.findIndex(c => textKey(c.text) === srcKey);
-      if (srcIdx < 0) return;
-      const [moved] = cards.splice(srcIdx, 1);
-      let dstIdx = cards.findIndex(c => textKey(c.text) === dstKey);
       const rect = item.getBoundingClientRect();
       const above = (e.clientY - rect.top) < (rect.height / 2);
-      if (dstIdx < 0) cards.push(moved);
-      else cards.splice(above ? dstIdx : dstIdx + 1, 0, moved);
-      state.kinopioGroups[space] = cards;
+      if (!reorderInboxCardByPointer(space, srcKey, dstKey, above)) return;
       saveKnOrder(space, cards.map(c => textKey(c.text)));
       renderInboxTab();
       bindDynamicEvents();
     });
-  });
-}
 
-function bindTemplateDragEvents() {
-  // only bind drag handlers when the manual sort is active
-  if (getTplSort() !== 'manual') return;
-  document.querySelectorAll('.template-card[draggable="true"]').forEach(card => {
-    card.addEventListener('dragstart', e => {
-      state.draggingTplId = card.dataset.tplId;
-      card.classList.add('dragging');
-      if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
-    });
-    card.addEventListener('dragend', () => {
-      card.classList.remove('dragging');
-      clearDropHints('.template-card');
-      state.draggingTplId = null;
-    });
-    card.addEventListener('dragover', e => {
-      if (!state.draggingTplId) return;
-      e.preventDefault();
-      if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
-      const rect = card.getBoundingClientRect();
-      const before = (e.clientX - rect.left) < (rect.width / 2);
-      clearDropHints('.template-card');
-      card.classList.add(before ? 'drop-before' : 'drop-after');
-    });
-    card.addEventListener('dragleave', () => { card.classList.remove('drop-before','drop-after'); });
-    card.addEventListener('drop', e => {
-      e.preventDefault();
-      const srcId = state.draggingTplId;
-      const dstId = card.dataset.tplId;
-      clearDropHints('.template-card');
-      if (!srcId || !dstId || srcId === dstId) return;
-
-      // take the currently visible ordering as the base, then reorder src relative to dst
-      const current = getSortedTemplates().map(t => t.id);
-      const srcIdx = current.indexOf(srcId);
-      if (srcIdx < 0) return;
-      current.splice(srcIdx, 1);
-      let dstIdx = current.indexOf(dstId);
-      if (dstIdx < 0) { current.push(srcId); }
-      else {
-        const rect = card.getBoundingClientRect();
-        const before = (e.clientX - rect.left) < (rect.width / 2);
-        current.splice(before ? dstIdx : dstIdx + 1, 0, srcId);
-      }
-      saveTplOrder(current);
-      renderTemplatesTab();
-      bindDynamicEvents();
-    });
+    const handle = item.querySelector('.drag-handle');
+    if (handle) {
+      handle.addEventListener('pointerdown', e => {
+        if (e.pointerType === 'mouse') return;
+        e.preventDefault();
+        beginTouchDrag('inbox', item, e.pointerId);
+      });
+    }
   });
 }
 
@@ -2465,7 +2611,6 @@ document.getElementById('logout-btn').addEventListener('click', doLogout);
 document.getElementById('prev-day-btn').addEventListener('click', ()=>setDate(isoAddDays(state.currentDate,-1)));
 document.getElementById('next-day-btn').addEventListener('click', ()=>setDate(isoAddDays(state.currentDate, 1)));
 document.getElementById('go-today-btn').addEventListener('click', ()=>setDate(isoToday()));
-document.getElementById('integrations-btn').addEventListener('click', () => openIntegrationsModal('kinopio'));
 
 document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>switchTab(tab.dataset.tab)));
 
@@ -2508,7 +2653,8 @@ document.getElementById('integrations-modal').addEventListener('keydown', e => {
 });
 
 document.getElementById('cal-refresh-btn').addEventListener('click',()=>{
-  if (!requireCalendarConfig(true)) {
+  if (!GCAL_SCRIPT_URL) {
+    openIntegrationsModal('gcal');
     state.calendarEvents = [];
     renderRightCol();
     return;
@@ -2549,6 +2695,7 @@ document.getElementById('tpl-tasks-input').addEventListener('keydown', e => {
 (async () => {
   loadTemplates();
   if (DEV_MODE) {
+    await loadIntegrationsConfig();
     document.getElementById('dev-mode-badge').style.display = 'inline-block';
     hideLogin();
     await setDate(isoToday());
@@ -2557,6 +2704,7 @@ document.getElementById('tpl-tasks-input').addEventListener('keydown', e => {
   try {
     const result = await apiPost({ action: 'check' });
     if (result.ok) {
+      await loadIntegrationsConfig();
       hideLogin();
       await setDate(isoToday());
     } else {
