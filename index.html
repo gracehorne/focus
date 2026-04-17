@@ -914,15 +914,7 @@
 // intended for local testing only — no server/DB/webhook needed.
 const DEV_MODE = new URLSearchParams(location.search).has('dev');
 
-// SECURITY: All sensitive configuration keys are now stored server-side in .env
-// The frontend no longer needs direct access to API keys — requests are proxied through api.php
-// DO NOT add sensitive keys here. Instead:
-// 1. Create a .env file with your API keys (see .env.example)
-// 2. Load them in api.php using environment variables
-// 3. Have the frontend proxy API requests through api.php
-//
-// If you are running this as a static app without api.php, the app falls back
-// to localStorage for integrations config.
+// Integration config is loaded at runtime (local/account/runtime), not hardcoded here.
 
 const INTEGRATIONS_STORE_KEY = 'df-integrations-config';
 const INTEGRATIONS_ACCOUNT_KEY = '__integrations__';
@@ -1001,7 +993,11 @@ async function loadIntegrationsConfig() {
   const runtime = getRuntimeIntegrationsConfig();
   const local = getLocalIntegrationsConfig();
   const account = await loadAccountIntegrationsConfig();
-  applyIntegrationsConfig({ ...local, ...account, ...runtime });
+  applyIntegrationsConfig({
+    LOG_WEBHOOK_URL: String(runtime.LOG_WEBHOOK_URL || account.LOG_WEBHOOK_URL || local.LOG_WEBHOOK_URL || '').trim(),
+    GCAL_SCRIPT_URL: String(runtime.GCAL_SCRIPT_URL || account.GCAL_SCRIPT_URL || local.GCAL_SCRIPT_URL || '').trim(),
+    KN_API_KEY: String(runtime.KN_API_KEY || account.KN_API_KEY || local.KN_API_KEY || '').trim(),
+  });
 }
 
 async function saveIntegrationsConfig() {
