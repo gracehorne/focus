@@ -114,6 +114,19 @@
       text-transform: lowercase;
     }
 
+    .app-name-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+    }
+    .app-name-btn:hover { color: var(--accent-dim); }
+    .app-name-btn:focus-visible {
+      outline: 1px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 3px;
+    }
+
     .date-nav { display: flex; align-items: center; gap: 8px; }
 
     .date-nav-btn {
@@ -271,6 +284,7 @@
     }
     .task-item:hover { background: rgba(255,255,255,0.025); }
     .task-item.kn-task { border-left: 2px solid rgba(202,158,230,0.35); padding-left: 12px; }
+    .task-item.done-task { opacity: 0.72; }
 
     .task-check {
       width: 14px; height: 14px;
@@ -286,6 +300,11 @@
       transition: border-color 0.1s;
     }
     .task-check:hover { border-color: var(--accent); }
+    .task-check.done {
+      border-color: var(--success);
+      background: rgba(166,209,137,0.15);
+      color: var(--success);
+    }
 
     .task-body { flex: 1; min-width: 0; }
 
@@ -299,6 +318,7 @@
     }
 
     .task-content { flex: 1; min-width: 0; word-break: break-word; overflow-wrap: anywhere; }
+    .task-item.done-task .task-content { text-decoration: line-through; opacity: 0.7; }
 
     .task-content-input {
       flex: 1;
@@ -728,7 +748,7 @@
 
 <div id="layout">
   <header id="app-header">
-    <span class="app-name">daily focus</span>
+    <button class="app-name app-name-btn" id="open-settings-btn" title="open settings">daily focus</button>
     <div class="date-nav">
       <button class="date-nav-btn" id="prev-day-btn">&#x2039;</button>
       <span class="date-label" id="date-label"></span>
@@ -918,6 +938,7 @@ const DEV_MODE = new URLSearchParams(location.search).has('dev');
 
 const INTEGRATIONS_STORE_KEY = 'df-integrations-config';
 const INTEGRATIONS_ACCOUNT_KEY = '__integrations__';
+const WEBHOOK_QUEUE_KEY = 'df-webhook-queue';
 
 let LOG_WEBHOOK_URL = '';
 let GCAL_SCRIPT_URL = '';
@@ -976,6 +997,14 @@ function applyIntegrationsConfig(config) {
   KN_API_KEY = String(config.KN_API_KEY || '').trim();
 }
 
+function firstNonEmpty(...values) {
+  for (const value of values) {
+    const trimmed = String(value || '').trim();
+    if (trimmed) return trimmed;
+  }
+  return '';
+}
+
 async function loadAccountIntegrationsConfig() {
   if (DEV_MODE) return {};
   try {
@@ -994,9 +1023,9 @@ async function loadIntegrationsConfig() {
   const local = getLocalIntegrationsConfig();
   const account = await loadAccountIntegrationsConfig();
   applyIntegrationsConfig({
-    LOG_WEBHOOK_URL: String(runtime.LOG_WEBHOOK_URL || account.LOG_WEBHOOK_URL || local.LOG_WEBHOOK_URL || '').trim(),
-    GCAL_SCRIPT_URL: String(runtime.GCAL_SCRIPT_URL || account.GCAL_SCRIPT_URL || local.GCAL_SCRIPT_URL || '').trim(),
-    KN_API_KEY: String(runtime.KN_API_KEY || account.KN_API_KEY || local.KN_API_KEY || '').trim(),
+    LOG_WEBHOOK_URL: firstNonEmpty(runtime.LOG_WEBHOOK_URL, account.LOG_WEBHOOK_URL, local.LOG_WEBHOOK_URL),
+    GCAL_SCRIPT_URL: firstNonEmpty(runtime.GCAL_SCRIPT_URL, account.GCAL_SCRIPT_URL, local.GCAL_SCRIPT_URL),
+    KN_API_KEY: firstNonEmpty(runtime.KN_API_KEY, account.KN_API_KEY, local.KN_API_KEY),
   });
 }
 
@@ -1059,6 +1088,9 @@ async function saveIntegrationsFromModal() {
   GCAL_SCRIPT_URL = (document.getElementById('gcal-script-url-input').value || '').trim();
   LOG_WEBHOOK_URL = (document.getElementById('log-webhook-url-input').value || '').trim();
   await saveIntegrationsConfig();
+  if (LOG_WEBHOOK_URL) {
+    flushWebhookQueue().catch(() => {});
+  }
   closeIntegrationsModal();
   if (GCAL_SCRIPT_URL && state.currentDate) {
     state.calendarEvents = null;
@@ -1725,7 +1757,6 @@ async function completeDone(actualTime, notes) {
   const actualTrimmed = (actualTime||'').trim();
   task.marker = 'DONE';
   if (actualTrimmed) task.actual = actualTrimmed;
-  state.tasks = state.tasks.filter(t=>t.id!==id);
   await persistTasks(state.currentDate, state.tasks);
   logToWebhook({ date:state.currentDate, task:stripPriority(task.content), estimate:task.estimate||'', actual:actualTrimmed, deferred:task.defers||0, notes:(notes||'').trim(), event:'done', priority:getPriority(task)||'' });
   if (task.fromKinopio && task.knCardId) {
@@ -1744,9 +1775,71 @@ async function completeDone(actualTime, notes) {
 
 async function logToWebhook(payload) {
   if (DEV_MODE) { console.log('[df dev] logToWebhook suppressed:', payload); return; }
+  if (!LOG_WEBHOOK_URL) {
+    console.warn('[df] webhook skipped: LOG_WEBHOOK_URL not configured');
+    return;
+  }
+  try {
+    await sendWebhookPayload(payload);
+    await flushWebhookQueue();
+  } catch (err) {
+    enqueueWebhookPayload(payload);
+    console.warn('[df] webhook failed; queued for retry', err);
+    showToast('sheet sync queued - will retry', 'info');
+  }
+}
+
+function readWebhookQueue() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(WEBHOOK_QUEUE_KEY) || '[]');
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeWebhookQueue(queue) {
+  try {
+    localStorage.setItem(WEBHOOK_QUEUE_KEY, JSON.stringify(queue));
+  } catch {
+    // ignore storage failures; user still gets immediate webhook attempts
+  }
+}
+
+function enqueueWebhookPayload(payload) {
+  const queue = readWebhookQueue();
+  queue.push({
+    payload,
+    queuedAt: new Date().toISOString(),
+  });
+  writeWebhookQueue(queue.slice(-200));
+}
+
+async function sendWebhookPayload(payload) {
+  const resp = await fetch(LOG_WEBHOOK_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'text/plain'},
+    body: JSON.stringify(payload),
+  });
+  if (!resp.ok) throw new Error('status ' + resp.status);
+}
+
+async function flushWebhookQueue() {
   if (!LOG_WEBHOOK_URL) return;
-  try { await fetch(LOG_WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)}); }
-  catch(err){ console.warn('[df] webhook failed',err); }
+  const queue = readWebhookQueue();
+  if (!queue.length) return;
+  const remaining = [];
+  for (const item of queue) {
+    try {
+      await sendWebhookPayload(item.payload);
+    } catch {
+      remaining.push(item);
+    }
+  }
+  writeWebhookQueue(remaining);
+  if (!remaining.length) {
+    showToast('sheet sync caught up', 'success', 1800);
+  }
 }
 
 async function skipTask(taskId) {
@@ -2086,7 +2179,12 @@ function renderFocusTab() {
   const deferred=getDeferredList(state.currentDate);
   if (state.tasks.length===0&&deferred.length===0) { el.innerHTML='<div class="empty-state">no tasks for this day.<br>add one above or use a template.</div>'; return; }
 
-  const items = state.tasks.map(task=>{
+  const openTasks = state.tasks.filter(task => task.marker !== 'DONE');
+  const doneTasks = state.tasks.filter(task => task.marker === 'DONE');
+  const orderedTasks = openTasks.concat(doneTasks);
+
+  const items = orderedTasks.map(task=>{
+    const isDone = task.marker === 'DONE';
     const isEditingEst=state.editingEstId===task.id, isEditingContent=state.editingContentId===task.id;
     const hasSubtasks=task.subtasks&&task.subtasks.length>0, collapsed=state.collapsedTasks.has(task.id), isTimerRunning=state.activeTimerUuid===task.id;
     const doingBadge=task.marker==='DOING'?'<span class="doing-badge">DOING</span>':'';
@@ -2105,19 +2203,19 @@ function renderFocusTab() {
     const contentHtml=isEditingContent
       ?`<input class="task-content-input" type="text" data-edit-id="${esc(task.id)}" value="${esc(task.content)}" autocomplete="off"/>`
       :`<span class="task-content" data-content-id="${esc(task.id)}" title="double-click to edit">${linkifyContent(displayContent)}</span>`;
-    const estTag=!isEditingEst&&task.estimate?`<span class="estimate-badge" data-est-id="${esc(task.id)}" title="click to edit">:${esc(task.estimate)}</span>`:'';
+    const estTag=!isDone&&!isEditingEst&&task.estimate?`<span class="estimate-badge" data-est-id="${esc(task.id)}" title="click to edit">:${esc(task.estimate)}</span>`:'';
     const estEdit=isEditingEst?`<div class="inline-edit" data-id="${esc(task.id)}"><input class="est-input" type="text" value="${esc(task.estimate)}" placeholder="e.g. 25m" autocomplete="off"><button class="save-btn">save</button><button class="cancel-est-btn">&#xd7;</button></div>`:'';
     const actHtml=task.actual?`<span class="actual-badge">&#x2713; ${esc(task.actual)}</span>`:'';
-    const timerBtn=`<button class="timer-btn${isTimerRunning?' running':''}" data-timer-id="${esc(task.id)}" title="${isTimerRunning?'stop timer':'start timer'}">${isTimerRunning?'&#x25a0;':'&#x25b6;'}</button>`;
-    const elapsedHtml=isTimerRunning?`<span class="task-elapsed" id="timer-elapsed-${esc(task.id)}">${formatElapsed(getElapsedSeconds())}</span>`:'';
+    const timerBtn=isDone?'':`<button class="timer-btn${isTimerRunning?' running':''}" data-timer-id="${esc(task.id)}" title="${isTimerRunning?'stop timer':'start timer'}">${isTimerRunning?'&#x25a0;':'&#x25b6;'}</button>`;
+    const elapsedHtml=!isDone&&isTimerRunning?`<span class="task-elapsed" id="timer-elapsed-${esc(task.id)}">${formatElapsed(getElapsedSeconds())}</span>`:'';
     const taskTitle=stripPriority(task.content);
     const isScheduled=(state.calendarEvents||[]).some(ev=>ev.title==='Focus: '+taskTitle);
-    const schedBtn=`<button class="sched-btn${isScheduled?' scheduled':''}" data-sched-id="${esc(task.id)}" title="${isScheduled?'already on calendar':'schedule as focus time'}">&#x2d35;</button>`;
+    const schedBtn=isDone?'':`<button class="sched-btn${isScheduled?' scheduled':''}" data-sched-id="${esc(task.id)}" title="${isScheduled?'already on calendar':'schedule as focus time'}">&#x2d35;</button>`;
     const hasMeta=estEdit||actHtml||dueBadge;
     return `
-      <div class="task-item${task.fromKinopio?' kn-task':''}" data-id="${esc(task.id)}" draggable="true">
+      <div class="task-item${task.fromKinopio?' kn-task':''}${isDone?' done-task':''}" data-id="${esc(task.id)}" draggable="true">
         <span class="drag-handle" title="drag to reorder">&#x22ee;&#x22ee;</span>
-        <div class="task-check" data-done-id="${esc(task.id)}" title="mark done"></div>
+        <div class="task-check${isDone?' done':''}" data-done-id="${esc(task.id)}" data-done-state="${isDone?'done':'todo'}" title="${isDone?'completed':'mark done'}">${isDone?'&#10003;':''}</div>
         <div class="task-body">
           <div class="task-text">${toggleHtml}${priBadge}${doingBadge}${carriedBadge}${deferBadge}${recurBadge}${contentHtml}${isEditingContent?'':estTag+timerBtn+elapsedHtml+schedBtn}</div>
           ${hasMeta?`<div class="task-meta">${estEdit}${actHtml}${dueBadge}</div>`:''}
@@ -2280,7 +2378,11 @@ async function setDate(isoStr) {
 // ============================================================
 
 function bindDynamicEvents() {
-  document.querySelectorAll('[data-done-id]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();markDone(el.dataset.doneId);}));
+  document.querySelectorAll('[data-done-id]').forEach(el=>el.addEventListener('click',e=>{
+    e.stopPropagation();
+    if (el.dataset.doneState === 'done') return;
+    markDone(el.dataset.doneId);
+  }));
 
   document.querySelectorAll('[data-content-id]').forEach(el=>el.addEventListener('dblclick',e=>{
     e.stopPropagation(); state.editingContentId=el.dataset.contentId; render();
@@ -2642,6 +2744,7 @@ document.getElementById('next-day-btn').addEventListener('click', ()=>setDate(is
 document.getElementById('go-today-btn').addEventListener('click', ()=>setDate(isoToday()));
 
 document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>switchTab(tab.dataset.tab)));
+document.getElementById('open-settings-btn').addEventListener('click',()=>openIntegrationsModal());
 
 document.getElementById('quick-add-input').addEventListener('keydown',e=>{if(e.key==='Enter')quickAddTask(e.target.value);if(e.key==='Escape'){e.target.value='';e.target.blur();}});
 document.getElementById('quick-add-btn').addEventListener('click',()=>quickAddTask(document.getElementById('quick-add-input').value));
@@ -2693,6 +2796,9 @@ document.getElementById('cal-refresh-btn').addEventListener('click',()=>{
   loadCalendarEvents(state.currentDate).catch(()=>{});
 });
 document.getElementById('kn-sync-btn').addEventListener('click',()=>syncFromKinopio({ interactive: true }));
+window.addEventListener('online', () => {
+  flushWebhookQueue().catch(() => {});
+});
 
 document.getElementById('recurring-save-btn').addEventListener('click', saveRecurringFromModal);
 document.getElementById('recurring-cancel-btn').addEventListener('click', closeRecurringModal);
@@ -2725,6 +2831,7 @@ document.getElementById('tpl-tasks-input').addEventListener('keydown', e => {
   loadTemplates();
   if (DEV_MODE) {
     await loadIntegrationsConfig();
+    flushWebhookQueue().catch(() => {});
     document.getElementById('dev-mode-badge').style.display = 'inline-block';
     hideLogin();
     await setDate(isoToday());
@@ -2734,6 +2841,7 @@ document.getElementById('tpl-tasks-input').addEventListener('keydown', e => {
     const result = await apiPost({ action: 'check' });
     if (result.ok) {
       await loadIntegrationsConfig();
+      flushWebhookQueue().catch(() => {});
       hideLogin();
       await setDate(isoToday());
     } else {
