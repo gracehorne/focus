@@ -1563,7 +1563,14 @@ async function syncFromKinopio(opts = {}) {
   if (btn) { btn.disabled=true; btn.textContent='↻ syncing\u2026'; }
   try {
     const spaces  = await knFetch('/user/todos');
-    const todayStr = state.currentDate;
+    const completedKeys = new Set(
+      (state.tasks || [])
+        .filter(t => {
+          const marker = String((t && t.marker) || '').toUpperCase();
+          return marker === 'DONE' || marker === 'CANCELED';
+        })
+        .map(t => textKey(t.content))
+    );
     const groups  = {};
     for (const space of (spaces||[])) {
       const spaceName  = space.name||'Untitled';
@@ -1577,7 +1584,8 @@ async function syncFromKinopio(opts = {}) {
         const parsed = knParseCard(rawCard, spaceName, lists[rawCard.listId]||null);
         if (!parsed) continue;
         if (parsed.id) saveKnCardId(parsed.text, parsed.id);
-        if (parsed.isDone && rawCard.updatedAt && rawCard.updatedAt.replace('Z','').split('T')[0] < todayStr) continue;
+        if (parsed.isDone) continue;
+        if (completedKeys.has(textKey(parsed.text))) continue;
         // skip cards we already marked done locally this session
         if (_knLocalDone.has(textKey(parsed.text))) continue;
         if (!groups[spaceName]) groups[spaceName]=[];
@@ -2132,7 +2140,17 @@ function renderFocusTab() {
 function renderInboxTab() {
   const el=document.getElementById('inbox-list');
   const groups=state.kinopioGroups;
-  const names=Object.keys(groups).sort((a,b)=>knSpaceSortKey(a).localeCompare(knSpaceSortKey(b))).filter(s=>(groups[s]||[]).length>0);
+  const completedKeys = new Set(
+    (state.tasks || [])
+      .filter(t => {
+        const marker = String((t && t.marker) || '').toUpperCase();
+        return marker === 'DONE' || marker === 'CANCELED';
+      })
+      .map(t => textKey(t.content))
+  );
+  const names=Object.keys(groups)
+    .sort((a,b)=>knSpaceSortKey(a).localeCompare(knSpaceSortKey(b)))
+    .filter(s=>(groups[s]||[]).some(card => card && !card.isDone && !completedKeys.has(textKey(card.text))));
   if (names.length===0){el.innerHTML='<div class="empty-state">no kinopio cards loaded.<br>click sync to pull from the API.</div>';return;}
   // apply any saved manual order per space (from drag-reorder)
   for (const space of names) {
@@ -2148,7 +2166,9 @@ function renderInboxTab() {
   }
   el.innerHTML=names.map(space=>{
     const dateISO=state.currentDate;
-    const cardsHtml=(groups[space]||[]).map(card=>{
+    const cardsHtml=(groups[space]||[])
+      .filter(card => card && !card.isDone && !completedKeys.has(textKey(card.text)))
+      .map(card=>{
       const markerClass=card.isDone?'done':'todo';
       const dueBadge=card.due?`<span class="due-badge ${dueDateClass(card.due)}" style="display:inline-block;margin-top:3px">${esc(formatDueDate(card.due))}</span>`:'';
       const added=isAddedToDay(dateISO,card.text);
