@@ -142,6 +142,18 @@
     }
     .today-btn:hover { color: var(--accent); border-color: var(--accent); }
 
+    .integrations-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 7px;
+    }
+    .integrations-btn:hover { color: var(--accent); border-color: var(--accent); }
+
     .sync-indicator {
       font-family: var(--font-mono);
       font-size: 10px;
@@ -718,6 +730,7 @@
       <button class="date-nav-btn" id="next-day-btn">&#x203a;</button>
     </div>
     <button class="today-btn" id="go-today-btn">today</button>
+    <button class="integrations-btn" id="integrations-btn">integrations</button>
     <span class="sync-indicator" id="sync-indicator">saving&#x2026;</span>
     <span id="dev-mode-badge" style="display:none;font-family:var(--font-mono);font-size:10px;color:var(--peach);border:1px solid rgba(239,159,118,0.5);background:rgba(239,159,118,0.1);padding:2px 7px;border-radius:3px;letter-spacing:0.05em;">DEV MODE</span>
     <button class="logout-btn" id="logout-btn" title="sign out">&#x2192; out</button>
@@ -846,6 +859,23 @@
 
 <div id="toast-container"></div>
 
+<!-- integrations modal -->
+<div id="integrations-modal" class="modal-backdrop" style="display:none">
+  <div class="modal-box wide">
+    <p>integrations</p>
+    <label class="modal-label" for="kn-api-key-input">kinopio api key</label>
+    <input type="password" id="kn-api-key-input" placeholder="paste kinopio api key" autocomplete="off" />
+    <label class="modal-label" for="gcal-script-url-input">google calendar script url</label>
+    <input type="text" id="gcal-script-url-input" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" />
+    <label class="modal-label" for="log-webhook-url-input">log webhook url <span style="opacity:0.5">(optional)</span></label>
+    <input type="text" id="log-webhook-url-input" placeholder="https://..." autocomplete="off" />
+    <div class="modal-actions">
+      <button id="integrations-cancel-btn">cancel</button>
+      <button id="integrations-save-btn" class="primary">save</button>
+    </div>
+  </div>
+</div>
+
 <!-- recurring task modal -->
 <div id="recurring-modal" class="modal-backdrop" style="display:none">
   <div class="modal-box">
@@ -888,6 +918,11 @@ const DEV_MODE = new URLSearchParams(location.search).has('dev');
 // 1. Create a .env file with your API keys (see .env.example)
 // 2. Load them in api.php using environment variables
 // 3. Have the frontend proxy API requests through api.php
+//
+// If you are running this as a static app without api.php, use the Integrations
+// button in the header to save runtime config into localStorage for this browser.
+
+const INTEGRATIONS_STORE_KEY = 'df-integrations-config';
 
 // Placeholder — these will be configured server-side
 let LOG_WEBHOOK_URL = '';
@@ -928,6 +963,75 @@ const DEFAULT_TEMPLATES = [
 let TEMPLATES = DEFAULT_TEMPLATES.slice();
 const TPL_STORE_KEY = 'df-templates';
 const TPL_ORDER_KEY = 'df-tpl-order';     // manual order: array of template ids
+
+function loadIntegrationsConfig() {
+  let saved = {};
+  try {
+    saved = JSON.parse(localStorage.getItem(INTEGRATIONS_STORE_KEY) || '{}');
+  } catch {}
+  const runtime = (typeof window !== 'undefined' && window.FOCUS_CONFIG && typeof window.FOCUS_CONFIG === 'object')
+    ? window.FOCUS_CONFIG
+    : {};
+
+  LOG_WEBHOOK_URL = String(runtime.LOG_WEBHOOK_URL || saved.LOG_WEBHOOK_URL || '').trim();
+  GCAL_SCRIPT_URL = String(runtime.GCAL_SCRIPT_URL || saved.GCAL_SCRIPT_URL || '').trim();
+  KN_API_KEY = String(runtime.KN_API_KEY || saved.KN_API_KEY || '').trim();
+}
+
+function saveIntegrationsConfig() {
+  const payload = {
+    LOG_WEBHOOK_URL: LOG_WEBHOOK_URL || '',
+    GCAL_SCRIPT_URL: GCAL_SCRIPT_URL || '',
+    KN_API_KEY: KN_API_KEY || '',
+  };
+  try { localStorage.setItem(INTEGRATIONS_STORE_KEY, JSON.stringify(payload)); } catch {}
+}
+
+function openIntegrationsModal(focusField) {
+  const modal = document.getElementById('integrations-modal');
+  document.getElementById('kn-api-key-input').value = KN_API_KEY || '';
+  document.getElementById('gcal-script-url-input').value = GCAL_SCRIPT_URL || '';
+  document.getElementById('log-webhook-url-input').value = LOG_WEBHOOK_URL || '';
+  modal.style.display = 'flex';
+  setTimeout(() => {
+    const target = focusField === 'gcal' ? 'gcal-script-url-input' : (focusField === 'log' ? 'log-webhook-url-input' : 'kn-api-key-input');
+    const el = document.getElementById(target);
+    if (el) el.focus();
+  }, 40);
+}
+
+function closeIntegrationsModal() {
+  document.getElementById('integrations-modal').style.display = 'none';
+}
+
+function saveIntegrationsFromModal() {
+  KN_API_KEY = (document.getElementById('kn-api-key-input').value || '').trim();
+  GCAL_SCRIPT_URL = (document.getElementById('gcal-script-url-input').value || '').trim();
+  LOG_WEBHOOK_URL = (document.getElementById('log-webhook-url-input').value || '').trim();
+  saveIntegrationsConfig();
+  closeIntegrationsModal();
+  showToast('integration settings saved', 'success');
+}
+
+function requireKinopioConfig(interactive=false) {
+  if (KN_API_KEY) return true;
+  if (interactive) {
+    showToast('add your kinopio api key first', 'info');
+    openIntegrationsModal('kinopio');
+  }
+  return false;
+}
+
+function requireCalendarConfig(interactive=false) {
+  if (GCAL_SCRIPT_URL) return true;
+  if (interactive) {
+    showToast('add your calendar script url first', 'info');
+    openIntegrationsModal('gcal');
+  }
+  return false;
+}
+
+loadIntegrationsConfig();
 const TPL_USES_KEY  = 'df-tpl-uses';      // use counts: { [id]: number }
 const TPL_SORT_KEY  = 'df-tpl-sort';      // 'manual' | 'popular' | 'alpha'
 
@@ -1350,7 +1454,8 @@ async function knMarkCardDone(cardText) {
   } catch (err) { console.warn('[df] knMarkCardDone failed:', err.message); }
 }
 
-async function syncFromKinopio() {
+async function syncFromKinopio(opts = {}) {
+  const interactive = !!opts.interactive;
   if (DEV_MODE) {
     // seed a couple of fake kinopio cards so the ui is exercisable
     state.kinopioGroups = {
@@ -1363,6 +1468,7 @@ async function syncFromKinopio() {
     showToast('dev mode: fake kinopio data loaded','info');
     return;
   }
+  if (!requireKinopioConfig(interactive)) return;
   const btn = document.getElementById('kn-sync-btn');
   if (btn) { btn.disabled=true; btn.textContent='↻ syncing\u2026'; }
   try {
@@ -1405,10 +1511,10 @@ async function syncFromKinopio() {
 
 async function loadCalendarEvents(dateISO) {
   if (DEV_MODE) { state.calendarEvents = []; renderRightCol(); return; }
-  if (!GCAL_SCRIPT_URL) {
+  if (!requireCalendarConfig(false)) {
     state.calendarEvents = [];
     const calEl = document.getElementById('cal-events');
-    if (calEl) calEl.innerHTML = '<div class="cal-loading" style="font-size:11px">calendar not configured &mdash; set GCAL_SCRIPT_URL in the source</div>';
+    if (calEl) calEl.innerHTML = '<div class="cal-loading" style="font-size:11px">calendar not configured &mdash; set it in integrations</div>';
     return;
   }
   try {
@@ -1465,6 +1571,7 @@ async function confirmScheduleTask() {
       showToast(`[dev] ${fmtHM(parsed.h,parsed.min)}\u2013${fmtCalTime(end.toISOString())} (${formatMinutes(durationMins)})`,'success');
       return;
     }
+    if (!requireCalendarConfig(true)) return;
     const resp = await fetch(GCAL_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'create_focus_time',title,start:start.toISOString(),end:end.toISOString()})});
     if (!resp.ok) throw new Error('status '+resp.status);
     const result = await resp.json();
@@ -2305,6 +2412,7 @@ document.getElementById('logout-btn').addEventListener('click', doLogout);
 document.getElementById('prev-day-btn').addEventListener('click', ()=>setDate(isoAddDays(state.currentDate,-1)));
 document.getElementById('next-day-btn').addEventListener('click', ()=>setDate(isoAddDays(state.currentDate, 1)));
 document.getElementById('go-today-btn').addEventListener('click', ()=>setDate(isoToday()));
+document.getElementById('integrations-btn').addEventListener('click', () => openIntegrationsModal('kinopio'));
 
 document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>switchTab(tab.dataset.tab)));
 
@@ -2339,8 +2447,24 @@ document.getElementById('schedule-confirm-btn').addEventListener('click',confirm
 document.getElementById('schedule-cancel-btn').addEventListener('click',()=>{document.getElementById('schedule-modal').style.display='none';state.schedulingId=null;});
 document.getElementById('schedule-time-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmScheduleTask();if(e.key==='Escape'){document.getElementById('schedule-modal').style.display='none';state.schedulingId=null;}});
 
-document.getElementById('cal-refresh-btn').addEventListener('click',()=>{state.calendarEvents=null;renderRightCol();loadCalendarEvents(state.currentDate).catch(()=>{});});
-document.getElementById('kn-sync-btn').addEventListener('click',()=>syncFromKinopio());
+document.getElementById('integrations-save-btn').addEventListener('click', saveIntegrationsFromModal);
+document.getElementById('integrations-cancel-btn').addEventListener('click', closeIntegrationsModal);
+document.getElementById('integrations-modal').addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeIntegrationsModal();
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) saveIntegrationsFromModal();
+});
+
+document.getElementById('cal-refresh-btn').addEventListener('click',()=>{
+  if (!requireCalendarConfig(true)) {
+    state.calendarEvents = [];
+    renderRightCol();
+    return;
+  }
+  state.calendarEvents=null;
+  renderRightCol();
+  loadCalendarEvents(state.currentDate).catch(()=>{});
+});
+document.getElementById('kn-sync-btn').addEventListener('click',()=>syncFromKinopio({ interactive: true }));
 
 document.getElementById('recurring-save-btn').addEventListener('click', saveRecurringFromModal);
 document.getElementById('recurring-cancel-btn').addEventListener('click', closeRecurringModal);
