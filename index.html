@@ -882,12 +882,17 @@
 // intended for local testing only — no server/DB/webhook needed.
 const DEV_MODE = new URLSearchParams(location.search).has('dev');
 
-const LOG_WEBHOOK_URL = 'REDACTED';
-// set GCAL_SCRIPT_URL to your Google Apps Script that handles get_calendar_events / create_focus_time.
-// if it is the same GAS as LOG_WEBHOOK_URL, set it equal; if your logging script does not handle
-// calendar actions, point this at a separate deployment that does.
-const GCAL_SCRIPT_URL = 'REDACTED';
-const KN_API_KEY = 'REDACTED';
+// SECURITY: All sensitive configuration keys are now stored server-side in .env
+// The frontend no longer needs direct access to API keys — requests are proxied through api.php
+// DO NOT add sensitive keys here. Instead:
+// 1. Create a .env file with your API keys (see .env.example)
+// 2. Load them in api.php using environment variables
+// 3. Have the frontend proxy API requests through api.php
+
+// Placeholder — these will be configured server-side
+let LOG_WEBHOOK_URL = '';
+let GCAL_SCRIPT_URL = '';
+let KN_API_KEY = '';
 const KN_HIDDEN_SPACES = new Set(['inbox']);
 const KN_LIST_STATUS_MAP = {
   'todo':'TODO','active':'DOING','doing':'DOING','now':'NOW','later':'LATER',
