@@ -1441,17 +1441,41 @@ async function knFetch(path) {
 
 function knSpaceSortKey(n) { if(/broom/i.test(n))return'0'+n; if(/ephemera/i.test(n))return'2'+n; return'1'+n; }
 
-async function knMarkCardDone(cardText) {
+function findKnCardIdInState(cardText) {
+  const key = textKey(cardText);
+  for (const cards of Object.values(state.kinopioGroups || {})) {
+    for (const card of (cards || [])) {
+      if (textKey(card.text) === key && card.id) return card.id;
+    }
+  }
+  return null;
+}
+
+async function knMarkCardDone(cardText, cardId = null) {
   if (DEV_MODE) { console.log('[df dev] knMarkCardDone suppressed:', cardText); return; }
-  const cardId = getKnCardId(cardText);
-  if (!cardId) return;
-  try {
-    await fetch('https://api.kinopio.club/card', {
+  const resolvedId = cardId || getKnCardId(cardText) || findKnCardIdInState(cardText);
+  if (!resolvedId) throw new Error('could not resolve kinopio card id');
+  saveKnCardId(cardText, resolvedId);
+
+  let resp = await fetch('https://api.kinopio.club/card', {
+    method: 'PATCH',
+    headers: { 'Authorization': KN_API_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: resolvedId, isDone: true }),
+  });
+
+  if (!resp.ok) {
+    // Some Kinopio API versions rely on checkbox text rather than isDone.
+    resp = await fetch('https://api.kinopio.club/card', {
       method: 'PATCH',
       headers: { 'Authorization': KN_API_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: cardId, isDone: true }),
+      body: JSON.stringify({ id: resolvedId, name: `[x] ${cardText}` }),
     });
-  } catch (err) { console.warn('[df] knMarkCardDone failed:', err.message); }
+  }
+
+  if (!resp.ok) {
+    const details = await resp.text().catch(() => '');
+    throw new Error(`kinopio update failed (${resp.status})${details ? ': ' + details : ''}`);
+  }
 }
 
 async function syncFromKinopio(opts = {}) {
@@ -1631,8 +1655,12 @@ async function completeDone(actualTime, notes) {
   await persistTasks(state.currentDate, state.tasks);
   logToWebhook({ date:state.currentDate, task:stripPriority(task.content), estimate:task.estimate||'', actual:actualTrimmed, deferred:task.defers||0, notes:(notes||'').trim(), event:'done', priority:getPriority(task)||'' });
   if (task.fromKinopio && task.knCardId) {
-    await knMarkCardDone(task.content);
-    for (const s of Object.keys(state.kinopioGroups)) state.kinopioGroups[s]=(state.kinopioGroups[s]||[]).filter(c=>c.text!==task.content);
+    try {
+      await knMarkCardDone(task.content, task.knCardId);
+    } catch (err) {
+      showToast('kinopio update failed: ' + (err.message || err), 'error');
+    }
+    for (const s of Object.keys(state.kinopioGroups)) state.kinopioGroups[s]=(state.kinopioGroups[s]||[]).filter(c=>textKey(c.text)!==textKey(task.content));
     // force a re-sync so kinopio state is confirmed (and the card does not re-appear on next pull)
     syncFromKinopio().catch(() => {});
   }
@@ -1735,12 +1763,19 @@ const _knLocalDone = new Set();
 
 async function markKinopioItemDone(cardText, cardId) {
   if (cardId) saveKnCardId(cardText, cardId);
+  const k = textKey(cardText);
   // optimistically suppress this card in future syncs for this session
-  _knLocalDone.add(textKey(cardText));
-  await knMarkCardDone(cardText);
-  for (const s of Object.keys(state.kinopioGroups)) state.kinopioGroups[s]=(state.kinopioGroups[s]||[]).filter(c=>c.text!==cardText);
+  _knLocalDone.add(k);
+  try {
+    await knMarkCardDone(cardText, cardId || null);
+  } catch (err) {
+    _knLocalDone.delete(k);
+    showToast('kinopio update failed: ' + (err.message || err), 'error');
+    return;
+  }
+  for (const s of Object.keys(state.kinopioGroups)) state.kinopioGroups[s]=(state.kinopioGroups[s]||[]).filter(c=>textKey(c.text)!==k);
   const before = state.tasks.length;
-  state.tasks = state.tasks.filter(t=>textKey(t.content)!==textKey(cardText));
+  state.tasks = state.tasks.filter(t=>textKey(t.content)!==k);
   if (state.tasks.length!==before) await persistTasks(state.currentDate, state.tasks);
   render();
   showToast('marked done in kinopio','success');
