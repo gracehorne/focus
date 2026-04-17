@@ -887,11 +887,12 @@
     <p>integrations</p>
     <label class="modal-label" for="kn-api-key-input">kinopio api key</label>
     <input type="password" id="kn-api-key-input" placeholder="paste kinopio api key" autocomplete="off" />
-    <label class="modal-label" for="gcal-script-url-input">google calendar script url</label>
+    <label class="modal-label" for="gcal-script-url-input">calendar integration script url</label>
     <input type="text" id="gcal-script-url-input" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" />
-    <label class="modal-label" for="log-webhook-url-input">log webhook url <span style="opacity:0.5">(optional)</span></label>
-    <input type="text" id="log-webhook-url-input" placeholder="https://..." autocomplete="off" />
+    <label class="modal-label" for="log-webhook-url-input">time tracking webhook url <span style="opacity:0.5">(optional)</span></label>
+    <input type="text" id="log-webhook-url-input" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" />
     <div class="modal-actions">
+      <button id="integrations-test-btn">test time tracking</button>
       <button id="integrations-cancel-btn">cancel</button>
       <button id="integrations-save-btn" class="primary">save</button>
     </div>
@@ -1032,6 +1033,17 @@ function isGoogleSheetUrl(value) {
   }
 }
 
+function getWebhookValidationError(value) {
+  if (!value) return '';
+  if (isGoogleSheetUrl(value)) {
+    return 'time tracking webhook must be a Google Apps Script web app URL, not a sheet URL';
+  }
+  if (!isGoogleAppsScriptUrl(value)) {
+    return 'time tracking webhook URL must look like script.google.com/macros/s/.../exec';
+  }
+  return '';
+}
+
 function applyIntegrationsConfig(config) {
   LOG_WEBHOOK_URL = normalizeSecret(config.LOG_WEBHOOK_URL);
   GCAL_SCRIPT_URL = normalizeSecret(config.GCAL_SCRIPT_URL);
@@ -1129,21 +1141,15 @@ async function saveIntegrationsFromModal() {
   GCAL_SCRIPT_URL = normalizeSecret(document.getElementById('gcal-script-url-input').value || '');
   LOG_WEBHOOK_URL = normalizeSecret(document.getElementById('log-webhook-url-input').value || '');
 
-  if (LOG_WEBHOOK_URL) {
-    if (isGoogleSheetUrl(LOG_WEBHOOK_URL)) {
-      showToast('log webhook must be a Google Apps Script web app URL, not a sheet URL', 'error', 3500);
-      openIntegrationsModal('log');
-      return;
-    }
-    if (!isGoogleAppsScriptUrl(LOG_WEBHOOK_URL)) {
-      showToast('log webhook URL must look like script.google.com/macros/s/.../exec', 'error', 3500);
-      openIntegrationsModal('log');
-      return;
-    }
+  const webhookError = getWebhookValidationError(LOG_WEBHOOK_URL);
+  if (webhookError) {
+    showToast(webhookError, 'error', 3500);
+    openIntegrationsModal('log');
+    return;
   }
 
   if (GCAL_SCRIPT_URL && !isGoogleAppsScriptUrl(GCAL_SCRIPT_URL)) {
-    showToast('calendar script URL must look like script.google.com/macros/s/.../exec', 'error', 3500);
+    showToast('calendar integration URL must look like script.google.com/macros/s/.../exec', 'error', 3500);
     openIntegrationsModal('gcal');
     return;
   }
@@ -1161,6 +1167,39 @@ async function saveIntegrationsFromModal() {
   showToast('integration settings saved', 'success');
 }
 
+async function testWebhookFromModal() {
+  const draftWebhookUrl = normalizeSecret(document.getElementById('log-webhook-url-input').value || '');
+  if (!draftWebhookUrl) {
+    showToast('enter time tracking webhook URL first', 'info');
+    openIntegrationsModal('log');
+    return;
+  }
+  const webhookError = getWebhookValidationError(draftWebhookUrl);
+  if (webhookError) {
+    showToast(webhookError, 'error', 3500);
+    openIntegrationsModal('log');
+    return;
+  }
+
+  const testPayload = {
+    date: state.currentDate || isoToday(),
+    task: 'webhook connectivity test',
+    estimate: '',
+    actual: '',
+    deferred: 0,
+    notes: 'manual test from integrations modal',
+    event: 'test',
+    priority: '',
+  };
+
+  try {
+    await sendWebhookPayload(testPayload, draftWebhookUrl);
+    showToast('time tracking test sent - check sheet for a new test row', 'success', 3200);
+  } catch (err) {
+    showToast('time tracking test failed: ' + (err.message || err), 'error', 3800);
+  }
+}
+
 function requireKinopioConfig(interactive=false) {
   if (KN_API_KEY) return true;
   if (interactive) {
@@ -1173,7 +1212,7 @@ function requireKinopioConfig(interactive=false) {
 function requireCalendarConfig(interactive=false) {
   if (GCAL_SCRIPT_URL) return true;
   if (interactive) {
-    showToast('add your calendar script url first', 'info');
+    showToast('add your calendar integration URL first', 'info');
     openIntegrationsModal('gcal');
   }
   return false;
@@ -1846,7 +1885,7 @@ async function logToWebhook(payload) {
   } catch (err) {
     enqueueWebhookPayload(payload);
     console.warn('[df] webhook failed; queued for retry', err);
-    showToast('sheet sync queued - will retry', 'info');
+    showToast('time tracking sync queued - will retry', 'info');
   }
 }
 
@@ -1876,19 +1915,46 @@ function enqueueWebhookPayload(payload) {
   writeWebhookQueue(queue.slice(-200));
 }
 
-async function sendWebhookPayload(payload) {
-  if (isGoogleSheetUrl(LOG_WEBHOOK_URL)) {
+async function sendWebhookPayload(payload, webhookUrl = LOG_WEBHOOK_URL) {
+  if (isGoogleSheetUrl(webhookUrl)) {
     throw new Error('LOG_WEBHOOK_URL points to a Google Sheet, not a script web app endpoint');
   }
-  if (!isGoogleAppsScriptUrl(LOG_WEBHOOK_URL)) {
+  if (!isGoogleAppsScriptUrl(webhookUrl)) {
     throw new Error('LOG_WEBHOOK_URL is not a valid Google Apps Script web app URL');
   }
-  const resp = await fetch(LOG_WEBHOOK_URL, {
-    method: 'POST',
-    headers: {'Content-Type':'text/plain'},
-    body: JSON.stringify(payload),
-  });
-  if (!resp.ok) throw new Error('status ' + resp.status);
+  const body = JSON.stringify(payload);
+
+  // Apps Script web apps can accept the request but block CORS response reads.
+  // Use beacon first so delivery can still succeed without a readable response.
+  if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+    try {
+      const blob = new Blob([body], { type: 'text/plain;charset=UTF-8' });
+      if (navigator.sendBeacon(webhookUrl, blob)) return;
+    } catch {
+      // fall back to fetch transport below
+    }
+  }
+
+  try {
+    const resp = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {'Content-Type':'text/plain'},
+      body,
+      keepalive: true,
+    });
+    if (resp.ok) return;
+    throw new Error('status ' + resp.status);
+  } catch (err) {
+    // Last resort: no-cors sends the request even if response is opaque.
+    // If this resolves, treat as delivered and avoid permanent queue churn.
+    await fetch(webhookUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type':'text/plain'},
+      body,
+      keepalive: true,
+    });
+  }
 }
 
 async function flushWebhookQueue() {
@@ -1905,7 +1971,7 @@ async function flushWebhookQueue() {
   }
   writeWebhookQueue(remaining);
   if (!remaining.length) {
-    showToast('sheet sync caught up', 'success', 1800);
+    showToast('time tracking sync caught up', 'success', 1800);
   }
 }
 
@@ -2845,6 +2911,7 @@ document.getElementById('schedule-cancel-btn').addEventListener('click',()=>{doc
 document.getElementById('schedule-time-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmScheduleTask();if(e.key==='Escape'){document.getElementById('schedule-modal').style.display='none';state.schedulingId=null;}});
 
 document.getElementById('integrations-save-btn').addEventListener('click', saveIntegrationsFromModal);
+document.getElementById('integrations-test-btn').addEventListener('click', testWebhookFromModal);
 document.getElementById('integrations-cancel-btn').addEventListener('click', closeIntegrationsModal);
 document.getElementById('integrations-modal').addEventListener('keydown', e => {
   if (e.key === 'Escape') closeIntegrationsModal();
