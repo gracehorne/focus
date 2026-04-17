@@ -991,10 +991,51 @@ function getRuntimeIntegrationsConfig() {
     : {};
 }
 
+function isPlaceholderSecret(value) {
+  const v = String(value || '').trim().toLowerCase();
+  if (!v) return true;
+  return (
+    v === 'your-logging-gas-url-here' ||
+    v === 'your-calendar-gas-url-here' ||
+    v === 'your-kanboard-api-key-here' ||
+    v.includes('your-script-id') ||
+    v.includes('your-calendar-script-id')
+  );
+}
+
+function normalizeSecret(value) {
+  const trimmed = String(value || '').trim();
+  return isPlaceholderSecret(trimmed) ? '' : trimmed;
+}
+
+function isGoogleAppsScriptUrl(value) {
+  const v = String(value || '').trim();
+  if (!v) return false;
+  try {
+    const u = new URL(v);
+    if (u.protocol !== 'https:') return false;
+    if (u.hostname !== 'script.google.com') return false;
+    return /\/macros\/s\/.+\/(exec|dev)\/?$/i.test(u.pathname);
+  } catch {
+    return false;
+  }
+}
+
+function isGoogleSheetUrl(value) {
+  const v = String(value || '').trim();
+  if (!v) return false;
+  try {
+    const u = new URL(v);
+    return u.hostname === 'docs.google.com' && /^\/spreadsheets\//i.test(u.pathname);
+  } catch {
+    return false;
+  }
+}
+
 function applyIntegrationsConfig(config) {
-  LOG_WEBHOOK_URL = String(config.LOG_WEBHOOK_URL || '').trim();
-  GCAL_SCRIPT_URL = String(config.GCAL_SCRIPT_URL || '').trim();
-  KN_API_KEY = String(config.KN_API_KEY || '').trim();
+  LOG_WEBHOOK_URL = normalizeSecret(config.LOG_WEBHOOK_URL);
+  GCAL_SCRIPT_URL = normalizeSecret(config.GCAL_SCRIPT_URL);
+  KN_API_KEY = normalizeSecret(config.KN_API_KEY);
 }
 
 function firstNonEmpty(...values) {
@@ -1084,9 +1125,29 @@ function closeIntegrationsModal() {
 }
 
 async function saveIntegrationsFromModal() {
-  KN_API_KEY = (document.getElementById('kn-api-key-input').value || '').trim();
-  GCAL_SCRIPT_URL = (document.getElementById('gcal-script-url-input').value || '').trim();
-  LOG_WEBHOOK_URL = (document.getElementById('log-webhook-url-input').value || '').trim();
+  KN_API_KEY = normalizeSecret(document.getElementById('kn-api-key-input').value || '');
+  GCAL_SCRIPT_URL = normalizeSecret(document.getElementById('gcal-script-url-input').value || '');
+  LOG_WEBHOOK_URL = normalizeSecret(document.getElementById('log-webhook-url-input').value || '');
+
+  if (LOG_WEBHOOK_URL) {
+    if (isGoogleSheetUrl(LOG_WEBHOOK_URL)) {
+      showToast('log webhook must be a Google Apps Script web app URL, not a sheet URL', 'error', 3500);
+      openIntegrationsModal('log');
+      return;
+    }
+    if (!isGoogleAppsScriptUrl(LOG_WEBHOOK_URL)) {
+      showToast('log webhook URL must look like script.google.com/macros/s/.../exec', 'error', 3500);
+      openIntegrationsModal('log');
+      return;
+    }
+  }
+
+  if (GCAL_SCRIPT_URL && !isGoogleAppsScriptUrl(GCAL_SCRIPT_URL)) {
+    showToast('calendar script URL must look like script.google.com/macros/s/.../exec', 'error', 3500);
+    openIntegrationsModal('gcal');
+    return;
+  }
+
   await saveIntegrationsConfig();
   if (LOG_WEBHOOK_URL) {
     flushWebhookQueue().catch(() => {});
@@ -1816,6 +1877,12 @@ function enqueueWebhookPayload(payload) {
 }
 
 async function sendWebhookPayload(payload) {
+  if (isGoogleSheetUrl(LOG_WEBHOOK_URL)) {
+    throw new Error('LOG_WEBHOOK_URL points to a Google Sheet, not a script web app endpoint');
+  }
+  if (!isGoogleAppsScriptUrl(LOG_WEBHOOK_URL)) {
+    throw new Error('LOG_WEBHOOK_URL is not a valid Google Apps Script web app URL');
+  }
   const resp = await fetch(LOG_WEBHOOK_URL, {
     method: 'POST',
     headers: {'Content-Type':'text/plain'},
