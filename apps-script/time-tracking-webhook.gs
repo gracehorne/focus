@@ -3,7 +3,7 @@
 // Deploy this as a Web App and use its /exec URL in the app field:
 //   Time tracking webhook URL
 //
-// Recommended when this script is container-bound to your tracking spreadsheet.
+// This script is intended to be container-bound to your tracking spreadsheet.
 
 function doPost(e) {
   var data;
@@ -18,11 +18,9 @@ function doPost(e) {
 
 function handleLogTask(data) {
   try {
-    // If container-bound, use the active spreadsheet.
-    // If standalone, replace with SpreadsheetApp.openById('YOUR_SHEET_ID').
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     if (!ss) {
-      return jsonResponse({ status: 'error', message: 'no active spreadsheet; bind this script to the sheet or use openById' });
+      return jsonResponse({ status: 'error', message: 'no active spreadsheet; this script must be bound to the target Google Sheet' });
     }
 
     var sheet = ss.getSheetByName('Log') || ss.getSheets()[0];

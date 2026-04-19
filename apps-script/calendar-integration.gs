@@ -6,6 +6,11 @@
 // Handles:
 //   1) POST { action: 'get_calendar_events', date: 'YYYY-MM-DD' }
 //   2) POST { action: 'create_focus_time', title, start, end }
+//   3) GET  { action, ... , callback } for JSONP/mobile fallback
+
+function doGet(e) {
+  return handleRequest(e);
+}
 
 // Optional: set explicit calendar IDs. If empty, uses default calendar only.
 var CAL_IDS = [
@@ -14,22 +19,60 @@ var CAL_IDS = [
 ];
 
 function doPost(e) {
+  return handleRequest(e);
+}
+
+function handleRequest(e) {
   var data;
   try {
-    data = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+    data = parseRequestData(e);
   } catch (_) {
     return jsonResponse({ status: 'error', message: 'invalid JSON' });
   }
 
+  var result;
   if (data.action === 'get_calendar_events') {
-    return handleGetEvents(data);
+    result = handleGetEvents(data);
+  } else if (data.action === 'create_focus_time') {
+    result = handleCreateFocusTime(data);
+  } else {
+    result = jsonResponse({ status: 'error', message: 'unknown action' });
   }
 
-  if (data.action === 'create_focus_time') {
-    return handleCreateFocusTime(data);
-  }
+  return respond(result, e);
+}
 
-  return jsonResponse({ status: 'error', message: 'unknown action' });
+function parseRequestData(e) {
+  var body = (e && e.postData && e.postData.contents) || '';
+  if (body) {
+    try {
+      return JSON.parse(body);
+    } catch (_) {
+      return parseQueryData(e);
+    }
+  }
+  return parseQueryData(e);
+}
+
+function parseQueryData(e) {
+  var params = (e && e.parameter) || {};
+  return {
+    action: params.action || '',
+    date: params.date || '',
+    title: params.title || '',
+    start: params.start || '',
+    end: params.end || ''
+  };
+}
+
+function respond(result, e) {
+  var callback = e && e.parameter && e.parameter.callback;
+  if (callback && /^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callback)) {
+    return ContentService
+      .createTextOutput(callback + '(' + result.getContent() + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return result;
 }
 
 function handleGetEvents(data) {
