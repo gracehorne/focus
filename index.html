@@ -928,11 +928,11 @@
   <div class="modal-box wide">
     <p>integrations</p>
     <label class="modal-label" for="kn-api-key-input">kinopio api key</label>
-    <input type="password" id="kn-api-key-input" placeholder="paste kinopio api key" autocomplete="off" />
+    <input type="password" id="kn-api-key-input" placeholder="paste kinopio api key" autocomplete="off" autocorrect="off" spellcheck="false" />
     <label class="modal-label" for="gcal-script-url-input">calendar integration script url</label>
-    <input type="text" id="gcal-script-url-input" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" />
+    <input type="text" id="gcal-script-url-input" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" />
     <label class="modal-label" for="log-webhook-url-input">time tracking webhook url <span style="opacity:0.5">(optional)</span></label>
-    <input type="text" id="log-webhook-url-input" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" />
+    <input type="text" id="log-webhook-url-input" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" autocorrect="off" spellcheck="false" inputmode="url" />
     <div class="modal-actions">
       <button id="integrations-test-btn">test time tracking</button>
       <button id="integrations-cancel-btn">cancel</button>
@@ -1071,7 +1071,13 @@ let TEMPLATES = DEFAULT_TEMPLATES.map(t => ({
 const TPL_STORE_KEY = 'df-templates';
 function getLocalIntegrationsConfig() {
   try {
-    return JSON.parse(localStorage.getItem(INTEGRATIONS_STORE_KEY) || '{}');
+    const raw = localStorage.getItem(INTEGRATIONS_STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {
+    // continue to session fallback below
+  }
+  try {
+    return JSON.parse(sessionStorage.getItem(INTEGRATIONS_STORE_KEY) || '{}');
   } catch {
     return {};
   }
@@ -1098,6 +1104,15 @@ function isPlaceholderSecret(value) {
 function normalizeSecret(value) {
   const trimmed = String(value || '').trim();
   return isPlaceholderSecret(trimmed) ? '' : trimmed;
+}
+
+function normalizeMobileInput(value) {
+  return String(value || '')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function isGoogleAppsScriptUrl(value) {
@@ -1149,6 +1164,14 @@ function firstNonEmpty(...values) {
   return '';
 }
 
+function firstConfigured(...values) {
+  for (const value of values) {
+    const normalized = normalizeSecret(value);
+    if (normalized) return normalized;
+  }
+  return '';
+}
+
 async function loadAccountIntegrationsConfig() {
   if (DEV_MODE) return {};
   try {
@@ -1167,9 +1190,9 @@ async function loadIntegrationsConfig() {
   const local = getLocalIntegrationsConfig();
   const account = await loadAccountIntegrationsConfig();
   applyIntegrationsConfig({
-    LOG_WEBHOOK_URL: firstNonEmpty(runtime.LOG_WEBHOOK_URL, account.LOG_WEBHOOK_URL, local.LOG_WEBHOOK_URL),
-    GCAL_SCRIPT_URL: firstNonEmpty(runtime.GCAL_SCRIPT_URL, account.GCAL_SCRIPT_URL, local.GCAL_SCRIPT_URL),
-    KN_API_KEY: firstNonEmpty(runtime.KN_API_KEY, account.KN_API_KEY, local.KN_API_KEY),
+    LOG_WEBHOOK_URL: firstConfigured(local.LOG_WEBHOOK_URL, account.LOG_WEBHOOK_URL, runtime.LOG_WEBHOOK_URL),
+    GCAL_SCRIPT_URL: firstConfigured(local.GCAL_SCRIPT_URL, account.GCAL_SCRIPT_URL, runtime.GCAL_SCRIPT_URL),
+    KN_API_KEY: firstConfigured(local.KN_API_KEY, account.KN_API_KEY, runtime.KN_API_KEY),
   });
 }
 
@@ -1180,7 +1203,17 @@ async function saveIntegrationsConfig() {
     KN_API_KEY: KN_API_KEY || '',
   };
   let savedToBackend = false;
-  try { localStorage.setItem(INTEGRATIONS_STORE_KEY, JSON.stringify(payload)); } catch {}
+  let savedLocally = false;
+  try {
+    localStorage.setItem(INTEGRATIONS_STORE_KEY, JSON.stringify(payload));
+    savedLocally = true;
+  } catch {}
+  if (!savedLocally) {
+    try {
+      sessionStorage.setItem(INTEGRATIONS_STORE_KEY, JSON.stringify(payload));
+      savedLocally = true;
+    } catch {}
+  }
   if (!DEV_MODE) {
     try {
       await apiPost({
@@ -1207,7 +1240,7 @@ async function saveIntegrationsConfig() {
       console.warn('[df] Failed to save integrations to backend:', err.message);
     }
   }
-  return payload;
+  return { payload, savedLocally, savedToBackend };
 }
 
 function openIntegrationsModal(focusField) {
@@ -1228,9 +1261,9 @@ function closeIntegrationsModal() {
 }
 
 async function saveIntegrationsFromModal() {
-  KN_API_KEY = normalizeSecret(document.getElementById('kn-api-key-input').value || '');
-  GCAL_SCRIPT_URL = normalizeSecret(document.getElementById('gcal-script-url-input').value || '');
-  LOG_WEBHOOK_URL = normalizeSecret(document.getElementById('log-webhook-url-input').value || '');
+  KN_API_KEY = normalizeSecret(normalizeMobileInput(document.getElementById('kn-api-key-input').value || ''));
+  GCAL_SCRIPT_URL = normalizeSecret(normalizeMobileInput(document.getElementById('gcal-script-url-input').value || ''));
+  LOG_WEBHOOK_URL = normalizeSecret(normalizeMobileInput(document.getElementById('log-webhook-url-input').value || ''));
 
   const webhookError = getWebhookValidationError(LOG_WEBHOOK_URL);
   if (webhookError) {
@@ -1245,7 +1278,7 @@ async function saveIntegrationsFromModal() {
     return;
   }
 
-  await saveIntegrationsConfig();
+  const saveResult = await saveIntegrationsConfig();
   if (LOG_WEBHOOK_URL) {
     flushWebhookQueue().catch(() => {});
   }
@@ -1255,11 +1288,15 @@ async function saveIntegrationsFromModal() {
     renderRightCol();
     loadCalendarEvents(state.currentDate).catch(() => {});
   }
+  if (!saveResult.savedLocally) {
+    showToast('could not persist settings on this browser; check private mode/storage settings', 'error', 4200);
+    return;
+  }
   showToast('integration settings saved', 'success');
 }
 
 async function testWebhookFromModal() {
-  const draftWebhookUrl = normalizeSecret(document.getElementById('log-webhook-url-input').value || '');
+  const draftWebhookUrl = normalizeSecret(normalizeMobileInput(document.getElementById('log-webhook-url-input').value || ''));
   if (!draftWebhookUrl) {
     showToast('enter time tracking webhook URL first', 'info');
     openIntegrationsModal('log');
