@@ -890,6 +890,7 @@
     <input type="text" id="tpl-name-input" placeholder="e.g. morning routine" autocomplete="off" />
     <label class="modal-label" for="tpl-category-select">category</label>
     <select id="tpl-category-select" class="tpl-category-select">
+      <button id="actual-cancel-btn">x cancel</button>
       <option value="life">life</option>
       <option value="work">work</option>
       <option value="body">body</option>
@@ -1021,24 +1022,43 @@ function getTemplateCategoryMeta(category) {
 }
 
 const DEFAULT_TEMPLATES = [
-  { id:'morning-routine', name:'morning routine', tasks:['journal + daily intention \u2014 5 min','movement \u2014 20 min','breakfast','check calendar for today','name top 3 priorities'] },
-  { id:'weekly-review', name:'weekly review', tasks:['mark anything completed that is still open in your notes','open calendar \u2014 scan last 7 days for loose ends','brain dump: what is still rattling around in your head?','check each active project \u2014 is the next action clear?','what can you drop or delegate?','pick 3 priorities for next week','block time on the calendar for those priorities'] },
-  { id:'blog-post', name:'writing a blog post', tasks:['brain dump \u2014 what is the core idea?','draft outline','write first draft','step away \u2014 minimum 30 min','edit and cut ruthlessly','final read-through','publish'] },
-  { id:'inbox-zero', name:'inbox zero', tasks:['open inbox','for each: delete, archive, reply (<2 min), or defer','unsubscribe from anything unhelpful','review tasks section','reach zero'] },
-  { id:'grocery', name:'grocery shopping', tasks:['check pantry + fridge for staples','check meal plan for the week','write list by section','shop','put groceries away'] },
-  { id:'cleaning', name:'house cleaning', tasks:['clear all surfaces','vacuum / sweep all floors','mop','bathrooms','kitchen \u2014 counters, sink, stove','start laundry','move laundry to dryer','put laundry away'] },
-  { id:'pomodoro', name:'pomodoro', tasks:['decide task for this session','work \u2014 25 min','break \u2014 5 min','work \u2014 25 min','break \u2014 5 min','work \u2014 25 min','long break \u2014 15 min'] },
-  { id:'eat-the-frog', name:'eat the frog', tasks:['name the frog \u2014 the task you have been avoiding','clear environment \u2014 close tabs, silence phone','work on frog task \u2014 no interruptions','log how it went'] },
-  { id:'brain-dump', name:'brain dump', tasks:['set a timer for 10 min','write everything in your head \u2014 tasks, worries, ideas, anything','go through the list: delete, defer, delegate, or do','move keepers into your task list or projects','notice how much lighter you feel'] },
-  { id:'shutdown-routine', name:'shutdown routine', tasks:['finish or deliberately pause any open work','check today\u2019s tasks \u2014 anything to carry forward?','scan calendar for tomorrow \u2014 any prep needed?','clear your desktop and close tabs','write one sentence: what was today about?','close your laptop or step away from your workspace'] },
-  { id:'pt-stretches', name:'PT stretches', tasks:['seated straight-leg hamstring stretch \u2014 tall lumbar spine \u00d7 2 (60s each side)','standing quad stretch \u2014 top of foot on table, right knee flexed, tuck buttock under \u00d7 2 (60s each side)','standing straight-knee calf stretch \u00d7 2 (60s each side)'] },
-  { id:'movement', name:'movement', tasks:['pick your move: run / yoga / rollerblade / cycle','get your gear on \u2014 the hardest part is starting','warm up for 5 min easy','go \u2014 any duration counts','stretch or cool down for 5 min','note how you feel after'] },
-  { id:'read-journal-article', name:'read journal article', tasks:['note the title, authors, journal, and year before you start','read the abstract \u2014 what is the main claim?','skim headings, figures, and tables first','read introduction: what gap or question motivates this?','read methods: could you reproduce this? any red flags?','read results: what did they actually find?','read discussion/conclusion: what do they claim this means?','note 1\u20133 key takeaways in your own words','note any limitations or things you are skeptical of','add citekey to Zotero if keeping'] },
-  { id:'cook-dinner', name:'cook dinner', tasks:['decide what to make \u2014 check what\u2019s in the fridge first','pull out everything you need before you start','put on a playlist or podcast','prep: chop, measure, preheat','cook','plate it nicely \u2014 you made this','eat without screens if you can','clean as you go or right after'] },
-  { id:'meeting-prep', name:'meeting prep', tasks:['confirm what the meeting is actually for \u2014 decision, update, or discussion?','re-read any relevant docs, threads, or last meeting notes','write down 1\u20133 things you want to get out of it','prepare any questions you need answered','note anything you need to report or present','check if you owe any pre-reads or materials to others','open calendar invite \u2014 confirm time, link, and who\u2019s coming'] },
-  { id:'writing-session', name:'writing session', tasks:['name the specific section or goal for this session','set a time limit \u2014 50 min on, 10 min off','close email, Slack, and unrelated tabs','re-read the last paragraph you wrote to get back into the flow','write \u2014 do not edit while drafting','when the timer goes off: stop mid-sentence if needed, note what comes next','save and back up'] },
-  { id:'peer-review', name:'peer review', tasks:['read the abstract and intro \u2014 what is the central claim?','evaluate the research question: is it well-motivated and novel?','assess methods: are they appropriate, rigorous, and reproducible?','check results: do the analyses actually support the claims?','read discussion: are conclusions proportionate to the evidence?','note any missing citations, statistical issues, or logical gaps','write major concerns (if any)','write minor concerns','write your overall recommendation','re-read your review for tone before submitting'] },
-  { id:'data-analysis', name:'data analysis session', tasks:['write the specific question you are trying to answer','check data quality: missing values, outliers, unexpected distributions','decide on the appropriate method before running anything','run the analysis','sanity-check the output \u2014 does it pass a gut-check?','make at least one plot of the key result','write 2\u20133 sentences summarising what you found','note limitations and what you would do next','save your script and output'] },
+  { id:'morning-routine', name:'morning routine', category:'life', tasks:["get morning light within 30-60 min of waking - no sunglasses, no window glass","drink a full glass of water before anything else","delay caffeine 90-120 min after waking - lets adenosine clear naturally","do one grounding thing before opening your phone: stretch, journal, sit outside","set one intention for the day - not a list, one thing"] },
+  { id:'shutdown-routine', name:'shutdown routine', category:'life', tasks:["close all tabs and apps - don't leave anything open that implies tomorrow's obligation","write tomorrow's top 3 tasks so your brain can stop holding them","do a quick capture: anything unfinished or still on your mind, onto paper","physically leave your workspace if possible - spatial separation matters","note one thing that went well today, no matter how small"] },
+  { id:'house-cleaning', name:'house cleaning', category:'life', tasks:["set a timer - 20 min focused is better than 2 hours of drifting","start with the highest-visibility surface: dishes, counters, or floor","move room to room in one direction - don't backtrack","put on something to listen to only during cleaning","reset: one walk-through to check nothing was missed before stopping"] },
+  { id:'inbox-zero', name:'inbox zero', category:'life', tasks:["set a 30 min timer - do not exceed it","archive or delete everything older than 2 weeks that needs no action","for each remaining email: reply now, defer with a flag, or delete","unsubscribe from anything you skipped without reading","close email when done - don't leave it open as a background tab"] },
+  { id:'connection-deposit', name:'connection deposit', category:'life', tasks:["identify one person you've been meaning to reach out to - not because something is wrong","reach out with something specific: a question, a shared interest, something that made you think of them","if possible, propose a shared experience rather than a generic catch-up","if in-person, eat together - food and social bonding share overlapping neural circuits","log it and do it again within 2 weeks - relationships decay without deposits"] },
+  { id:'post-conflict-reset-life', name:'post-conflict reset', category:'life', tasks:["wait until your autonomic arousal is back to baseline before attempting resolution - you cannot think clearly while still activated","do a physiological sigh, then ask: what do I actually want to happen here?","approach with the goal of understanding their position, not winning the point - cognitive empathy is required for trust repair","say what you actually feel, not just what you think - those are often different","make one concrete gesture toward repair - repair doesn't require full resolution, just a signal of intention"] },
+
+  { id:'brain-dump', name:'brain dump', category:'work', tasks:["set a timer for 10-15 min","write everything in your head - tasks, worries, ideas, half-thoughts - without filtering","don't organize while dumping - capture first, sort after","when the timer ends, sort into: do today, do later, delegate, drop","pick one thing to start with and close the list"] },
+  { id:'eat-the-frog', name:'eat the frog', category:'work', tasks:["identify the task you've been most avoiding - that's the frog","do it first, before email or anything reactive","set a timer for 25 min and start with the smallest possible entry point","do not switch tasks until the timer ends","when done, note that you did it - this builds the association between starting and finishing"] },
+  { id:'meeting-prep', name:'meeting prep', category:'work', tasks:["write the one thing you need to get out of this meeting","review any relevant context: previous notes, decisions, open questions","prepare one question to ask if the conversation stalls","set a 2-min reminder before start time so you're not rushing","have a place to capture action items in real time"] },
+  { id:'data-analysis-session', name:'data analysis session', category:'work', tasks:["write the question you're trying to answer before opening any software","set up your environment: project folder open, relevant scripts visible, notes doc ready","run a quick sanity check on your data before any analysis - dimensions, NAs, distributions","work in reproducible chunks: comment your intent before each block of code","end by writing 2-3 sentences about what you found and what the next question is"] },
+  { id:'writing-session', name:'writing session', category:'work', tasks:["name the specific section or goal for this session","set a time limit - 50 min on, 10 min off","close email, Slack, and unrelated tabs","re-read the last paragraph you wrote to get back into the flow","write - do not edit while drafting","when the timer goes off: stop mid-sentence if needed, note what comes next","save and back up"] },
+  { id:'read-journal-article', name:'read journal article', category:'work', tasks:["read the abstract and conclusion first - know the punchline before the argument","read methods actively: could you replicate this? what are the limitations?","note one thing you agree with, one thing you question, one thing relevant to your work","close the paper and write 3 sentences from memory: question, finding, relevance to your work","tag and file - if you can't retrieve it later, the reading didn't count"] },
+  { id:'peer-review', name:'peer review', category:'work', tasks:["read the paper once through without taking notes - get the full picture first","read again with your critical lens: is the question well-defined? methods appropriate? results support claims?","identify the 2-3 most substantive issues - these are your main concerns","note minor issues separately: grammar, framing, missing citations","write your review leading with what the paper does well before raising concerns","check your tone: be direct but constructive - you'd want the same","submit before the deadline, not the morning of"] },
+  { id:'writing-a-blog-post', name:'writing a blog post', category:'work', tasks:["identify your reader and what they'll walk away knowing","write the opening hook first - if it's boring, the rest won't matter","outline in 3-5 beats before drafting - don't discover your structure mid-draft","draft fast without editing - get to the end before going back","cut your first paragraph and see if the post is better - it usually is","read aloud before publishing: your ear catches what your eye misses"] },
+  { id:'talk-prep', name:'talk prep', category:'work', tasks:["write the one thing you want the audience to leave knowing - your anchor","build the arc: opening hook, 3 key points max, landing that connects back to the hook","do a full out-loud run-through alone - not in your head, out loud, timed","identify the two moments most likely to make you nervous and visualize them at real speed: walking up, opening line, Q&A start","record one run-through and watch it once - posture, pace, filler words","the night before: no new edits, just one slow read-through, then sleep - consolidation happens during sleep","day of: do a physiological sigh before you go on (double inhale through nose, long exhale) to drop baseline arousal"] },
+
+  { id:'movement', name:'movement', category:'body', tasks:["pick a form of movement you'll actually do today - not the ideal one, the real one","set a minimum: 10 min is enough to count and often leads to more","leave your phone behind or on airplane mode if possible","notice how you feel before and after - this is the data that makes movement a habit","log it, even if it was short"] },
+  { id:'pt-stretches', name:'PT stretches', category:'body', tasks:["do these before your nervous system gets busy - morning or pre-workout","move slowly through each stretch: you're retraining motor patterns, not just loosening tissue","breathe out on the effort or release - holding your breath defeats the purpose","note any asymmetry or pain: that's information, not failure","finish with 2 min lying flat - let your nervous system integrate"] },
+  { id:'post-exertion-recovery', name:'post-exertion recovery', category:'body', tasks:["do 5 min of slow breathing immediately after training - double inhale through the nose, long exhale; this initiates parasympathetic recovery","eat protein within an hour - muscle repair begins now","if very sore, do light movement rather than full rest - it clears the inflammatory cascade better than staying still","avoid cold immersion within 4 hours of strength or hypertrophy work if muscle growth is a goal - it blunts the adaptation signal","protect that night's sleep more than any other recovery tool - repair happens there"] },
+  { id:'morning-light-anchor', name:'morning light anchor', category:'body', tasks:["go outside within 30-60 min of waking - no sunglasses, no window glass, just sky","look toward the light (not at the sun) for 5-10 min - blinking is fine, phone is fine","delay caffeine 90-120 min after waking - this lets adenosine clear naturally and prevents the afternoon crash","drink a full glass of water first - you have been dehydrated for 8 hours"] },
+  { id:'nsdr-reset', name:'NSDR reset', category:'body', tasks:["lie down flat, close your eyes, set a timer for 20 min","relax each body part sequentially from feet upward - don't force anything, just notice","breathe with long exhales throughout - inhale naturally, exhale slowly","if you fall asleep, that's fine - if you stay awake, you'll emerge more alert than a nap would leave you","do not check your phone for 5 min after"] },
+
+  { id:'body-check', name:'body check', category:'mind', tasks:["if you're hungry, eat something with protein and fat before sitting down - not a snack, a small meal","if you're dehydrated, fill a full glass of water and put it on your desk, then set a second one out for later","if you're tired, take a 10-20 min nap now rather than burning 2 hours on avoidance - if just foggy, do 5 min of movement or cold water on your face","if you're anxious, do one round of 4-7-8 breathing: inhale 4 counts, hold 7, exhale 8 - you don't need to feel calm, just less activated","if you're restless or stiff, do 2 min of movement before sitting down - it won't go away once you're at your desk","if you have eye strain or a headache, do a 20-20-20 reset and adjust your screen brightness before opening anything","if you're overstimulated, put on headphones with brown noise or silence, close extra tabs, and dim your screen","if everything feels fine but you still can't start, treat it as anxiety in disguise - repeat the breathing step, then go straight to your low-stakes research warmup"] },
+  { id:'low-stakes-research-warmup', name:'low-stakes research warmup', category:'mind', tasks:["do a body check before opening anything","clear one surface if your desk is cluttered - physical chaos compounds mental resistance","make your drink and sit down without opening your laptop yet, just arrive for 2 min","open something you've already written that you like and read it without editing","do one tiny concrete task: rename a file, add a citation, fix a figure label","if momentum starts, set a 25 min timer and keep going","if it doesn't, close everything and log it as done - showing up counts"] },
+  { id:'knowledge-consolidation-session', name:'knowledge consolidation session', category:'mind', tasks:["close everything you used to learn - notes, papers, browser tabs","write freely for 10 min: everything you can recall about the topic from memory, no peeking - errors are useful data","go back and check what you missed or got wrong - those are the exact points to re-expose yourself to","space your next review: revisit in 2-3 days, then a week, then a month - cramming encodes nothing long-term","do not study immediately before sleep; consolidation happens during sleep, so protect it"] },
+  { id:'emotional-processing-check-in', name:'emotional processing check-in', category:'mind', tasks:["name the emotion specifically - 'frustrated', 'humiliated', and 'disappointed' are different states requiring different responses","if the feeling is acute, do a physiological sigh first to lower baseline arousal before trying to think through anything","set aside 10-30 min to feel it with intention - no counterfactual thinking, no problem-solving, just contact with the feeling while staying anchored in present time and place","write one sentence about what you actually need right now - not what happened, what you need","decide whether this is something to sit with alone, talk through with someone, or move on from for now - all three are legitimate"] },
+  { id:'social-recharge', name:'social recharge', category:'mind', tasks:["notice whether you feel depleted or just tired - depleted after people-heavy time needs different recovery than general tiredness","do 10-20 min of genuine solitude first: no podcast, no phone, no input - just quiet or ambient sound","if overstimulated, dim the lights and reduce sensory input before trying to do anything else","do one thing that is entirely self-directed and requires no social output: a walk, cooking, reading, sketching","if you need to re-enter social or work mode within the hour, do a physiological sigh first to drop baseline arousal"] },
+  { id:'feedback-separation', name:'feedback separation', category:'mind', tasks:["do a physiological sigh before reading the feedback all the way through - you need your nervous system down before your brain can process accurately","read it once without annotating - get the whole picture before reacting to any part","write list 1: what the feedback is actually about - the argument, the method, the framing, the execution","write list 2: what it is definitively not about - your intelligence, your right to be here, your worth as a person","identify the one most actionable piece of feedback and write a single next step for it","put the rest aside for 24 hours - you will read it differently tomorrow"] },
+  { id:'minimum-viable-response', name:'minimum viable response', category:'mind', tasks:["if you feel the urge to go quiet after difficult feedback, notice it - shutdown is a freeze response, not a decision","do a physiological sigh or 5 min of movement before responding - you cannot think clearly in a freeze state","send one sentence to keep the channel open: 'thanks, I need some time to sit with this' is enough","do not draft a substantive response while activated - schedule it for when you are regulated","log what triggered the shutdown so you can recognize the pattern next time"] },
+  { id:'low-stakes-sharing-ramp', name:'low-stakes sharing ramp', category:'mind', tasks:["identify the work you have been avoiding putting out - name it specifically","find the smallest shareable unit: a paragraph, a figure, a rough idea - not the whole thing","choose the lowest-stakes audience for this unit: a peer, a trusted lab mate, a writing group","share it with that person before sharing anything with your advisor or committee","after receiving feedback, note: did the world end? use that data to recalibrate your threat estimate downward","repeat with progressively larger units and wider audiences - each exposure slightly lowers the stakes of the next one"] },
+
+  { id:'context-switch-field-to-desk', name:'context switch: field to desk', category:'liminal', tasks:["do not open your laptop immediately after returning from the field - give yourself a 20-30 min decompression buffer","write rough field notes while memory is fresh: observations, anomalies, anything that surprised you","do a brief body check before sitting down to write","restate in one sentence what question you're trying to answer today in your writing - field mode and writing mode use different cognitive registers","begin with the lowest-friction writing task first, not the hardest"] },
+  { id:'post-fieldwork-decompress', name:'post-fieldwork decompress', category:'liminal', tasks:["change out of field clothes - physical transition signals to your nervous system that the context has shifted","eat something real before doing anything else - field days are often calorically irregular","do not check email for at least 30 min after returning","do a 10-15 min walk or sit outside with no agenda - let your sensory system wind down","write one sentence about what you observed or noticed today - even if it's not 'useful'"] },
+  { id:'recalibration-after-an-off-week', name:'recalibration after an off week', category:'liminal', tasks:["don't try to catch up on everything immediately - that creates a second disruption on top of the first","reanchor your two non-negotiables first: sleep schedule and morning light - everything downstream depends on these","do one complete brain dump: everything unfinished, deferred, or worrying you, onto paper - then triage into this week, later, and drop","pick one meaningful task to complete today, not a full recovery sprint - one win reestablishes momentum","acknowledge the disruption happened and don't subtract it from your self-assessment of the week"] },
+  { id:'travel-day-protocol', name:'travel day protocol', category:'liminal', tasks:["get morning light at your destination as soon as possible after arriving - fastest lever for resetting your circadian clock","delay or advance your largest meal toward local mealtimes on day one","avoid napping more than 20 min if arriving in the daytime - use NSDR instead","keep a 10 min low-stakes task ready for the post-travel fog window - cognitive output will be low for 12-24 hrs","don't schedule high-stakes cognitive work until day two minimum"] },
+  { id:'post-conflict-reset-liminal', name:'post-conflict reset', category:'liminal', tasks:["wait until your autonomic arousal is back to baseline before attempting resolution","do a physiological sigh, then ask: what do I actually want to happen here?","approach with the goal of understanding their position, not winning - cognitive empathy is required for trust repair","say what you actually feel, not just what you think","make one concrete gesture toward repair - repair doesn't require full resolution, just a signal of intention"] },
 ];
 
 // live template list (loaded from localStorage on init; defaults to DEFAULT_TEMPLATES)
@@ -1298,12 +1318,25 @@ function loadTemplates() {
     if (raw) {
       const stored = JSON.parse(raw);
       if (Array.isArray(stored) && stored.length) {
-        TEMPLATES = stored.map(t => ({
+        const normalizedStored = stored.map(t => ({
           id: t.id,
           name: t.name,
           category: normalizeTemplateCategory(t.category, t.name, t.tasks),
           tasks: Array.isArray(t.tasks) ? t.tasks : [],
         }));
+        const seen = new Set(normalizedStored.map(t => t.id));
+        const merged = normalizedStored.concat(
+          DEFAULT_TEMPLATES
+            .filter(t => !seen.has(t.id))
+            .map(t => ({
+              id: t.id,
+              name: t.name,
+              category: normalizeTemplateCategory(t.category, t.name, t.tasks),
+              tasks: Array.isArray(t.tasks) ? t.tasks.slice() : [],
+            }))
+        );
+        TEMPLATES = merged;
+        if (merged.length !== normalizedStored.length) saveTemplates();
         return;
       }
     }
@@ -2037,6 +2070,37 @@ async function completeDone(actualTime, notes) {
   render();
 }
 
+async function removeDoneFromWebhook(task) {
+  if (DEV_MODE) return;
+  if (!LOG_WEBHOOK_URL) return;
+  const payload = {
+    action: 'delete_task',
+    date: state.currentDate,
+    task: stripPriority(task.content),
+    taskId: task.id,
+    event: 'done',
+  };
+  try {
+    await sendWebhookPayload(payload, LOG_WEBHOOK_URL, { strict: true });
+    await flushWebhookQueue();
+  } catch (err) {
+    enqueueWebhookPayload(payload);
+    showToast('undo saved; spreadsheet delete queued for retry', 'info', 3200);
+    console.warn('[df] delete_task webhook failed; queued for retry', err);
+  }
+}
+
+async function undoDone(taskId) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task || task.marker !== 'DONE') return;
+  task.marker = 'TODO';
+  task.actual = '';
+  await persistTasks(state.currentDate, state.tasks);
+  await removeDoneFromWebhook(task);
+  render();
+  showToast('task restored to active', 'success');
+}
+
 async function logToWebhook(payload) {
   if (DEV_MODE) { console.log('[df dev] logToWebhook suppressed:', payload); return; }
   if (!LOG_WEBHOOK_URL) {
@@ -2716,7 +2780,10 @@ async function setDate(isoStr) {
 function bindDynamicEvents() {
   document.querySelectorAll('[data-done-id]').forEach(el=>el.addEventListener('click',e=>{
     e.stopPropagation();
-    if (el.dataset.doneState === 'done') return;
+    if (el.dataset.doneState === 'done') {
+      undoDone(el.dataset.doneId).catch(() => {});
+      return;
+    }
     markDone(el.dataset.doneId);
   }));
 
@@ -3102,6 +3169,7 @@ document.addEventListener('click',e=>{const menu=document.getElementById('option
 
 document.getElementById('actual-confirm-btn').addEventListener('click',()=>completeDone(document.getElementById('actual-input').value,document.getElementById('actual-notes').value));
 document.getElementById('actual-skip-btn').addEventListener('click',()=>completeDone('',''));
+document.getElementById('actual-cancel-btn').addEventListener('click',()=>{document.getElementById('actual-modal').style.display='none';state.pendingDoneId=null;});
 document.getElementById('actual-input').addEventListener('keydown',e=>{if(e.key==='Enter')completeDone(e.target.value,document.getElementById('actual-notes').value);if(e.key==='Escape'){document.getElementById('actual-modal').style.display='none';state.pendingDoneId=null;}});
 document.getElementById('actual-notes').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))completeDone(document.getElementById('actual-input').value,e.target.value);if(e.key==='Escape'){document.getElementById('actual-modal').style.display='none';state.pendingDoneId=null;}});
 
