@@ -478,11 +478,42 @@
 
     /* ---- templates ---- */
 
-    .template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; }
+    .template-grid { display: block; padding: 12px; }
+    .template-sections { display: grid; gap: 14px; padding: 12px; }
+    .template-section { display: grid; gap: 8px; }
+    .template-section-title {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      font-size: 10px; font-family: var(--font-mono); letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .template-section-count {
+      font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);
+      padding: 1px 6px; border: 1px solid var(--border); border-radius: 999px;
+    }
+    .template-section-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .template-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 11px 12px; cursor: pointer; }
     .template-card:hover { border-color: var(--accent); background: var(--surface2); }
     .template-name { font-size: 12px; color: var(--text); line-height: 1.3; }
-    .template-count { font-size: 10px; color: var(--text-muted); margin-top: 3px; font-family: var(--font-mono); }
+    .template-count { display: flex; flex-wrap: wrap; gap: 6px; font-size: 10px; color: var(--text-muted); margin-top: 5px; font-family: var(--font-mono); }
+    .template-category-badge {
+      font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+      border-radius: 999px; padding: 1px 6px; border: 1px solid transparent;
+    }
+    .template-card.category-life { border-left: 3px solid #a6d189; }
+    .template-card.category-work { border-left: 3px solid #8caaee; }
+    .template-card.category-body { border-left: 3px solid #ef9f76; }
+    .template-card.category-mind { border-left: 3px solid #ca9ee6; }
+    .template-card.category-liminal { border-left: 3px solid #e5c890; }
+    .template-category-badge.category-life { color: #a6d189; border-color: rgba(166,209,137,0.3); background: rgba(166,209,137,0.12); }
+    .template-category-badge.category-work { color: #8caaee; border-color: rgba(140,170,238,0.3); background: rgba(140,170,238,0.12); }
+    .template-category-badge.category-body { color: #ef9f76; border-color: rgba(239,159,118,0.3); background: rgba(239,159,118,0.12); }
+    .template-category-badge.category-mind { color: #ca9ee6; border-color: rgba(202,158,230,0.3); background: rgba(202,158,230,0.12); }
+    .template-category-badge.category-liminal { color: #e5c890; border-color: rgba(229,200,144,0.3); background: rgba(229,200,144,0.12); }
+    .tpl-category-select {
+      width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 3px;
+      color: var(--text); font-family: var(--font); font-size: 12px; padding: 6px 10px; outline: none; margin-bottom: 12px;
+    }
+    .modal-hint { opacity: 0.5; }
 
     /* ---- right column ---- */
 
@@ -720,7 +751,9 @@
       .calendar-config-btn { padding: 5px 10px; font-size: 11px; min-height: 30px; }
 
       /* --- template grid: single column --- */
-      .template-grid { grid-template-columns: 1fr; gap: 8px; padding: 12px; }
+      .template-grid { display: block; padding: 12px; }
+      .template-sections { gap: 12px; padding: 12px; }
+      .template-section-body { grid-template-columns: 1fr; }
       .template-card { padding: 14px 14px; }
       .template-name { font-size: 13px; }
 
@@ -855,8 +888,16 @@
     <p id="tpl-modal-title">new template</p>
     <label class="modal-label" for="tpl-name-input">name</label>
     <input type="text" id="tpl-name-input" placeholder="e.g. morning routine" autocomplete="off" />
-    <label class="modal-label" for="tpl-tasks-input">steps <span style="opacity:0.5">(one per line)</span></label>
-    <textarea id="tpl-tasks-input" rows="8" placeholder="first step&#10;second step&#10;third step" style="font-family:var(--font)"></textarea>
+    <label class="modal-label" for="tpl-category-select">category</label>
+    <select id="tpl-category-select" class="tpl-category-select">
+      <option value="life">life</option>
+      <option value="work">work</option>
+      <option value="body">body</option>
+      <option value="mind">mind</option>
+      <option value="liminal">liminal</option>
+    </select>
+    <label class="modal-label" for="tpl-tasks-input">steps <span class="modal-hint">(one per line)</span></label>
+    <textarea id="tpl-tasks-input" rows="8" placeholder="first step&#10;second step&#10;third step"></textarea>
     <div class="modal-actions">
       <button id="tpl-delete-btn" class="tpl-delete-btn" style="display:none">delete</button>
       <button id="tpl-cancel-btn">cancel</button>
@@ -954,6 +995,31 @@ const KN_LIST_STATUS_MAP = {
 // recurrence: 'daily' | 'weekdays' | 'weekly:<0-6>' (0=Sun)
 const RECURRING_STORE_KEY = 'df-recurring-tasks';
 
+const TEMPLATE_CATEGORIES = [
+  { id: 'life', label: 'life' },
+  { id: 'work', label: 'work' },
+  { id: 'body', label: 'body' },
+  { id: 'mind', label: 'mind' },
+  { id: 'liminal', label: 'liminal' },
+];
+
+const TEMPLATE_CATEGORY_ORDER = TEMPLATE_CATEGORIES.map(category => category.id);
+
+function normalizeTemplateCategory(value, name = '', tasks = []) {
+  const raw = String(value || '').trim().toLowerCase();
+  if (TEMPLATE_CATEGORIES.some(category => category.id === raw)) return raw;
+  const haystack = `${name || ''} ${Array.isArray(tasks) ? tasks.join(' ') : ''}`.toLowerCase();
+  if (/(liminal|transition|reset|arrival|departure|threshold|ritual|shutdown)/.test(haystack)) return 'liminal';
+  if (/(journal|brain dump|weekly review|read|review|reflection|writing session|peer review|data analysis|inbox zero)/.test(haystack)) return 'mind';
+  if (/(movement|stretch|pt|workout|exercise|run|yoga|cycle|calf|quad|hamstring|body)/.test(haystack)) return 'body';
+  if (/(work|meeting|project|draft|blog|email|inbox|frog|analysis|task|write)/.test(haystack)) return 'work';
+  return 'life';
+}
+
+function getTemplateCategoryMeta(category) {
+  return TEMPLATE_CATEGORIES.find(entry => entry.id === category) || TEMPLATE_CATEGORIES[0];
+}
+
 const DEFAULT_TEMPLATES = [
   { id:'morning-routine', name:'morning routine', tasks:['journal + daily intention \u2014 5 min','movement \u2014 20 min','breakfast','check calendar for today','name top 3 priorities'] },
   { id:'weekly-review', name:'weekly review', tasks:['mark anything completed that is still open in your notes','open calendar \u2014 scan last 7 days for loose ends','brain dump: what is still rattling around in your head?','check each active project \u2014 is the next action clear?','what can you drop or delegate?','pick 3 priorities for next week','block time on the calendar for those priorities'] },
@@ -976,7 +1042,12 @@ const DEFAULT_TEMPLATES = [
 ];
 
 // live template list (loaded from localStorage on init; defaults to DEFAULT_TEMPLATES)
-let TEMPLATES = DEFAULT_TEMPLATES.slice();
+let TEMPLATES = DEFAULT_TEMPLATES.map(t => ({
+  id: t.id,
+  name: t.name,
+  category: normalizeTemplateCategory(t.category, t.name, t.tasks),
+  tasks: Array.isArray(t.tasks) ? t.tasks.slice() : [],
+}));
 const TPL_STORE_KEY = 'df-templates';
 function getLocalIntegrationsConfig() {
   try {
@@ -1227,12 +1298,22 @@ function loadTemplates() {
     if (raw) {
       const stored = JSON.parse(raw);
       if (Array.isArray(stored) && stored.length) {
-        TEMPLATES = stored.map(t => ({ id: t.id, name: t.name, tasks: Array.isArray(t.tasks) ? t.tasks : [] }));
+        TEMPLATES = stored.map(t => ({
+          id: t.id,
+          name: t.name,
+          category: normalizeTemplateCategory(t.category, t.name, t.tasks),
+          tasks: Array.isArray(t.tasks) ? t.tasks : [],
+        }));
         return;
       }
     }
   } catch { /* fall through to defaults */ }
-  TEMPLATES = DEFAULT_TEMPLATES.slice();
+  TEMPLATES = DEFAULT_TEMPLATES.map(t => ({
+    id: t.id,
+    name: t.name,
+    category: normalizeTemplateCategory(t.category, t.name, t.tasks),
+    tasks: Array.isArray(t.tasks) ? t.tasks.slice() : [],
+  }));
 }
 function saveTemplates() {
   try { localStorage.setItem(TPL_STORE_KEY, JSON.stringify(TEMPLATES)); } catch {}
@@ -1787,20 +1868,40 @@ function requestCalendarJsonp(payload) {
   });
 }
 
+function isMobileBrowser() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = String(navigator.userAgent || '');
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua));
+}
+
+async function requestCalendarFetch(payload) {
+  const resp = await fetch(GCAL_SCRIPT_URL, {
+    method: 'POST',
+    headers: {'Content-Type':'text/plain'},
+    body: JSON.stringify(payload),
+    cache: 'no-store',
+  });
+  if (!resp.ok) throw new Error(`server error: ${resp.status}`);
+  const result = await resp.json();
+  return parseCalendarResult(result);
+}
+
 async function requestCalendar(payload, opts = {}) {
   const strict = !!opts.strict;
-  const body = JSON.stringify(payload);
+  const transport = opts.transport || 'auto';
+  const preferJsonp = transport === 'jsonp' || (transport === 'auto' && isMobileBrowser());
+
+  if (preferJsonp) {
+    try {
+      return await requestCalendarJsonp(payload);
+    } catch (err) {
+      if (strict || transport === 'jsonp') throw err;
+      return requestCalendarFetch(payload);
+    }
+  }
 
   try {
-    const resp = await fetch(GCAL_SCRIPT_URL, {
-      method: 'POST',
-      headers: {'Content-Type':'text/plain'},
-      body,
-      cache: 'no-store',
-    });
-    if (!resp.ok) throw new Error(`server error: ${resp.status}`);
-    const result = await resp.json();
-    return parseCalendarResult(result);
+    return await requestCalendarFetch(payload);
   } catch (err) {
     if (strict) throw err;
     return requestCalendarJsonp(payload);
@@ -2297,6 +2398,7 @@ function openTemplateEditor(id) {
   const tpl = id ? TEMPLATES.find(t => t.id === id) : null;
   document.getElementById('tpl-modal-title').textContent = tpl ? 'edit template' : 'new template';
   document.getElementById('tpl-name-input').value = tpl ? tpl.name : '';
+  document.getElementById('tpl-category-select').value = tpl ? normalizeTemplateCategory(tpl.category, tpl.name, tpl.tasks) : 'life';
   document.getElementById('tpl-tasks-input').value = tpl ? (tpl.tasks||[]).join('\n') : '';
   document.getElementById('tpl-delete-btn').style.display = tpl ? 'inline-block' : 'none';
   document.getElementById('tpl-modal').style.display = 'flex';
@@ -2310,6 +2412,7 @@ function closeTemplateEditor() {
 
 function saveTemplateFromEditor() {
   const name  = document.getElementById('tpl-name-input').value.trim();
+  const category = normalizeTemplateCategory(document.getElementById('tpl-category-select').value || 'life');
   const tasks = document.getElementById('tpl-tasks-input').value.split('\n').map(s => s.trim()).filter(Boolean);
   if (!name)        { showToast('name is required', 'error'); return; }
   if (tasks.length === 0) { showToast('add at least one step', 'error'); return; }
@@ -2317,10 +2420,10 @@ function saveTemplateFromEditor() {
   const editingId = state.editingTplId;
   if (editingId) {
     const tpl = TEMPLATES.find(t => t.id === editingId);
-    if (tpl) { tpl.name = name; tpl.tasks = tasks; }
+    if (tpl) { tpl.name = name; tpl.category = category; tpl.tasks = tasks; }
   } else {
     const id = slugifyTplName(name);
-    TEMPLATES.push({ id, name, tasks });
+    TEMPLATES.push({ id, name, category, tasks });
   }
   saveTemplates();
   closeTemplateEditor();
@@ -2506,15 +2609,30 @@ function renderTemplatesTab() {
   if (sortSelect && sortSelect.value !== sort) sortSelect.value = sort;
   const uses = getTplUses();
   const list = getSortedTemplates();
-  document.getElementById('template-grid').innerHTML=list.map(t=>{
-    const count = uses[t.id] || 0;
-    const meta  = `${t.tasks.length} steps${count>0?` \u00b7 used ${count}\u00d7`:''}`;
-    return `<div class="template-card" data-tpl-id="${esc(t.id)}">
-      <button class="tpl-edit-btn" data-tpl-edit="${esc(t.id)}" title="edit template">edit</button>
-      <div class="template-name">${esc(t.name)}</div>
-      <div class="template-count">${meta}</div>
-    </div>`;
-  }).join('');
+  const grouped = TEMPLATE_CATEGORY_ORDER.map(category => ({
+    category,
+    templates: list.filter(template => normalizeTemplateCategory(template.category, template.name, template.tasks) === category),
+  })).filter(group => group.templates.length);
+  document.getElementById('template-grid').innerHTML = grouped.map(group => {
+    const categoryMeta = getTemplateCategoryMeta(group.category);
+    return `<section class="template-section">
+      <div class="template-section-title">
+        <span>${esc(categoryMeta.label)}</span>
+        <span class="template-section-count">${group.templates.length}</span>
+      </div>
+      <div class="template-section-body">${group.templates.map(t => {
+        const count = uses[t.id] || 0;
+        const category = normalizeTemplateCategory(t.category, t.name, t.tasks);
+        const badgeMeta = getTemplateCategoryMeta(category);
+        const meta = `${t.tasks.length} steps${count > 0 ? ` \u00b7 used ${count}\u00d7` : ''}`;
+        return `<div class="template-card category-${esc(category)}" data-tpl-id="${esc(t.id)}">
+          <button class="tpl-edit-btn" data-tpl-edit="${esc(t.id)}" title="edit template">edit</button>
+          <div class="template-name">${esc(t.name)}</div>
+          <div class="template-count"><span class="template-category-badge category-${esc(category)}">${esc(badgeMeta.label)}</span><span>${esc(meta)}</span></div>
+        </div>`;
+      }).join('')}</div>
+    </section>`;
+  }).join('') || '<div class="empty-state">no templates yet</div>';
 }
 
 async function renderRightCol() {
