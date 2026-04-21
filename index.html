@@ -1263,6 +1263,7 @@ async function saveIntegrationsConfig() {
 }
 
 function openIntegrationsModal(focusField) {
+  cancelTouchDrag();
   const modal = document.getElementById('integrations-modal');
   document.getElementById('kn-api-key-input').value = KN_API_KEY || '';
   document.getElementById('gcal-script-url-input').value = GCAL_SCRIPT_URL || '';
@@ -1274,6 +1275,7 @@ function openIntegrationsModal(focusField) {
 }
 
 function closeIntegrationsModal() {
+  cancelTouchDrag();
   document.getElementById('integrations-modal').style.display = 'none';
 }
 
@@ -3057,7 +3059,20 @@ async function commitTouchDrag(clientX, clientY) {
 function bindTouchReorderListeners() {
   if (document.__dfTouchReorderBound) return;
   document.__dfTouchReorderBound = true;
+
+  function isAnyModalOpen() {
+    const modals = document.querySelectorAll('.modal-backdrop');
+    for (const modal of modals) {
+      if (modal && modal.style && modal.style.display !== 'none') return true;
+    }
+    return false;
+  }
+
   document.addEventListener('pointermove', e => {
+    if (isAnyModalOpen()) {
+      cancelTouchDrag();
+      return;
+    }
     if (!touchDragState.active || e.pointerId !== touchDragState.pointerId) return;
     e.preventDefault();
     const targetEl = getTouchDropTarget(touchDragState.kind, e.clientX, e.clientY);
