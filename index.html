@@ -108,7 +108,7 @@
 
     .app-name {
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.06em;
       color: var(--accent);
       text-transform: lowercase;
@@ -119,6 +119,9 @@
       border: none;
       cursor: pointer;
       padding: 0;
+      font: inherit;
+      font-weight: 700;
+      color: inherit;
     }
     .app-name-btn:hover { color: var(--accent-dim); }
     .app-name-btn:focus-visible {
@@ -154,19 +157,6 @@
       padding: 2px 7px;
     }
     .today-btn:hover { color: var(--accent); border-color: var(--accent); }
-
-    .mobile-unlock-btn {
-      display: none;
-      background: rgba(239,159,118,0.12);
-      border: 1px solid rgba(239,159,118,0.35);
-      border-radius: 3px;
-      color: var(--peach);
-      cursor: pointer;
-      font-family: var(--font-mono);
-      font-size: 10px;
-      padding: 2px 7px;
-    }
-    .mobile-unlock-btn:hover { border-color: var(--peach); }
 
     .calendar-config-btn {
       background: none;
@@ -390,16 +380,6 @@
     }
     .task-link-arrow:hover, .kn-url-arrow:hover { background: rgba(239,159,118,0.28); border-color: var(--peach); }
 
-    .timer-btn {
-      background: transparent; border: 1px solid var(--border);
-      border-radius: 3px; color: var(--text-muted); cursor: pointer;
-      font-size: 9px; line-height: 1; padding: 2px 5px; flex-shrink: 0;
-    }
-    .timer-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .timer-btn.running { border-color: rgba(239,159,118,0.6); color: var(--peach); }
-
-    .task-elapsed { font-size: 10px; font-family: var(--font-mono); color: var(--peach); flex-shrink: 0; }
-
     .sched-btn {
       background: none; border: none; cursor: pointer; color: var(--text-muted);
       font-size: 11px; padding: 1px 3px; border-radius: 3px; line-height: 1; flex-shrink: 0; opacity: 0.55;
@@ -426,9 +406,20 @@
 
     .subtask-list { border-left: 2px solid var(--surface2); margin: 0 14px 3px 36px; }
     .subtask-item { display: flex; align-items: center; gap: 7px; padding: 4px 8px; }
-    .subtask-check { width: 11px; height: 11px; border: 1.5px solid var(--text-muted); border-radius: 2px; cursor: pointer; flex-shrink: 0; }
-    .subtask-check:hover:not(.done) { border-color: var(--accent); }
-    .subtask-check.done { border-color: var(--success); background: rgba(166,209,137,0.15); }
+    .subtask-check {
+      width: 13px; height: 13px;
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+    .subtask-check:hover:not(.done) { color: var(--accent); }
+    .subtask-check.done { color: var(--success); }
     .subtask-text { font-size: 12px; color: var(--text-muted); flex: 1; line-height: 1.4; word-break: break-word; }
     .subtask-text.done { text-decoration: line-through; opacity: 0.45; }
     .subtask-input {
@@ -752,10 +743,6 @@
 
     @media (max-width: 768px) {
 
-      body.mobile-overview-lock #left-col { display: none; }
-      body.mobile-overview-lock #right-col { width: 100%; }
-      body.mobile-overview-lock .mobile-unlock-btn { display: inline-block; }
-
       /* --- base --- */
       html, body { font-size: 15px; }
 
@@ -810,11 +797,9 @@
       .task-menu-btn   { opacity: 1 !important; font-size: 20px; padding: 2px 8px; }
       .sched-btn       { opacity: 1; font-size: 14px; padding: 3px 6px; }
 
-      .timer-btn  { padding: 5px 9px; font-size: 10px; min-height: 28px; }
-
       /* --- subtasks --- */
       .subtask-item  { padding: 7px 8px; gap: 10px; }
-      .subtask-check { width: 17px; height: 17px; flex-shrink: 0; }
+      .subtask-check { width: 17px; height: 17px; flex-shrink: 0; font-size: 15px; }
       .subtask-text  { font-size: 13px; }
 
       /* --- options menu --- */
@@ -886,7 +871,6 @@
       <button class="date-nav-btn" id="next-day-btn">&#x203a;</button>
     </div>
     <button class="today-btn" id="go-today-btn">today</button>
-    <button class="mobile-unlock-btn" id="mobile-unlock-btn" title="temporarily unlock mobile editing">unlock 5m</button>
     <span class="sync-indicator" id="sync-indicator">saving&#x2026;</span>
     <span id="dev-mode-badge" style="display:none;font-family:var(--font-mono);font-size:10px;color:var(--peach);border:1px solid rgba(239,159,118,0.5);background:rgba(239,159,118,0.1);padding:2px 7px;border-radius:3px;letter-spacing:0.05em;">DEV MODE</span>
     <button class="logout-btn" id="logout-btn" title="sign out">&#x2192; out</button>
@@ -948,8 +932,7 @@
 <div id="options-menu" style="display:none">
   <button data-action="edit-content">edit task</button>
   <button data-action="edit-estimate">edit estimate</button>
-  <button data-action="breakdown">add subtasks</button>
-  <button data-action="ai-breakdown">ai breakdown</button>
+  <button data-action="breakdown">breakdown</button>
   <button data-action="set-recurring">set recurring</button>
   <div class="menu-sep"></div>
   <button data-action="type-task">set type: task</button>
@@ -1393,6 +1376,16 @@ async function saveIntegrationsFromModal() {
     return;
   }
 
+  if (GCAL_SCRIPT_URL) {
+    try {
+      await requestCalendar({ action: 'get_calendar_events', date: state.currentDate || isoToday() }, { strict: true });
+    } catch (err) {
+      showToast(`calendar connection failed: ${err.message || 'unknown error'}`, 'error', 4500);
+      focusIntegrationField('gcal');
+      return;
+    }
+  }
+
   const saveResult = await saveIntegrationsConfig();
   if (LOG_WEBHOOK_URL) {
     flushWebhookQueue().catch(() => {});
@@ -1546,11 +1539,6 @@ const state = {
   editingSubtask:  null,
   schedulingId:    null,
   collapsedTasks:  new Set(),
-  activeTimerUuid: null,
-  timerStart:      null,
-  timerElapsed:    0,
-  timerPausedUuid: null,
-  timerInterval:   null,
   calendarEvents:  null,
   currentTab:      'focus',
   editingTplId:    null,
@@ -1560,7 +1548,6 @@ const state = {
   draggingKnKey:   null,
   draggingTplId:   null,
   breakdownMode:   'manual',
-  mobileUnlockUntil: 0,
 };
 
 // ============================================================
@@ -1707,36 +1694,6 @@ function dateLabelFull(isoStr) {
   const d   = new Date(y, mo - 1, day);
   const dow = _DL[d.getDay()].slice(0,3);
   return `${dow}  ${_MS[mo-1]} ${day}`;
-}
-
-function isMobileViewport() {
-  return typeof window !== 'undefined' && window.innerWidth <= 768;
-}
-
-function isMobileOverviewLocked() {
-  return isMobileViewport() && Date.now() > state.mobileUnlockUntil;
-}
-
-function applyMobileMode() {
-  const locked = isMobileOverviewLocked();
-  document.body.classList.toggle('mobile-overview-lock', locked);
-  const unlockBtn = document.getElementById('mobile-unlock-btn');
-  if (!unlockBtn) return;
-  if (!isMobileViewport()) {
-    unlockBtn.style.display = 'none';
-    return;
-  }
-  unlockBtn.style.display = locked ? 'inline-block' : 'none';
-}
-
-function unlockMobileForFiveMinutes() {
-  state.mobileUnlockUntil = Date.now() + 5 * 60 * 1000;
-  applyMobileMode();
-  showToast('mobile editing unlocked for 5 minutes', 'info', 2200);
-  setTimeout(() => {
-    applyMobileMode();
-    render();
-  }, 5 * 60 * 1000 + 250);
 }
 
 // ============================================================
@@ -2239,7 +2196,7 @@ async function loadCalendarEvents(dateISO) {
     const calEl = document.getElementById('cal-events');
     if (calEl) {
       const msg = err.message || 'connection error';
-      calEl.innerHTML = `<div class="cal-loading" style="font-size:11px;color:var(--danger)">calendar unavailable: ${esc(msg)}</div>`;
+      calEl.innerHTML = `<div class="cal-loading" style="font-size:11px;color:var(--danger)">calendar unavailable: ${esc(msg)}. open daily focus/settings to check URL.</div>`;
     }
     return;
   }
@@ -2331,12 +2288,10 @@ function markDone(taskId) {
   const task = state.tasks.find(t => t.id === taskId);
   if (!task || !canCompleteTask(task)) return;
   state.pendingDoneId = taskId;
-  let prefilledTime = '';
-  if (state.activeTimerUuid === taskId) { const {elapsed}=stopTimer(); prefilledTime=elapsedToTimeStr(elapsed); }
-  document.getElementById('actual-input').value = prefilledTime;
+  document.getElementById('actual-input').value = '';
   document.getElementById('actual-notes').value = '';
   document.getElementById('actual-modal').style.display = 'flex';
-  setTimeout(()=>{ const inp=document.getElementById('actual-input'); inp.focus(); if(prefilledTime)inp.select(); },50);
+  setTimeout(()=>{ const inp=document.getElementById('actual-input'); inp.focus(); },50);
 }
 
 async function completeDone(actualTime, notes) {
@@ -2865,38 +2820,6 @@ function deleteTemplateFromEditor() {
 }
 
 // ============================================================
-//  timer
-// ============================================================
-
-function formatElapsed(secs) { const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60; if(h>0)return`${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; return`${m}:${String(s).padStart(2,'0')}`; }
-function getElapsedSeconds() { return state.timerElapsed+(state.timerStart?Math.floor((Date.now()-state.timerStart)/1000):0); }
-function elapsedToTimeStr(secs) { const h=Math.floor(secs/3600),m=Math.ceil((secs%3600)/60); if(h>0&&m>0)return`${h}h ${m}m`; if(h>0)return`${h}h`; return`${m||1}m`; }
-
-function startTimer(taskId) {
-  if (state.timerInterval) clearInterval(state.timerInterval);
-  if (state.timerPausedUuid!==taskId) state.timerElapsed=0;
-  state.timerPausedUuid=null; state.activeTimerUuid=taskId; state.timerStart=Date.now();
-  state.timerInterval=setInterval(updateTimerDisplay,1000);
-  render();
-}
-
-function stopTimer() {
-  if (state.timerInterval){clearInterval(state.timerInterval);state.timerInterval=null;}
-  const uuid=state.activeTimerUuid, elapsed=getElapsedSeconds();
-  state.timerElapsed=elapsed; state.timerPausedUuid=uuid; state.activeTimerUuid=null; state.timerStart=null;
-  return {uuid,elapsed};
-}
-
-function updateTimerDisplay() {
-  const id=state.activeTimerUuid; if(!id)return;
-  const secs=getElapsedSeconds();
-  const el=document.getElementById('timer-elapsed-'+id); if(el)el.textContent=formatElapsed(secs);
-  const task=state.tasks.find(t=>t.id===id);
-  const badge=task&&document.querySelector(`.estimate-badge[data-est-id="${id}"]`);
-  if(badge&&task){const estMins=parseMinutes(task.estimate||''); if(estMins>0)badge.classList.toggle('overrun',secs/60>estMins);}
-}
-
-// ============================================================
 //  rendering
 // ============================================================
 
@@ -2910,7 +2833,7 @@ function renderSubtaskList(task) {
       ? `<input class="subtask-input" type="text" data-sub-id="${esc(sub.id)}" data-parent-id="${esc(task.id)}" value="${esc(sub.content)}" autocomplete="off"/>`
       : `<span class="subtask-text ${done?'done':''}" data-sub-id="${esc(sub.id)}" data-parent-id="${esc(task.id)}">${linkifyContent(sub.content)}</span>`;
     return `<div class="subtask-item">
-      <div class="subtask-check ${done?'done':''}" data-sub-id="${esc(sub.id)}" data-parent-id="${esc(task.id)}"></div>
+      <div class="subtask-check ${done?'done':''}" data-sub-id="${esc(sub.id)}" data-parent-id="${esc(task.id)}">${done?'x':'•'}</div>
       ${content}
     </div>`;
   }).join('');
@@ -2931,7 +2854,7 @@ function renderFocusTab() {
     const isDone = task.marker === 'DONE';
     const taskCanComplete = canCompleteTask(task);
     const isEditingEst=state.editingEstId===task.id, isEditingContent=state.editingContentId===task.id;
-    const hasSubtasks=task.subtasks&&task.subtasks.length>0, collapsed=state.collapsedTasks.has(task.id), isTimerRunning=state.activeTimerUuid===task.id;
+    const hasSubtasks=task.subtasks&&task.subtasks.length>0, collapsed=state.collapsedTasks.has(task.id);
     const doingBadge=task.marker==='DOING'?'<span class="doing-badge">DOING</span>':'';
     const carriedBadge=task.carriedFrom?'<span class="carried-badge">&#x2190; carried</span>':'';
     const deferBadge=(task.defers||0)>0?`<span class="carried-badge" title="deferred ${task.defers} time${task.defers===1?'':'s'}">&#x21bb;${task.defers}</span>`:'';
@@ -2952,8 +2875,6 @@ function renderFocusTab() {
     const estTag=!isDone&&!isEditingEst&&task.estimate?`<span class="estimate-badge" data-est-id="${esc(task.id)}" title="click to edit">:${esc(task.estimate)}</span>`:'';
     const estEdit=isEditingEst?`<div class="inline-edit" data-id="${esc(task.id)}"><input class="est-input" type="text" value="${esc(task.estimate)}" placeholder="e.g. 25m" autocomplete="off"><button class="save-btn">save</button><button class="cancel-est-btn">&#xd7;</button></div>`:'';
     const actHtml=task.actual?`<span class="actual-badge">&#x2713; ${esc(task.actual)}</span>`:'';
-    const timerBtn=isDone||!taskCanComplete?'':`<button class="timer-btn${isTimerRunning?' running':''}" data-timer-id="${esc(task.id)}" title="${isTimerRunning?'stop timer':'start timer'}">${isTimerRunning?'&#x25a0;':'&#x25b6;'}</button>`;
-    const elapsedHtml=!isDone&&isTimerRunning?`<span class="task-elapsed" id="timer-elapsed-${esc(task.id)}">${formatElapsed(getElapsedSeconds())}</span>`:'';
     const taskTitle=stripPriority(task.content);
     const isScheduled=(state.calendarEvents||[]).some(ev=>ev.title==='Focus: '+taskTitle);
     const schedBtn=isDone||!taskCanComplete?'':`<button class="sched-btn${isScheduled?' scheduled':''}" data-sched-id="${esc(task.id)}" title="${isScheduled?'already on calendar':'schedule as focus time'}">&#x2d35;</button>`;
@@ -2963,7 +2884,7 @@ function renderFocusTab() {
         <span class="drag-handle" title="drag to reorder">&#x22ee;&#x22ee;</span>
         <div class="task-check${isDone?' done':''}${taskCanComplete?'':' passive'}" data-done-id="${esc(task.id)}" data-done-state="${isDone?'done':'todo'}" title="${taskCanComplete?(isDone?'completed':'mark done'):`${task.taskType} entry`}">${taskGlyph(task)}</div>
         <div class="task-body">
-          <div class="task-text">${toggleHtml}${priBadge}${doingBadge}${carriedBadge}${deferBadge}${recurBadge}${contentHtml}${isEditingContent?'':estTag+timerBtn+elapsedHtml+schedBtn}</div>
+          <div class="task-text">${toggleHtml}${priBadge}${doingBadge}${carriedBadge}${deferBadge}${recurBadge}${contentHtml}${isEditingContent?'':estTag+schedBtn}</div>
           ${hasMeta?`<div class="task-meta">${estEdit}${actHtml}${dueBadge}${collectionBadge}</div>`:''}
         </div>
         <button class="task-menu-btn" data-menu-id="${esc(task.id)}" title="options">&#x22ef;</button>
@@ -3099,7 +3020,6 @@ async function renderRightCol() {
 }
 
 function render() {
-  applyMobileMode();
   renderFocusTab();
   renderInboxTab();
   renderTemplatesTab();
@@ -3126,8 +3046,6 @@ async function setDate(isoStr) {
   state.currentDate = isoStr;
   state.calendarEvents = null;
   document.getElementById('date-label').textContent = dateLabelFull(isoStr);
-  if (state.timerInterval){clearInterval(state.timerInterval);state.timerInterval=null;}
-  state.activeTimerUuid=null; state.timerStart=null; state.timerElapsed=0; state.timerPausedUuid=null;
   state.tasks = (await fetchTasks(isoStr)).map(task => ({
     ...task,
     subtasks: Array.isArray(task.subtasks) ? task.subtasks : [],
@@ -3183,7 +3101,7 @@ function bindDynamicEvents() {
 
   document.querySelectorAll('.subtask-check').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();toggleSubtask(el.dataset.parentId,el.dataset.subId);}));
 
-  document.querySelectorAll('.subtask-text[data-sub-id]').forEach(el=>el.addEventListener('dblclick',e=>{
+  document.querySelectorAll('.subtask-text[data-sub-id]').forEach(el=>el.addEventListener('click',e=>{
     e.stopPropagation();
     beginSubtaskEdit(el.dataset.parentId, el.dataset.subId);
   }));
@@ -3221,11 +3139,6 @@ function bindDynamicEvents() {
       const menuW=180, left=Math.min(rect.left-menuW+rect.width,window.innerWidth-menuW-8);
       menu.style.left=Math.max(8,left)+'px'; menu.style.top=(rect.bottom+4)+'px';
     }
-  }));
-
-  document.querySelectorAll('[data-timer-id]').forEach(el=>el.addEventListener('click',e=>{
-    e.stopPropagation(); const id=el.dataset.timerId;
-    if(state.activeTimerUuid===id){stopTimer();render();}else{if(state.activeTimerUuid)stopTimer();startTimer(id);}
   }));
 
   document.querySelectorAll('[data-sched-id]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();if(!el.classList.contains('scheduled'))scheduleTask(el.dataset.schedId);}));
@@ -3547,7 +3460,6 @@ document.getElementById('go-today-btn').addEventListener('click', ()=>setDate(is
 
 document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>switchTab(tab.dataset.tab)));
 document.getElementById('open-settings-btn').addEventListener('click',()=>openIntegrationsModal());
-document.getElementById('mobile-unlock-btn').addEventListener('click', unlockMobileForFiveMinutes);
 
 document.getElementById('quick-add-input').addEventListener('keydown',e=>{if(e.key==='Enter')quickAddTask(e.target.value);if(e.key==='Escape'){e.target.value='';e.target.blur();}});
 document.getElementById('quick-add-btn').addEventListener('click',()=>quickAddTask(document.getElementById('quick-add-input').value));
@@ -3560,19 +3472,11 @@ document.getElementById('options-menu').addEventListener('click',async e=>{
   if(action==='edit-content'){state.editingContentId=id;render();setTimeout(()=>{const inp=document.querySelector(`.task-content-input[data-edit-id="${id}"]`);if(inp){inp.focus();inp.select();}},40);}
   else if(action==='edit-estimate'){state.editingEstId=id;render();setTimeout(()=>{const inp=document.querySelector('.est-input');if(inp){inp.focus();inp.select();}},40);}
   else if(action==='breakdown'){
-    state.breakdownMode='manual';
-    state.breakdownId=id;
-    document.querySelector('#breakdown-modal p').textContent='add subtasks (one per line)';
-    document.getElementById('breakdown-input').value='';
-    document.getElementById('breakdown-modal').style.display='flex';
-    setTimeout(()=>document.getElementById('breakdown-input').focus(),50);
-  }
-  else if(action==='ai-breakdown'){
     const task = state.tasks.find(t => t.id === id);
     if (!task) return;
     state.breakdownMode='ai';
     state.breakdownId=id;
-    document.querySelector('#breakdown-modal p').textContent='ai breakdown (edit before saving)';
+    document.querySelector('#breakdown-modal p').textContent='breakdown (edit before saving)';
     document.getElementById('breakdown-input').value='generating...';
     document.getElementById('breakdown-modal').style.display='flex';
     const lines = await generateAIBreakdown(stripPriority(task.content));
@@ -3600,21 +3504,21 @@ document.getElementById('breakdown-confirm-btn').addEventListener('click',()=>{
   const id=state.breakdownId;
   const lines=document.getElementById('breakdown-input').value.split('\n');
   document.getElementById('breakdown-modal').style.display='none';
-  document.querySelector('#breakdown-modal p').textContent='add subtasks (one per line)';
+  document.querySelector('#breakdown-modal p').textContent='breakdown (edit before saving)';
   state.breakdownId=null;
   state.breakdownMode='manual';
   if(id)addSubtasks(id,lines);
 });
 document.getElementById('breakdown-cancel-btn').addEventListener('click',()=>{
   document.getElementById('breakdown-modal').style.display='none';
-  document.querySelector('#breakdown-modal p').textContent='add subtasks (one per line)';
+  document.querySelector('#breakdown-modal p').textContent='breakdown (edit before saving)';
   state.breakdownId=null;
   state.breakdownMode='manual';
 });
 document.getElementById('breakdown-input').addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     document.getElementById('breakdown-modal').style.display='none';
-    document.querySelector('#breakdown-modal p').textContent='add subtasks (one per line)';
+    document.querySelector('#breakdown-modal p').textContent='breakdown (edit before saving)';
     state.breakdownId=null;
     state.breakdownMode='manual';
   }
@@ -3651,10 +3555,6 @@ document.getElementById('cal-refresh-btn').addEventListener('click',()=>{
 document.getElementById('kn-sync-btn').addEventListener('click',()=>syncFromKinopio({ interactive: true }));
 window.addEventListener('online', () => {
   flushWebhookQueue().catch(() => {});
-});
-window.addEventListener('resize', () => {
-  applyMobileMode();
-  render();
 });
 
 document.getElementById('recurring-save-btn').addEventListener('click', saveRecurringFromModal);
