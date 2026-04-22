@@ -155,6 +155,19 @@
     }
     .today-btn:hover { color: var(--accent); border-color: var(--accent); }
 
+    .mobile-unlock-btn {
+      display: none;
+      background: rgba(239,159,118,0.12);
+      border: 1px solid rgba(239,159,118,0.35);
+      border-radius: 3px;
+      color: var(--peach);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 7px;
+    }
+    .mobile-unlock-btn:hover { border-color: var(--peach); }
+
     .calendar-config-btn {
       background: none;
       border: 1px solid var(--border);
@@ -287,24 +300,23 @@
     .task-item.done-task { opacity: 0.72; }
 
     .task-check {
-      width: 14px; height: 14px;
-      border: 1.5px solid var(--text-muted);
-      border-radius: 3px;
+      width: 16px; height: 16px;
+      border: none;
       cursor: pointer;
       flex-shrink: 0;
-      margin-top: 2px;
+      margin-top: 1px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 9px;
-      transition: border-color 0.1s;
+      font-size: 14px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      transition: color 0.1s;
     }
-    .task-check:hover { border-color: var(--accent); }
-    .task-check.done {
-      border-color: var(--success);
-      background: rgba(166,209,137,0.15);
-      color: var(--success);
-    }
+    .task-check:hover { color: var(--accent); }
+    .task-check.done { color: var(--success); }
+    .task-check.passive { cursor: default; opacity: 0.9; }
+    .task-check.passive:hover { color: var(--text-muted); }
 
     .task-body { flex: 1; min-width: 0; }
 
@@ -419,6 +431,17 @@
     .subtask-check.done { border-color: var(--success); background: rgba(166,209,137,0.15); }
     .subtask-text { font-size: 12px; color: var(--text-muted); flex: 1; line-height: 1.4; word-break: break-word; }
     .subtask-text.done { text-decoration: line-through; opacity: 0.45; }
+    .subtask-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--accent);
+      border-radius: 3px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 12px;
+      padding: 2px 6px;
+      outline: none;
+    }
 
     .deferred-section { margin-top: 10px; border-top: 1px solid var(--border); padding: 7px 14px 4px; }
     .deferred-label { font-family: var(--font-mono); font-size: 9px; color: var(--peach); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 4px; opacity: 0.7; }
@@ -429,6 +452,22 @@
       color: var(--success); background: rgba(166,209,137,0.1);
       border: 1px solid rgba(166,209,137,0.28);
       padding: 1px 6px; border-radius: 8px; letter-spacing: 0.02em; flex-shrink: 0;
+    }
+
+    .collection-badge {
+      font-size: 9px;
+      font-family: var(--font-mono);
+      color: var(--accent);
+      background: rgba(202,158,230,0.12);
+      border: 1px solid rgba(202,158,230,0.3);
+      padding: 1px 6px;
+      border-radius: 8px;
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .empty-state { padding: 48px 20px; text-align: center; color: var(--text-muted); font-size: 12px; line-height: 1.7; }
@@ -655,6 +694,45 @@
     .modal-actions button.primary { background: var(--accent-dim); border-color: var(--accent-dim); color: #303446; }
     .modal-actions button:hover:not(.primary) { color: var(--text); border-color: var(--text-muted); }
 
+    .recurring-weekdays {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .recurring-weekdays label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 7px;
+      cursor: pointer;
+    }
+    .recurring-weekdays input { accent-color: var(--accent); }
+    .recurring-helper-actions {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .recurring-helper-actions button {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 4px 8px;
+    }
+    .recurring-helper-actions button:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
     /* ---- toast ---- */
 
     #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
@@ -673,6 +751,10 @@
        ============================================================ */
 
     @media (max-width: 768px) {
+
+      body.mobile-overview-lock #left-col { display: none; }
+      body.mobile-overview-lock #right-col { width: 100%; }
+      body.mobile-overview-lock .mobile-unlock-btn { display: inline-block; }
 
       /* --- base --- */
       html, body { font-size: 15px; }
@@ -804,6 +886,7 @@
       <button class="date-nav-btn" id="next-day-btn">&#x203a;</button>
     </div>
     <button class="today-btn" id="go-today-btn">today</button>
+    <button class="mobile-unlock-btn" id="mobile-unlock-btn" title="temporarily unlock mobile editing">unlock 5m</button>
     <span class="sync-indicator" id="sync-indicator">saving&#x2026;</span>
     <span id="dev-mode-badge" style="display:none;font-family:var(--font-mono);font-size:10px;color:var(--peach);border:1px solid rgba(239,159,118,0.5);background:rgba(239,159,118,0.1);padding:2px 7px;border-radius:3px;letter-spacing:0.05em;">DEV MODE</span>
     <button class="logout-btn" id="logout-btn" title="sign out">&#x2192; out</button>
@@ -866,7 +949,12 @@
   <button data-action="edit-content">edit task</button>
   <button data-action="edit-estimate">edit estimate</button>
   <button data-action="breakdown">add subtasks</button>
+  <button data-action="ai-breakdown">ai breakdown</button>
   <button data-action="set-recurring">set recurring</button>
+  <div class="menu-sep"></div>
+  <button data-action="type-task">set type: task</button>
+  <button data-action="type-note">set type: note</button>
+  <button data-action="type-event">set type: event</button>
   <div class="menu-sep"></div>
   <button data-action="move-tomorrow">move to tomorrow</button>
   <button data-action="skip" class="danger">remove</button>
@@ -964,19 +1052,21 @@
 <div id="recurring-modal" class="modal-backdrop" style="display:none">
   <div class="modal-box">
     <p>set recurring</p>
-    <label class="modal-label">repeat</label>
-    <select id="recurring-select" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font);font-size:13px;padding:7px 10px;outline:none;margin-bottom:14px;">
-      <option value="">not recurring</option>
-      <option value="daily">every day</option>
-      <option value="weekdays">weekdays (mon&#x2013;fri)</option>
-      <option value="weekly:1">every monday</option>
-      <option value="weekly:2">every tuesday</option>
-      <option value="weekly:3">every wednesday</option>
-      <option value="weekly:4">every thursday</option>
-      <option value="weekly:5">every friday</option>
-      <option value="weekly:6">every saturday</option>
-      <option value="weekly:0">every sunday</option>
-    </select>
+    <label class="modal-label">days of week</label>
+    <div class="recurring-helper-actions">
+      <button id="recurring-select-all-btn" type="button">all 7</button>
+      <button id="recurring-weekdays-btn" type="button">weekdays</button>
+      <button id="recurring-clear-btn" type="button">clear</button>
+    </div>
+    <div class="recurring-weekdays" id="recurring-weekdays">
+      <label><input type="checkbox" data-day="1">mon</label>
+      <label><input type="checkbox" data-day="2">tue</label>
+      <label><input type="checkbox" data-day="3">wed</label>
+      <label><input type="checkbox" data-day="4">thu</label>
+      <label><input type="checkbox" data-day="5">fri</label>
+      <label><input type="checkbox" data-day="6">sat</label>
+      <label><input type="checkbox" data-day="0">sun</label>
+    </div>
     <div id="recurring-existing" style="margin-bottom:10px;font-size:11px;color:var(--text-muted);"></div>
     <div class="modal-actions">
       <button id="recurring-cancel-btn">cancel</button>
@@ -1453,6 +1543,7 @@ const state = {
   activeMenuId:    null,
   editingEstId:    null,
   editingContentId: null,
+  editingSubtask:  null,
   schedulingId:    null,
   collapsedTasks:  new Set(),
   activeTimerUuid: null,
@@ -1468,6 +1559,8 @@ const state = {
   draggingTaskId:  null,
   draggingKnKey:   null,
   draggingTplId:   null,
+  breakdownMode:   'manual',
+  mobileUnlockUntil: 0,
 };
 
 // ============================================================
@@ -1616,6 +1709,36 @@ function dateLabelFull(isoStr) {
   return `${dow}  ${_MS[mo-1]} ${day}`;
 }
 
+function isMobileViewport() {
+  return typeof window !== 'undefined' && window.innerWidth <= 768;
+}
+
+function isMobileOverviewLocked() {
+  return isMobileViewport() && Date.now() > state.mobileUnlockUntil;
+}
+
+function applyMobileMode() {
+  const locked = isMobileOverviewLocked();
+  document.body.classList.toggle('mobile-overview-lock', locked);
+  const unlockBtn = document.getElementById('mobile-unlock-btn');
+  if (!unlockBtn) return;
+  if (!isMobileViewport()) {
+    unlockBtn.style.display = 'none';
+    return;
+  }
+  unlockBtn.style.display = locked ? 'inline-block' : 'none';
+}
+
+function unlockMobileForFiveMinutes() {
+  state.mobileUnlockUntil = Date.now() + 5 * 60 * 1000;
+  applyMobileMode();
+  showToast('mobile editing unlocked for 5 minutes', 'info', 2200);
+  setTimeout(() => {
+    applyMobileMode();
+    render();
+  }, 5 * 60 * 1000 + 250);
+}
+
 // ============================================================
 //  per-day supplementary storage (deferred list, kn added set)
 //  these stay in localStorage — they're ephemeral cache, not critical data
@@ -1667,6 +1790,29 @@ async function getEstimateAccuracy() {
 
 function textKey(t) { return (t||'').toLowerCase().trim().substring(0,60); }
 
+function normalizeTaskType(value) {
+  const v = String(value || '').toLowerCase();
+  if (v === 'note' || v === 'event') return v;
+  return 'task';
+}
+
+function normalizeCollectionName(value) {
+  const trimmed = String(value || '').trim();
+  return trimmed || null;
+}
+
+function taskGlyph(task) {
+  const type = normalizeTaskType(task && task.taskType);
+  if ((task && task.marker) === 'DONE') return 'x';
+  if (type === 'note') return '-';
+  if (type === 'event') return '○';
+  return '•';
+}
+
+function canCompleteTask(task) {
+  return normalizeTaskType(task && task.taskType) === 'task';
+}
+
 // ---- priority helpers --------------------------------------
 // priority lives either on task.priority ('A'|'B'|'C'|null)
 // or legacy [#A] / [#B] / [#C] anywhere in task.content
@@ -1692,6 +1838,66 @@ function parseMinutes(str) {
   if (m) mins += parseInt(m[1]);
   if (!h && !m) mins = parseInt(str)||0;
   return Math.round(mins);
+}
+
+function recurringDaysFromRule(recurrence) {
+  const set = new Set();
+  if (!recurrence) return set;
+  if (recurrence === 'daily') {
+    for (let i = 0; i < 7; i++) set.add(i);
+    return set;
+  }
+  if (recurrence === 'weekdays') {
+    [1, 2, 3, 4, 5].forEach(day => set.add(day));
+    return set;
+  }
+  const single = String(recurrence || '').match(/^weekly:(\d)$/);
+  if (single) {
+    set.add(parseInt(single[1], 10));
+    return set;
+  }
+  const many = String(recurrence || '').match(/^weekly:([0-6](?:,[0-6])*)$/);
+  if (many) {
+    many[1].split(',').forEach(day => set.add(parseInt(day, 10)));
+  }
+  return set;
+}
+
+function recurrenceFromDays(daysSet) {
+  const days = [...daysSet].sort((a, b) => a - b);
+  if (!days.length) return '';
+  if (days.length === 7) return 'daily';
+  if (days.join(',') === '1,2,3,4,5') return 'weekdays';
+  if (days.length === 1) return `weekly:${days[0]}`;
+  return `weekly:${days.join(',')}`;
+}
+
+function heuristicBreakdown(taskText) {
+  const text = String(taskText || '').trim();
+  if (!text) return [];
+  const words = text.split(/\s+/).filter(Boolean);
+  const verb = words[0] || 'do';
+  return [
+    `clarify outcome for: ${text}`,
+    `gather inputs needed to ${verb.toLowerCase()}`,
+    `start first focused pass`,
+    `review and tighten final result`,
+  ];
+}
+
+async function generateAIBreakdown(taskText) {
+  const fallback = heuristicBreakdown(taskText);
+  const modelApi = (typeof window !== 'undefined') ? window.ai : null;
+  if (!modelApi || !modelApi.languageModel || !modelApi.languageModel.create) return fallback;
+  try {
+    const session = await modelApi.languageModel.create();
+    const prompt = `Break this task into 4-7 actionable subtasks. Return only one subtask per line with no numbering. Task: ${taskText}`;
+    const response = await session.prompt(prompt);
+    const lines = String(response || '').split('\n').map(line => line.replace(/^[-*\d.)\s]+/, '').trim()).filter(Boolean);
+    return lines.length ? lines.slice(0, 7) : fallback;
+  } catch {
+    return fallback;
+  }
 }
 
 function formatMinutes(total) {
@@ -2090,8 +2296,20 @@ async function confirmScheduleTask() {
 async function quickAddTask(text) {
   text = (text||'').trim();
   if (!text) return;
-  const content = text.replace(/^(TODO|DOING|DONE|NOW|LATER|WAITING)\s+/i,'').trim();
-  const task = { id:genId(), content, marker:'TODO', subtasks:[], dueDate:null, carriedFrom:null, estimate:'', actual:'', createdAt:new Date().toISOString(), fromKinopio:false, knCardId:null, priority:null, defers:0 };
+  let taskType = 'task';
+  let content = text.replace(/^(TODO|DOING|DONE|NOW|LATER|WAITING)\s+/i,'').trim();
+  if (/^[-–]\s+/.test(content)) {
+    taskType = 'note';
+    content = content.replace(/^[-–]\s+/, '').trim();
+  } else if (/^o\s+/i.test(content) || /^event:\s+/i.test(content)) {
+    taskType = 'event';
+    content = content.replace(/^o\s+/i, '').replace(/^event:\s+/i, '').trim();
+  }
+  const task = {
+    id:genId(), content, marker:'TODO', subtasks:[], dueDate:null, carriedFrom:null,
+    estimate:'', actual:'', createdAt:new Date().toISOString(), fromKinopio:false,
+    knCardId:null, priority:null, defers:0, taskType, collection:null,
+  };
   state.tasks.push(task);
   await persistTasks(state.currentDate, state.tasks);
   render();
@@ -2110,6 +2328,8 @@ async function setPriority(taskId, pri) {
 }
 
 function markDone(taskId) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task || !canCompleteTask(task)) return;
   state.pendingDoneId = taskId;
   let prefilledTime = '';
   if (state.activeTimerUuid === taskId) { const {elapsed}=stopTimer(); prefilledTime=elapsedToTimeStr(elapsed); }
@@ -2345,9 +2565,22 @@ async function updateContent(taskId, newContent) {
   render();
 }
 
+async function setTaskType(taskId, taskType) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  task.taskType = normalizeTaskType(taskType);
+  if (task.taskType !== 'task') {
+    task.marker = 'TODO';
+    task.actual = '';
+  }
+  await persistTasks(state.currentDate, state.tasks);
+  render();
+}
+
 async function addSubtasks(taskId, lines) {
   const task  = state.tasks.find(t=>t.id===taskId);
   if (!task) return;
+  if (!Array.isArray(task.subtasks)) task.subtasks = [];
   const steps = lines.map(l=>l.trim()).filter(Boolean);
   if (!steps.length) return;
   for (const step of steps) task.subtasks.push({id:genId(), content:step, marker:'TODO'});
@@ -2369,11 +2602,48 @@ async function toggleSubtask(taskId, subtaskId) {
   if (text)  text.classList.toggle('done',  subtask.marker==='DONE');
 }
 
+function beginSubtaskEdit(taskId, subtaskId) {
+  state.editingSubtask = { taskId, subtaskId };
+  render();
+  setTimeout(() => {
+    const input = document.querySelector(`.subtask-input[data-sub-id="${subtaskId}"]`);
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  }, 30);
+}
+
+async function saveSubtaskEdit(taskId, subtaskId, content) {
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+  const subtask = (task.subtasks || []).find(s => s.id === subtaskId);
+  if (!subtask) return;
+  const trimmed = String(content || '').trim();
+  if (trimmed) subtask.content = trimmed;
+  state.editingSubtask = null;
+  await persistTasks(state.currentDate, state.tasks);
+  render();
+}
+
+function cancelSubtaskEdit() {
+  state.editingSubtask = null;
+  render();
+}
+
 async function addKinopioItemToDay(cardObj) {
   if (!cardObj || !cardObj.text) return;
-  const already = state.tasks.some(t=>textKey(t.content)===textKey(cardObj.text));
-  if (!already) {
-    state.tasks.push({id:genId(), content:cardObj.text, marker:'TODO', subtasks:[], dueDate:cardObj.due||null, carriedFrom:null, estimate:'', actual:'', createdAt:new Date().toISOString(), fromKinopio:true, knCardId:cardObj.id||null});
+  const existing = state.tasks.find(t => textKey(t.content) === textKey(cardObj.text));
+  if (!existing) {
+    state.tasks.push({
+      id:genId(), content:cardObj.text, marker:'TODO', subtasks:[], dueDate:cardObj.due||null,
+      carriedFrom:null, estimate:'', actual:'', createdAt:new Date().toISOString(),
+      fromKinopio:true, knCardId:cardObj.id||null, taskType:'task',
+      collection: normalizeCollectionName(cardObj.space),
+    });
+    await persistTasks(state.currentDate, state.tasks);
+  } else if (!existing.collection && cardObj.space) {
+    existing.collection = normalizeCollectionName(cardObj.space);
     await persistTasks(state.currentDate, state.tasks);
   }
   markAddedToDay(state.currentDate, cardObj.text);
@@ -2415,12 +2685,18 @@ function openRecurringModal(taskId) {
   state.recurringTaskId = taskId;
   // find if this task already has a recurring rule
   const existing = loadRecurring().find(r => textKey(r.content) === textKey(task.content));
-  const sel = document.getElementById('recurring-select');
-  sel.value = existing ? existing.recurrence : '';
+  const selected = recurringDaysFromRule(existing ? existing.recurrence : '');
+  document.querySelectorAll('#recurring-weekdays input[data-day]').forEach(input => {
+    const day = parseInt(input.dataset.day, 10);
+    input.checked = selected.has(day);
+  });
   const info = document.getElementById('recurring-existing');
   info.textContent = existing ? `currently: ${recurringLabel(existing.recurrence)}` : '';
   document.getElementById('recurring-modal').style.display = 'flex';
-  setTimeout(() => sel.focus(), 50);
+  setTimeout(() => {
+    const first = document.querySelector('#recurring-weekdays input[data-day="1"]');
+    if (first) first.focus();
+  }, 50);
 }
 
 function saveRecurringFromModal() {
@@ -2428,7 +2704,11 @@ function saveRecurringFromModal() {
   if (!taskId) return;
   const task = state.tasks.find(t => t.id === taskId);
   if (!task) { closeRecurringModal(); return; }
-  const recurrence = document.getElementById('recurring-select').value;
+  const selected = new Set();
+  document.querySelectorAll('#recurring-weekdays input[data-day]:checked').forEach(input => {
+    selected.add(parseInt(input.dataset.day, 10));
+  });
+  const recurrence = recurrenceFromDays(selected);
   // remove any existing rule for this task content
   const list = loadRecurring().filter(r => textKey(r.content) !== textKey(task.content));
   if (recurrence) {
@@ -2453,7 +2733,7 @@ function closeRecurringModal() {
 async function insertTemplate(id) {
   const tpl = TEMPLATES.find(t=>t.id===id);
   if (!tpl) return;
-  const parentTask = {id:genId(), content:tpl.name, marker:'TODO', subtasks:tpl.tasks.map(step=>({id:genId(),content:step,marker:'TODO'})), dueDate:null, carriedFrom:null, estimate:'', actual:'', createdAt:new Date().toISOString(), fromKinopio:false, knCardId:null, priority:null, defers:0};
+  const parentTask = {id:genId(), content:tpl.name, marker:'TODO', subtasks:tpl.tasks.map(step=>({id:genId(),content:step,marker:'TODO'})), dueDate:null, carriedFrom:null, estimate:'', actual:'', createdAt:new Date().toISOString(), fromKinopio:false, knCardId:null, priority:null, defers:0, taskType:'task'};
   state.tasks.push(parentTask);
   await persistTasks(state.currentDate, state.tasks);
   bumpTplUse(tpl.id);
@@ -2485,11 +2765,7 @@ function deleteRecurringTask(id) {
 function recurringFiresOn(recurrence, isoStr) {
   const [y, mo, d] = isoStr.split('-').map(Number);
   const dow = new Date(y, mo - 1, d).getDay(); // 0=Sun
-  if (recurrence === 'daily') return true;
-  if (recurrence === 'weekdays') return dow >= 1 && dow <= 5;
-  const m = (recurrence || '').match(/^weekly:(\d)$/);
-  if (m) return dow === parseInt(m[1]);
-  return false;
+  return recurringDaysFromRule(recurrence).has(dow);
 }
 
 // inject any recurring tasks for dateISO that are not already present in tasks array
@@ -2505,7 +2781,7 @@ function injectRecurringTasks(dateISO, tasks) {
       dueDate: null, carriedFrom: null, estimate: r.estimate || '',
       actual: '', createdAt: new Date().toISOString(),
       fromKinopio: false, knCardId: null,
-      priority: r.priority || null, defers: 0,
+      priority: r.priority || null, defers: 0, taskType: 'task',
       recurringId: r.id,   // link back so we can identify it
     });
     changed = true;
@@ -2516,8 +2792,12 @@ function injectRecurringTasks(dateISO, tasks) {
 function recurringLabel(recurrence) {
   if (recurrence === 'daily') return 'daily';
   if (recurrence === 'weekdays') return 'weekdays';
-  const m = (recurrence || '').match(/^weekly:(\d)$/);
-  if (m) return 'weekly \u00b7 ' + ['sun','mon','tue','wed','thu','fri','sat'][parseInt(m[1])];
+  const m = (recurrence || '').match(/^weekly:([0-6](?:,[0-6])*)$/);
+  if (m) {
+    const labels = ['sun','mon','tue','wed','thu','fri','sat'];
+    const days = m[1].split(',').map(v => labels[parseInt(v, 10)]).filter(Boolean);
+    return 'weekly \u00b7 ' + days.join('/');
+  }
   return recurrence || '';
 }
 
@@ -2625,9 +2905,13 @@ function renderSubtaskList(task) {
   const collapsed = state.collapsedTasks.has(task.id);
   const items = task.subtasks.map(sub=>{
     const done=sub.marker==='DONE';
+    const isEditing = state.editingSubtask && state.editingSubtask.taskId === task.id && state.editingSubtask.subtaskId === sub.id;
+    const content = isEditing
+      ? `<input class="subtask-input" type="text" data-sub-id="${esc(sub.id)}" data-parent-id="${esc(task.id)}" value="${esc(sub.content)}" autocomplete="off"/>`
+      : `<span class="subtask-text ${done?'done':''}" data-sub-id="${esc(sub.id)}" data-parent-id="${esc(task.id)}">${linkifyContent(sub.content)}</span>`;
     return `<div class="subtask-item">
       <div class="subtask-check ${done?'done':''}" data-sub-id="${esc(sub.id)}" data-parent-id="${esc(task.id)}"></div>
-      <span class="subtask-text ${done?'done':''}" data-sub-id="${esc(sub.id)}">${linkifyContent(sub.content)}</span>
+      ${content}
     </div>`;
   }).join('');
   return `<div class="subtask-list" data-parent-id="${esc(task.id)}"${collapsed?' style="display:none"':''}>${items}</div>`;
@@ -2643,7 +2927,9 @@ function renderFocusTab() {
   const orderedTasks = openTasks.concat(doneTasks);
 
   const items = orderedTasks.map(task=>{
+    task.taskType = normalizeTaskType(task.taskType);
     const isDone = task.marker === 'DONE';
+    const taskCanComplete = canCompleteTask(task);
     const isEditingEst=state.editingEstId===task.id, isEditingContent=state.editingContentId===task.id;
     const hasSubtasks=task.subtasks&&task.subtasks.length>0, collapsed=state.collapsedTasks.has(task.id), isTimerRunning=state.activeTimerUuid===task.id;
     const doingBadge=task.marker==='DOING'?'<span class="doing-badge">DOING</span>':'';
@@ -2651,6 +2937,7 @@ function renderFocusTab() {
     const deferBadge=(task.defers||0)>0?`<span class="carried-badge" title="deferred ${task.defers} time${task.defers===1?'':'s'}">&#x21bb;${task.defers}</span>`:'';
     const recurRule=task.recurringId?loadRecurring().find(r=>r.id===task.recurringId):null;
     const recurBadge=recurRule?`<span class="recurring-badge" title="${esc(recurringLabel(recurRule.recurrence))}">&#x21ba;</span>`:'';
+    const collectionBadge=task.collection?`<span class="collection-badge" title="collection: ${esc(task.collection)}">${esc(task.collection)}</span>`:'';
     const toggleHtml=hasSubtasks?`<span class="task-toggle" data-toggle-id="${esc(task.id)}">${collapsed?'&#x25b6;':'&#x25bc;'}</span>`:'';
     const dueBadge=task.dueDate?`<span class="due-badge ${dueDateClass(task.dueDate)}">${esc(formatDueDate(task.dueDate))}</span>`:'';
     const pri=getPriority(task);
@@ -2665,19 +2952,19 @@ function renderFocusTab() {
     const estTag=!isDone&&!isEditingEst&&task.estimate?`<span class="estimate-badge" data-est-id="${esc(task.id)}" title="click to edit">:${esc(task.estimate)}</span>`:'';
     const estEdit=isEditingEst?`<div class="inline-edit" data-id="${esc(task.id)}"><input class="est-input" type="text" value="${esc(task.estimate)}" placeholder="e.g. 25m" autocomplete="off"><button class="save-btn">save</button><button class="cancel-est-btn">&#xd7;</button></div>`:'';
     const actHtml=task.actual?`<span class="actual-badge">&#x2713; ${esc(task.actual)}</span>`:'';
-    const timerBtn=isDone?'':`<button class="timer-btn${isTimerRunning?' running':''}" data-timer-id="${esc(task.id)}" title="${isTimerRunning?'stop timer':'start timer'}">${isTimerRunning?'&#x25a0;':'&#x25b6;'}</button>`;
+    const timerBtn=isDone||!taskCanComplete?'':`<button class="timer-btn${isTimerRunning?' running':''}" data-timer-id="${esc(task.id)}" title="${isTimerRunning?'stop timer':'start timer'}">${isTimerRunning?'&#x25a0;':'&#x25b6;'}</button>`;
     const elapsedHtml=!isDone&&isTimerRunning?`<span class="task-elapsed" id="timer-elapsed-${esc(task.id)}">${formatElapsed(getElapsedSeconds())}</span>`:'';
     const taskTitle=stripPriority(task.content);
     const isScheduled=(state.calendarEvents||[]).some(ev=>ev.title==='Focus: '+taskTitle);
-    const schedBtn=isDone?'':`<button class="sched-btn${isScheduled?' scheduled':''}" data-sched-id="${esc(task.id)}" title="${isScheduled?'already on calendar':'schedule as focus time'}">&#x2d35;</button>`;
-    const hasMeta=estEdit||actHtml||dueBadge;
+    const schedBtn=isDone||!taskCanComplete?'':`<button class="sched-btn${isScheduled?' scheduled':''}" data-sched-id="${esc(task.id)}" title="${isScheduled?'already on calendar':'schedule as focus time'}">&#x2d35;</button>`;
+    const hasMeta=estEdit||actHtml||dueBadge||collectionBadge;
     return `
       <div class="task-item${task.fromKinopio?' kn-task':''}${isDone?' done-task':''}" data-id="${esc(task.id)}" draggable="true">
         <span class="drag-handle" title="drag to reorder">&#x22ee;&#x22ee;</span>
-        <div class="task-check${isDone?' done':''}" data-done-id="${esc(task.id)}" data-done-state="${isDone?'done':'todo'}" title="${isDone?'completed':'mark done'}">${isDone?'&#10003;':''}</div>
+        <div class="task-check${isDone?' done':''}${taskCanComplete?'':' passive'}" data-done-id="${esc(task.id)}" data-done-state="${isDone?'done':'todo'}" title="${taskCanComplete?(isDone?'completed':'mark done'):`${task.taskType} entry`}">${taskGlyph(task)}</div>
         <div class="task-body">
           <div class="task-text">${toggleHtml}${priBadge}${doingBadge}${carriedBadge}${deferBadge}${recurBadge}${contentHtml}${isEditingContent?'':estTag+timerBtn+elapsedHtml+schedBtn}</div>
-          ${hasMeta?`<div class="task-meta">${estEdit}${actHtml}${dueBadge}</div>`:''}
+          ${hasMeta?`<div class="task-meta">${estEdit}${actHtml}${dueBadge}${collectionBadge}</div>`:''}
         </div>
         <button class="task-menu-btn" data-menu-id="${esc(task.id)}" title="options">&#x22ef;</button>
       </div>
@@ -2726,8 +3013,8 @@ function renderInboxTab() {
       const dueBadge=card.due?`<span class="due-badge ${dueDateClass(card.due)}" style="display:inline-block;margin-top:3px">${esc(formatDueDate(card.due))}</span>`:'';
       const added=isAddedToDay(dateISO,card.text);
       const addBtn=added
-        ?`<button class="inbox-readd-btn" data-kn-text="${esc(card.text)}" data-kn-id="${esc(card.id||'')}" title="re-add to today">added &times;</button>`
-        :`<button class="inbox-add-btn"   data-kn-text="${esc(card.text)}" data-kn-id="${esc(card.id||'')}" data-kn-due="${esc(card.due||'')}" title="add to today">+ day</button>`;
+        ?`<button class="inbox-readd-btn" data-kn-text="${esc(card.text)}" data-kn-id="${esc(card.id||'')}" data-kn-space="${esc(space)}" title="re-add to today">added &times;</button>`
+        :`<button class="inbox-add-btn"   data-kn-text="${esc(card.text)}" data-kn-id="${esc(card.id||'')}" data-kn-due="${esc(card.due||'')}" data-kn-space="${esc(space)}" title="add to today">+ day</button>`;
       const urlBtns=(card.urls||[]).map(u=>`<a class="kn-url-arrow" href="${esc(u)}" target="_blank">&#x2192;</a>`).join('');
       const knKey = (space||'') + '::' + textKey(card.text);
       return `<div class="inbox-item" draggable="true" data-kn-key="${esc(knKey)}" data-kn-space="${esc(space)}">
@@ -2812,6 +3099,7 @@ async function renderRightCol() {
 }
 
 function render() {
+  applyMobileMode();
   renderFocusTab();
   renderInboxTab();
   renderTemplatesTab();
@@ -2840,7 +3128,12 @@ async function setDate(isoStr) {
   document.getElementById('date-label').textContent = dateLabelFull(isoStr);
   if (state.timerInterval){clearInterval(state.timerInterval);state.timerInterval=null;}
   state.activeTimerUuid=null; state.timerStart=null; state.timerElapsed=0; state.timerPausedUuid=null;
-  state.tasks = await fetchTasks(isoStr);
+  state.tasks = (await fetchTasks(isoStr)).map(task => ({
+    ...task,
+    subtasks: Array.isArray(task.subtasks) ? task.subtasks : [],
+    taskType: normalizeTaskType(task.taskType),
+    collection: normalizeCollectionName(task.collection),
+  }));
   const recurringAdded = injectRecurringTasks(isoStr, state.tasks);
   if (recurringAdded) await persistTasks(isoStr, state.tasks);
   render();
@@ -2854,6 +3147,8 @@ async function setDate(isoStr) {
 function bindDynamicEvents() {
   document.querySelectorAll('[data-done-id]').forEach(el=>el.addEventListener('click',e=>{
     e.stopPropagation();
+    const task = state.tasks.find(t => t.id === el.dataset.doneId);
+    if (!task || !canCompleteTask(task)) return;
     if (el.dataset.doneState === 'done') {
       undoDone(el.dataset.doneId).catch(() => {});
       return;
@@ -2888,6 +3183,23 @@ function bindDynamicEvents() {
 
   document.querySelectorAll('.subtask-check').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();toggleSubtask(el.dataset.parentId,el.dataset.subId);}));
 
+  document.querySelectorAll('.subtask-text[data-sub-id]').forEach(el=>el.addEventListener('dblclick',e=>{
+    e.stopPropagation();
+    beginSubtaskEdit(el.dataset.parentId, el.dataset.subId);
+  }));
+
+  document.querySelectorAll('.subtask-input').forEach(el=>{
+    el.addEventListener('keydown',e=>{
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveSubtaskEdit(el.dataset.parentId, el.dataset.subId, el.value);
+      } else if (e.key === 'Escape') {
+        cancelSubtaskEdit();
+      }
+    });
+    el.addEventListener('blur',()=>saveSubtaskEdit(el.dataset.parentId, el.dataset.subId, el.value));
+  });
+
   document.querySelectorAll('[data-delete-id]').forEach(el=>el.addEventListener('click',e=>{
     e.stopPropagation(); skipTask(el.dataset.deleteId);
   }));
@@ -2918,8 +3230,8 @@ function bindDynamicEvents() {
 
   document.querySelectorAll('[data-sched-id]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();if(!el.classList.contains('scheduled'))scheduleTask(el.dataset.schedId);}));
 
-  document.querySelectorAll('.inbox-add-btn').forEach(el=>el.addEventListener('click',()=>addKinopioItemToDay({text:el.dataset.knText,id:el.dataset.knId||null,due:el.dataset.knDue||null})));
-  document.querySelectorAll('.inbox-readd-btn').forEach(el=>el.addEventListener('click',()=>{unmarkAddedToDay(state.currentDate,el.dataset.knText);addKinopioItemToDay({text:el.dataset.knText,id:el.dataset.knId||null,due:el.dataset.knDue||null});}));
+  document.querySelectorAll('.inbox-add-btn').forEach(el=>el.addEventListener('click',()=>addKinopioItemToDay({text:el.dataset.knText,id:el.dataset.knId||null,due:el.dataset.knDue||null,space:el.dataset.knSpace||null})));
+  document.querySelectorAll('.inbox-readd-btn').forEach(el=>el.addEventListener('click',()=>{unmarkAddedToDay(state.currentDate,el.dataset.knText);addKinopioItemToDay({text:el.dataset.knText,id:el.dataset.knId||null,due:el.dataset.knDue||null,space:el.dataset.knSpace||null});}));
   document.querySelectorAll('.inbox-done-btn').forEach(el=>el.addEventListener('click',()=>markKinopioItemDone(el.dataset.knText,el.dataset.knId)));
 
   // template card: click to insert, edit-btn to open editor
@@ -3235,6 +3547,7 @@ document.getElementById('go-today-btn').addEventListener('click', ()=>setDate(is
 
 document.querySelectorAll('.tab').forEach(tab=>tab.addEventListener('click',()=>switchTab(tab.dataset.tab)));
 document.getElementById('open-settings-btn').addEventListener('click',()=>openIntegrationsModal());
+document.getElementById('mobile-unlock-btn').addEventListener('click', unlockMobileForFiveMinutes);
 
 document.getElementById('quick-add-input').addEventListener('keydown',e=>{if(e.key==='Enter')quickAddTask(e.target.value);if(e.key==='Escape'){e.target.value='';e.target.blur();}});
 document.getElementById('quick-add-btn').addEventListener('click',()=>quickAddTask(document.getElementById('quick-add-input').value));
@@ -3246,8 +3559,31 @@ document.getElementById('options-menu').addEventListener('click',async e=>{
   if(!id)return;
   if(action==='edit-content'){state.editingContentId=id;render();setTimeout(()=>{const inp=document.querySelector(`.task-content-input[data-edit-id="${id}"]`);if(inp){inp.focus();inp.select();}},40);}
   else if(action==='edit-estimate'){state.editingEstId=id;render();setTimeout(()=>{const inp=document.querySelector('.est-input');if(inp){inp.focus();inp.select();}},40);}
-  else if(action==='breakdown'){state.breakdownId=id;document.getElementById('breakdown-input').value='';document.getElementById('breakdown-modal').style.display='flex';setTimeout(()=>document.getElementById('breakdown-input').focus(),50);}
+  else if(action==='breakdown'){
+    state.breakdownMode='manual';
+    state.breakdownId=id;
+    document.querySelector('#breakdown-modal p').textContent='add subtasks (one per line)';
+    document.getElementById('breakdown-input').value='';
+    document.getElementById('breakdown-modal').style.display='flex';
+    setTimeout(()=>document.getElementById('breakdown-input').focus(),50);
+  }
+  else if(action==='ai-breakdown'){
+    const task = state.tasks.find(t => t.id === id);
+    if (!task) return;
+    state.breakdownMode='ai';
+    state.breakdownId=id;
+    document.querySelector('#breakdown-modal p').textContent='ai breakdown (edit before saving)';
+    document.getElementById('breakdown-input').value='generating...';
+    document.getElementById('breakdown-modal').style.display='flex';
+    const lines = await generateAIBreakdown(stripPriority(task.content));
+    if (state.breakdownId !== id) return;
+    document.getElementById('breakdown-input').value = lines.join('\n');
+    setTimeout(()=>document.getElementById('breakdown-input').focus(),50);
+  }
   else if(action==='set-recurring'){openRecurringModal(id);}
+  else if(action==='type-task'){await setTaskType(id,'task');}
+  else if(action==='type-note'){await setTaskType(id,'note');}
+  else if(action==='type-event'){await setTaskType(id,'event');}
   else if(action==='skip') await skipTask(id);
   else if(action==='move-tomorrow') await moveToTomorrow(id);
 });
@@ -3260,9 +3596,30 @@ document.getElementById('actual-cancel-btn').addEventListener('click',()=>{docum
 document.getElementById('actual-input').addEventListener('keydown',e=>{if(e.key==='Enter')completeDone(e.target.value,document.getElementById('actual-notes').value);if(e.key==='Escape'){document.getElementById('actual-modal').style.display='none';state.pendingDoneId=null;}});
 document.getElementById('actual-notes').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))completeDone(document.getElementById('actual-input').value,e.target.value);if(e.key==='Escape'){document.getElementById('actual-modal').style.display='none';state.pendingDoneId=null;}});
 
-document.getElementById('breakdown-confirm-btn').addEventListener('click',()=>{const id=state.breakdownId,lines=document.getElementById('breakdown-input').value.split('\n');document.getElementById('breakdown-modal').style.display='none';state.breakdownId=null;if(id)addSubtasks(id,lines);});
-document.getElementById('breakdown-cancel-btn').addEventListener('click',()=>{document.getElementById('breakdown-modal').style.display='none';state.breakdownId=null;});
-document.getElementById('breakdown-input').addEventListener('keydown',e=>{if(e.key==='Escape'){document.getElementById('breakdown-modal').style.display='none';state.breakdownId=null;}if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))document.getElementById('breakdown-confirm-btn').click();});
+document.getElementById('breakdown-confirm-btn').addEventListener('click',()=>{
+  const id=state.breakdownId;
+  const lines=document.getElementById('breakdown-input').value.split('\n');
+  document.getElementById('breakdown-modal').style.display='none';
+  document.querySelector('#breakdown-modal p').textContent='add subtasks (one per line)';
+  state.breakdownId=null;
+  state.breakdownMode='manual';
+  if(id)addSubtasks(id,lines);
+});
+document.getElementById('breakdown-cancel-btn').addEventListener('click',()=>{
+  document.getElementById('breakdown-modal').style.display='none';
+  document.querySelector('#breakdown-modal p').textContent='add subtasks (one per line)';
+  state.breakdownId=null;
+  state.breakdownMode='manual';
+});
+document.getElementById('breakdown-input').addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.getElementById('breakdown-modal').style.display='none';
+    document.querySelector('#breakdown-modal p').textContent='add subtasks (one per line)';
+    state.breakdownId=null;
+    state.breakdownMode='manual';
+  }
+  if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))document.getElementById('breakdown-confirm-btn').click();
+});
 
 document.getElementById('schedule-confirm-btn').addEventListener('click',confirmScheduleTask);
 document.getElementById('schedule-cancel-btn').addEventListener('click',()=>{document.getElementById('schedule-modal').style.display='none';state.schedulingId=null;});
@@ -3295,10 +3652,29 @@ document.getElementById('kn-sync-btn').addEventListener('click',()=>syncFromKino
 window.addEventListener('online', () => {
   flushWebhookQueue().catch(() => {});
 });
+window.addEventListener('resize', () => {
+  applyMobileMode();
+  render();
+});
 
 document.getElementById('recurring-save-btn').addEventListener('click', saveRecurringFromModal);
 document.getElementById('recurring-cancel-btn').addEventListener('click', closeRecurringModal);
-document.getElementById('recurring-select').addEventListener('keydown', e => { if (e.key === 'Enter') saveRecurringFromModal(); if (e.key === 'Escape') closeRecurringModal(); });
+document.getElementById('recurring-select-all-btn').addEventListener('click', () => {
+  document.querySelectorAll('#recurring-weekdays input[data-day]').forEach(input => { input.checked = true; });
+});
+document.getElementById('recurring-weekdays-btn').addEventListener('click', () => {
+  document.querySelectorAll('#recurring-weekdays input[data-day]').forEach(input => {
+    const day = parseInt(input.dataset.day, 10);
+    input.checked = day >= 1 && day <= 5;
+  });
+});
+document.getElementById('recurring-clear-btn').addEventListener('click', () => {
+  document.querySelectorAll('#recurring-weekdays input[data-day]').forEach(input => { input.checked = false; });
+});
+document.getElementById('recurring-modal').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) saveRecurringFromModal();
+  if (e.key === 'Escape') closeRecurringModal();
+});
 
 // --- template editor wiring ---
 document.getElementById('tpl-new-btn').addEventListener('click', () => openTemplateEditor(null));
