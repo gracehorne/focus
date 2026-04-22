@@ -594,6 +594,7 @@
     .cal-loading { font-size: 11px; color: var(--text-muted); font-style: italic; }
 
     .integrations-inline-section { display: none; }
+    .field-error { border-color: var(--error, #e06c75) !important; box-shadow: 0 0 0 2px rgba(224,108,117,0.3); transition: border-color 0.2s, box-shadow 0.2s; }
     .integrations-inline-fields { display: grid; gap: 8px; }
     .integrations-inline-fields input {
       width: 100%;
@@ -1497,6 +1498,18 @@ function closeIntegrationsInline() {
   if (section) section.style.display = 'none';
 }
 
+function flashIntegrationFieldError(focusField, mode) {
+  const ids = mode === 'inline'
+    ? { kn: 'kn-api-key-inline', gcal: 'gcal-script-url-inline', log: 'log-webhook-url-inline' }
+    : { kn: 'kn-api-key-input', gcal: 'gcal-script-url-input', log: 'log-webhook-url-input' };
+  const target = focusField === 'gcal' ? ids.gcal : (focusField === 'log' ? ids.log : ids.kn);
+  const el = document.getElementById(target);
+  if (!el) return;
+  el.classList.add('field-error');
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(() => el.classList.remove('field-error'), 2000);
+}
+
 function focusIntegrationField(focusField, mode = 'modal') {
   const ids = mode === 'inline'
     ? {
@@ -1542,23 +1555,15 @@ async function saveIntegrationsDraft(draft, mode = 'modal') {
   if (webhookError) {
     showToast(webhookError, 'error', 3500);
     focusIntegrationField('log', mode);
+    flashIntegrationFieldError('log', mode);
     return false;
   }
 
   if (GCAL_SCRIPT_URL && !isGoogleAppsScriptUrl(GCAL_SCRIPT_URL)) {
     showToast('calendar integration URL must look like script.google.com/macros/s/.../exec', 'error', 3500);
     focusIntegrationField('gcal', mode);
+    flashIntegrationFieldError('gcal', mode);
     return false;
-  }
-
-  if (GCAL_SCRIPT_URL) {
-    try {
-      await requestCalendar({ action: 'get_calendar_events', date: state.currentDate || isoToday() }, { strict: true });
-    } catch (err) {
-      showToast(`calendar connection failed: ${err.message || 'unknown error'}`, 'error', 4500);
-      focusIntegrationField('gcal', mode);
-      return false;
-    }
   }
 
   const saveResult = await saveIntegrationsConfig();
@@ -1575,6 +1580,13 @@ async function saveIntegrationsDraft(draft, mode = 'modal') {
     return false;
   }
   showToast('integration settings saved', 'success');
+
+  // verify calendar connectivity post-save so it never blocks the save itself
+  if (GCAL_SCRIPT_URL) {
+    requestCalendar({ action: 'get_calendar_events', date: state.currentDate || isoToday() }, { strict: true })
+      .catch(err => showToast(`calendar connection check failed: ${err.message || 'unknown error'}`, 'error', 4500));
+  }
+
   return true;
 }
 
@@ -1584,7 +1596,16 @@ async function saveIntegrationsFromModal() {
 }
 
 async function saveIntegrationsFromInline() {
-  await saveIntegrationsDraft(readIntegrationsDraft('inline'), 'inline');
+  const btn = document.getElementById('integrations-inline-save-btn');
+  const orig = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = 'saving…';
+  try {
+    await saveIntegrationsDraft(readIntegrationsDraft('inline'), 'inline');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = orig;
+  }
 }
 
 async function testWebhookFromModal() {
