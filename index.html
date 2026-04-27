@@ -4760,11 +4760,20 @@
         showToast("moved to tomorrow", "success");
       }
 
+      let isCarryingOver = false;
+
       async function autoCarryUndoneTasksToDate(targetDateISO) {
         if (DEV_MODE) {
           console.log("[df dev] autoCarryUndoneTasksToDate suppressed:", targetDateISO);
           return;
         }
+
+        // Prevent race conditions by ensuring only one carry-over happens at a time
+        if (isCarryingOver) {
+          return;
+        }
+        isCarryingOver = true;
+
         try {
           const targetTasks = await fetchTasks(targetDateISO);
           const todayISO = isoToday();
@@ -4788,7 +4797,11 @@
               const alreadyExists = targetTasks.some(
                 (t) => textKey(t.content) === textKey(task.content),
               );
-              if (!alreadyExists) {
+              // Also check if this task is already in tasksToCarry to prevent duplicates
+              const alreadyInCarry = tasksToCarry.some(
+                (t) => textKey(t.content) === textKey(task.content),
+              );
+              if (!alreadyExists && !alreadyInCarry) {
                 tasksToCarry.push({
                   ...task,
                   id: genId(),
@@ -4825,6 +4838,8 @@
           }
         } catch (err) {
           console.warn("[df] autoCarryUndoneTasksToDate failed:", err);
+        } finally {
+          isCarryingOver = false;
         }
       }
 
@@ -5757,18 +5772,16 @@
           }),
         );
 
-        document
-          .querySelectorAll(".inbox-add-btn")
-          .forEach((el) =>
-            el.addEventListener("click", () =>
-              addKinopioItemToDay({
-                text: el.dataset.knText,
-                id: el.dataset.knId || null,
-                due: el.dataset.knDue || null,
-                space: el.dataset.knSpace || null,
-              }),
-            ),
-          );
+        document.querySelectorAll(".inbox-add-btn").forEach((el) =>
+          el.addEventListener("click", () =>
+            addKinopioItemToDay({
+              text: el.dataset.knText,
+              id: el.dataset.knId || null,
+              due: el.dataset.knDue || null,
+              space: el.dataset.knSpace || null,
+            }),
+          ),
+        );
         document.querySelectorAll(".inbox-readd-btn").forEach((el) =>
           el.addEventListener("click", () => {
             unmarkAddedToDay(state.currentDate, el.dataset.knText);
