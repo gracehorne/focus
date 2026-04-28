@@ -4819,21 +4819,35 @@
 
           // Add all carried tasks to the target date
           if (tasksToCarry.length > 0) {
-            targetTasks.push(...tasksToCarry);
-            await persistTasks(targetDateISO, targetTasks);
+            // Re-fetch target tasks right before persist to catch any race conditions
+            const latestTargetTasks = await fetchTasks(targetDateISO);
 
-            // Log each carryover to webhook
-            for (const task of tasksToCarry) {
-              logToWebhook({
-                date: targetDateISO,
-                task: stripPriority(task.content),
-                estimate: task.estimate || "",
-                actual: "",
-                deferred: task.defers,
-                event: "autocarry",
-                priority: getPriority(task) || "",
-                carriedFrom: task.carriedFrom,
-              });
+            // Filter out any carried tasks that now exist in the latest fetch
+            // (in case another operation added them while we were looking back)
+            const finalTasksToCarry = tasksToCarry.filter((carryTask) => {
+              return !latestTargetTasks.some(
+                (t) => textKey(t.content) === textKey(carryTask.content),
+              );
+            });
+
+            // Only persist if there are actually new tasks to add
+            if (finalTasksToCarry.length > 0) {
+              latestTargetTasks.push(...finalTasksToCarry);
+              await persistTasks(targetDateISO, latestTargetTasks);
+
+              // Log each carryover to webhook
+              for (const task of finalTasksToCarry) {
+                logToWebhook({
+                  date: targetDateISO,
+                  task: stripPriority(task.content),
+                  estimate: task.estimate || "",
+                  actual: "",
+                  deferred: task.defers,
+                  event: "autocarry",
+                  priority: getPriority(task) || "",
+                  carriedFrom: task.carriedFrom,
+                });
+              }
             }
           }
         } catch (err) {
