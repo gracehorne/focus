@@ -263,13 +263,13 @@
         display: flex;
         flex-direction: column;
         overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: var(--border) transparent;
+        scrollbar-width: none;
         min-width: 280px;
         transition:
           min-width 0.15s,
           opacity 0.15s;
       }
+      #right-col::-webkit-scrollbar { display: none; }
       #right-col.collapsed {
         flex: 0 0 0;
         overflow: hidden;
@@ -3624,6 +3624,7 @@
         draggingTplId: null,
         draggingChipType: null,
         draggingChipValue: null,
+        draggingChipEl: null,
         breakdownMode: "manual",
         collapsedPanels: new Set(),
         activeTagFilter: null,
@@ -5645,9 +5646,10 @@
                   )
                   .join("");
                 const knKey = (space || "") + "::" + textKey(card.text);
+                const statusBadge = card.isDone ? `<span class="inbox-status done">DONE</span>` : "";
                 return `<div class="inbox-item" draggable="true" data-kn-key="${esc(knKey)}" data-kn-space="${esc(space)}">
         <span class="drag-handle" title="drag to reorder">&#x22ee;&#x22ee;</span>
-        <span class="inbox-status ${markerClass}">${card.isDone ? "DONE" : "TODO"}</span>
+        ${statusBadge}
         <span class="inbox-text">${linkifyContent(card.text)}${urlBtns}${dueBadge ? "<br>" + dueBadge : ""}</span>
         <div class="inbox-actions">${addBtn}<button class="inbox-done-btn" data-kn-text="${esc(card.text)}" data-kn-id="${esc(card.id || "")}">&#x2713;</button></div>
       </div>`;
@@ -6090,26 +6092,31 @@
           inboxList._tooltipDelegated = true;
           inboxList.addEventListener("mouseover", (e) => {
             const item = e.target.closest(".inbox-item");
-            if (!item) return;
-            if (item === inboxList._tooltipItem) return;
-            inboxList._tooltipItem = item;
+            if (!item || item === _knTooltipCurrentItem) return;
+            _knTooltipCurrentItem = item;
             clearTimeout(_knTooltipTimer);
-            _knTooltipTimer = setTimeout(() => showKnTooltip(item, e), 350);
+            _knTooltipTimer = setTimeout(() => showKnTooltip(item, e), 400);
           });
-          inboxList.addEventListener("mouseout", (e) => {
-            const item = e.target.closest(".inbox-item");
-            if (!item) return;
-            if (e.relatedTarget && item.contains(e.relatedTarget)) return;
-            inboxList._tooltipItem = null;
+          inboxList.addEventListener("mouseleave", () => {
+            _knTooltipCurrentItem = null;
             clearTimeout(_knTooltipTimer);
             hideKnTooltip();
           });
-          inboxList.addEventListener("mousemove", (e) => positionKnTooltip(e));
+          inboxList.addEventListener("mousemove", (e) => {
+            const item = e.target.closest(".inbox-item");
+            if (!item) {
+              _knTooltipCurrentItem = null;
+              clearTimeout(_knTooltipTimer);
+              hideKnTooltip();
+            }
+            positionKnTooltip(e);
+          });
         }
       }
 
       // ---- kinopio tooltip ----
       let _knTooltipTimer = null;
+      let _knTooltipCurrentItem = null;
 
       function showKnTooltip(item, e) {
         const space = item.dataset.knSpace;
@@ -6150,14 +6157,18 @@
           chip.addEventListener("dragstart", (e) => {
             state.draggingChipType = chip.dataset.chipType;
             state.draggingChipValue = chip.dataset.chipValue;
+            state.draggingChipEl = chip;
             chip.classList.add("dragging");
             if (e.dataTransfer) e.dataTransfer.effectAllowed = "copy";
           });
           chip.addEventListener("dragend", () => {
+            // only clear if this chip started the drag (guards against stale events)
+            if (state.draggingChipEl !== chip) return;
             if (chip.classList) chip.classList.remove("dragging");
             clearDropHints(".task-item");
             state.draggingChipType = null;
             state.draggingChipValue = null;
+            state.draggingChipEl = null;
           });
         });
       }
@@ -6408,6 +6419,7 @@
               // Clear the dragging state before render
               state.draggingChipType = null;
               state.draggingChipValue = null;
+              state.draggingChipEl = null;
               await persistTasks(state.currentDate, state.tasks);
               render();
               return;
