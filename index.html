@@ -9,6 +9,7 @@
       type="image/svg+xml"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cellipse cx='20' cy='24' rx='16' ry='10' fill='%23ca9ee6' opacity='0.85' transform='rotate(-20 20 24)'/%3E%3Cellipse cx='44' cy='24' rx='16' ry='10' fill='%23a37fce' opacity='0.85' transform='rotate(20 44 24)'/%3E%3Cellipse cx='18' cy='42' rx='12' ry='8' fill='%23ca9ee6' opacity='0.7' transform='rotate(15 18 42)'/%3E%3Cellipse cx='46' cy='42' rx='12' ry='8' fill='%23a37fce' opacity='0.7' transform='rotate(-15 46 42)'/%3E%3Cellipse cx='32' cy='32' rx='3' ry='18' fill='%23414559'/%3E%3Ccircle cx='32' cy='14' r='3' fill='%23414559'/%3E%3Cline x1='30' y1='14' x2='22' y2='6' stroke='%23414559' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='34' y1='14' x2='42' y2='6' stroke='%23414559' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"
     />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
       * {
         box-sizing: border-box;
@@ -368,7 +369,7 @@
         background: rgba(255, 255, 255, 0.025);
       }
       .task-item.kn-task {
-        border-left: 2px solid rgba(202, 158, 230, 0.35);
+        box-shadow: inset 2px 0 0 rgba(202, 158, 230, 0.35);
         padding-left: 12px;
       }
       .task-item.done-task {
@@ -844,6 +845,42 @@
         -webkit-user-select: none;
         touch-action: manipulation;
       }
+
+      /* ---- kinopio hover tooltip ---- */
+      .kn-tooltip {
+        position: fixed;
+        z-index: 700;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+        padding: 8px 10px;
+        max-width: 240px;
+        min-width: 160px;
+        font-size: 11px;
+        pointer-events: none;
+        display: none;
+      }
+      .kn-tooltip-title {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 6px;
+      }
+      .kn-tooltip-card {
+        padding: 2px 0;
+        color: var(--text-muted);
+        line-height: 1.45;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .kn-tooltip-card.current {
+        color: var(--text);
+        font-weight: 600;
+      }
       .inbox-item:hover {
         background: rgba(255, 255, 255, 0.025);
       }
@@ -1135,15 +1172,28 @@
         flex-shrink: 0;
       }
       .cal-event-dot {
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        cursor: pointer;
+        font-size: 13px;
+        border-radius: 50%;
+      }
+      .cal-event-dot.type-default::before {
+        content: "";
         width: 5px;
         height: 5px;
         border-radius: 50%;
         background: var(--border);
-        flex-shrink: 0;
+        display: block;
       }
-      .cal-event-dot.focus {
+      .cal-event-dot.focus.type-default::before {
         background: var(--accent-dim);
       }
+      .cal-event-dot:hover { opacity: 0.75; }
       .cal-event-title {
         flex: 1;
         white-space: nowrap;
@@ -1158,6 +1208,48 @@
         font-size: 11px;
         color: var(--text-muted);
         font-style: italic;
+      }
+
+      /* ---- tag palette ---- */
+      .tag-palette-group { margin-bottom: 8px; }
+      .tag-palette-group-label {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        margin-bottom: 5px;
+      }
+      .tag-palette-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+      .tag-chip {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+        background: var(--surface2);
+        color: var(--text-muted);
+        cursor: grab;
+        user-select: none;
+        -webkit-user-select: none;
+        white-space: nowrap;
+        transition: opacity 0.1s;
+      }
+      .tag-chip.time-chip {
+        border-color: rgba(202, 158, 230, 0.35);
+        color: var(--accent);
+      }
+      .tag-chip.dragging { opacity: 0.35; }
+      .task-item.chip-drop-target { box-shadow: inset 0 0 0 2px var(--accent); }
+      .task-tag {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        padding: 1px 6px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        color: var(--text-muted);
+        background: var(--surface2);
+        margin-left: 3px;
       }
 
       .integrations-inline-section {
@@ -1225,25 +1317,6 @@
         margin-bottom: 5px;
       }
 
-      .accuracy-badge {
-        font-size: 10px;
-        padding: 1px 6px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-      }
-      .accuracy-good {
-        color: #a6d189;
-        border-color: rgba(166, 209, 137, 0.3);
-      }
-      .accuracy-ok {
-        color: #e5c890;
-        border-color: rgba(229, 200, 144, 0.3);
-      }
-      .accuracy-poor {
-        color: #e78284;
-        border-color: rgba(231, 130, 132, 0.3);
-      }
-
       .pri-row {
         display: flex;
         gap: 6px;
@@ -1270,47 +1343,19 @@
         border-color: rgba(166, 209, 137, 0.3);
       }
 
-      /* ---- priority badge (clickable, on task rows) ---- */
-      .priority-badge {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        font-family: var(--font-mono);
-        font-size: 10px;
-        font-weight: 700;
-        border: 1px solid var(--border);
-        color: var(--text-muted);
-        background: transparent;
+      /* ---- priority left border ---- */
+      .task-item { border-left: 3px solid transparent; }
+      .task-item.pri-a { border-left-color: #e78284; }
+      .task-item.pri-b { border-left-color: #e5c890; }
+      .task-item.pri-c { border-left-color: #a6d189; }
+      .pri-tab {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 10px;
         cursor: pointer;
-        user-select: none;
-        flex-shrink: 0;
-        padding: 0;
-        line-height: 1;
-      }
-      .priority-badge:hover {
-        border-color: var(--text);
-        color: var(--text);
-      }
-      .priority-badge.pri-a {
-        color: #e78284;
-        border-color: rgba(231, 130, 132, 0.55);
-        background: rgba(231, 130, 132, 0.12);
-      }
-      .priority-badge.pri-b {
-        color: #e5c890;
-        border-color: rgba(229, 200, 144, 0.55);
-        background: rgba(229, 200, 144, 0.12);
-      }
-      .priority-badge.pri-c {
-        color: #a6d189;
-        border-color: rgba(166, 209, 137, 0.55);
-        background: rgba(166, 209, 137, 0.12);
-      }
-      .priority-badge.pri-none::before {
-        content: "\2219";
+        z-index: 1;
       }
 
       /* ---- drag and drop ---- */
@@ -1993,6 +2038,105 @@
           background: rgba(202, 158, 230, 0.18);
         }
       }
+
+      /* ---- day timeline ---- */
+      #day-timeline {
+        position: relative;
+        height: 280px;
+        overflow-y: auto;
+        overflow-x: hidden;
+      }
+      .timeline-track {
+        position: relative;
+        width: 100%;
+      }
+      .timeline-hour-label {
+        position: absolute;
+        left: 0;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        color: var(--text-muted);
+        width: 34px;
+        text-align: right;
+        padding-right: 6px;
+        transform: translateY(-6px);
+        pointer-events: none;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .timeline-hour-line {
+        position: absolute;
+        left: 38px;
+        right: 0;
+        height: 1px;
+        background: var(--surface2);
+      }
+      .timeline-now-line {
+        position: absolute;
+        left: 38px;
+        right: 0;
+        height: 2px;
+        background: var(--danger);
+        z-index: 2;
+      }
+      .timeline-now-line::before {
+        content: "";
+        position: absolute;
+        left: -4px;
+        top: -3px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--danger);
+      }
+      .timeline-event-block {
+        position: absolute;
+        left: 42px;
+        right: 4px;
+        border-radius: 3px;
+        font-size: 9px;
+        font-family: var(--font-mono);
+        padding: 1px 5px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        opacity: 0.85;
+        color: var(--bg);
+        z-index: 1;
+        min-height: 14px;
+      }
+
+      /* ---- light mode (Catppuccin Latte) ---- */
+      [data-theme="light"] {
+        --bg: #eff1f5;
+        --surface: #e6e9ef;
+        --surface2: #ccd0da;
+        --border: #bcc0cc;
+        --accent: #8839ef;
+        --accent-dim: #7227d4;
+        --text: #4c4f69;
+        --text-muted: #8c8fa1;
+        --danger: #d20f39;
+        --success: #40a02b;
+        --peach: #fe640b;
+      }
+      [data-theme="light"] .task-item:hover { background: rgba(0,0,0,0.04); }
+      [data-theme="light"] #options-menu { box-shadow: 0 4px 20px rgba(0,0,0,0.18); }
+      [data-theme="light"] .toast { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+      [data-theme="light"] .modal-box { box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+      [data-theme="light"] .kn-tooltip { box-shadow: 0 4px 20px rgba(0,0,0,0.18); }
+
+      .theme-toggle-btn {
+        background: none;
+        border: 1px solid transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 15px;
+        padding: 2px 6px;
+        border-radius: 3px;
+        line-height: 1;
+      }
+      .theme-toggle-btn:hover { color: var(--accent); }
     </style>
   </head>
   <body>
@@ -2038,6 +2182,7 @@
           "
           >DEV MODE</span
         >
+        <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" title="toggle light/dark mode">&#x263c;</button>
         <button class="logout-btn" id="logout-btn" title="sign out">&#x2192; out</button>
       </header>
 
@@ -2083,6 +2228,15 @@
         </div>
 
         <div id="right-col">
+          <div class="right-section" id="panel-timeline">
+            <div class="right-section-title">
+              <span>today</span>
+              <button type="button" class="panel-toggle-btn" id="panel-toggle-timeline" title="collapse/expand">&#x2212;</button>
+            </div>
+            <div class="right-section-body" id="panel-body-timeline">
+              <div id="day-timeline"></div>
+            </div>
+          </div>
           <div class="right-section" id="panel-calendar">
             <div class="right-section-title">
               <span>calendar</span>
@@ -2106,6 +2260,15 @@
             </div>
             <div class="right-section-body" id="panel-body-time">
               <div id="time-summary-body"><div class="cal-loading">no estimates set</div></div>
+            </div>
+          </div>
+          <div class="right-section" id="panel-tags">
+            <div class="right-section-title">
+              <span>tags</span>
+              <button type="button" class="panel-toggle-btn" id="panel-toggle-tags" title="collapse/expand">&#x2212;</button>
+            </div>
+            <div class="right-section-body" id="panel-body-tags">
+              <div id="tag-palette-container"></div>
             </div>
           </div>
           <div class="right-section integrations-inline-section" id="panel-integrations">
@@ -2176,10 +2339,6 @@
       <button data-action="edit-estimate">edit estimate</button>
       <button data-action="breakdown">breakdown</button>
       <button data-action="set-recurring">set recurring</button>
-      <div class="menu-sep"></div>
-      <button data-action="type-task">set type: task</button>
-      <button data-action="type-note">set type: note</button>
-      <button data-action="type-event">set type: event</button>
       <div class="menu-sep"></div>
       <button data-action="move-tomorrow">move to tomorrow</button>
       <button data-action="skip" class="danger">remove</button>
@@ -2373,6 +2532,37 @@
       // intended for local testing only — no server/DB/webhook needed.
       const DEV_MODE = new URLSearchParams(location.search).has("dev");
 
+      // ---- theme ----
+      const THEME_KEY = "df-theme";
+      function getTheme() { return localStorage.getItem(THEME_KEY) || "dark"; }
+      function setTheme(t) {
+        localStorage.setItem(THEME_KEY, t);
+        document.documentElement.setAttribute("data-theme", t === "light" ? "light" : "");
+        const btn = document.getElementById("theme-toggle-btn");
+        if (btn) btn.innerHTML = t === "light" ? "&#x263d;" : "&#x263c;";
+        btn.title = t === "light" ? "switch to dark mode" : "switch to light mode";
+      }
+
+      // ---- calendar event types ----
+      const CAL_EVENT_TYPES_KEY = "df-cal-event-types";
+      const CAL_EVENT_TYPE_DEFS = {
+        default:  { icon: null,                  color: null },
+        movement: { icon: "bi-person-arms-up",   color: "#a6d189" },
+        focus:    { icon: "bi-bell-slash-fill",  color: "#babbf1" },
+        meal:     { icon: "bi-egg-fried",        color: "#ef9f76" },
+        social:   { icon: "bi-emoji-smile-fill", color: "#e5c890" },
+        hobby:    { icon: "bi-palette",          color: "#ca9ee6" },
+      };
+      const CAL_EVENT_TYPE_ORDER = ["default","movement","focus","meal","social","hobby"];
+      function getCalEventTypes() {
+        try { return JSON.parse(localStorage.getItem(CAL_EVENT_TYPES_KEY) || "{}"); } catch { return {}; }
+      }
+      function setCalEventType(evId, type) {
+        const types = getCalEventTypes();
+        types[evId] = type;
+        localStorage.setItem(CAL_EVENT_TYPES_KEY, JSON.stringify(types));
+      }
+
       // Integration config is loaded at runtime (local/account/runtime), not hardcoded here.
 
       const INTEGRATIONS_STORE_KEY = "df-integrations-config";
@@ -2445,11 +2635,10 @@
           name: "morning routine",
           category: "life",
           tasks: [
-            "go outside within 30-60 min of waking and let daylight hit your eyes - no sunglasses, no window glass",
-            "drink a full glass of water before anything else",
-            "wait 90-120 min after waking before having caffeine - your body wakes up better on its own first, and you will avoid the mid-afternoon crash",
-            "do one settling thing before opening your phone: stretch, journal, sit outside",
-            "set one intention for the day - not a list, one thing",
+            "go outside before checking your phone",
+            "drink a glass of water",
+            "do one quiet thing before the day starts — stretch, journal, sit with your coffee",
+            "set one intention for today",
           ],
         },
         {
@@ -2457,11 +2646,11 @@
           name: "shutdown routine",
           category: "life",
           tasks: [
-            "close all tabs and apps - don't leave anything open that implies tomorrow's obligation",
-            "write tomorrow's top 3 tasks so your head can stop holding them",
-            "do a quick sweep: anything unfinished or still on your mind, onto paper",
-            "physically leave your workspace if possible - changing rooms helps your brain switch off",
-            "note one thing that went well today, no matter how small",
+            "close tabs and apps",
+            "write down what tomorrow needs from you",
+            "note anything still on your mind so your head can let it go",
+            "leave your workspace — physically step away",
+            "name one thing that went okay today",
           ],
         },
         {
@@ -2469,11 +2658,10 @@
           name: "house cleaning",
           category: "life",
           tasks: [
-            "set a timer - 20 min focused is better than 2 hours of drifting",
-            "start with the most visible mess: dishes, counters, or floor",
-            "move room to room in one direction - don't backtrack",
-            "put on something to listen to only during cleaning",
-            "do one final walk-through to check nothing was missed before stopping",
+            "start with the most visible mess",
+            "move through rooms in one direction",
+            "put on something good to listen to",
+            "do a final walk-through before stopping",
           ],
         },
         {
@@ -2481,11 +2669,10 @@
           name: "inbox zero",
           category: "life",
           tasks: [
-            "set a 30 min timer - do not exceed it",
-            "archive or delete everything older than 2 weeks that needs no action",
-            "for each remaining email: reply now, flag for later, or delete",
-            "unsubscribe from anything you skipped without reading",
-            "close email when done - don't leave it open as a background tab",
+            "archive or delete anything older than two weeks that needs no action",
+            "for each remaining email: reply, flag, or delete",
+            "unsubscribe from anything you've been skipping",
+            "close email when done",
           ],
         },
         {
@@ -2493,11 +2680,9 @@
           name: "connection deposit",
           category: "life",
           tasks: [
-            "identify one person you've been meaning to reach out to - not because something is wrong",
-            "reach out with something specific: a question, a shared interest, something that made you think of them",
-            "if possible, suggest doing something together rather than a generic catch-up",
-            "if in-person, eat together - sharing food makes people feel closer",
-            "do it again within 2 weeks - relationships fade without regular contact",
+            "think of one person you've been meaning to reach out to",
+            "message them with something specific — a question, a memory, something that made you think of them",
+            "suggest something to do together if it feels right",
           ],
         },
         {
@@ -2505,11 +2690,11 @@
           name: "post-conflict reset",
           category: "life",
           tasks: [
-            "wait until you've calmed down before trying to resolve anything - you can't think clearly when you're still wound up",
-            "take a slow breath: double inhale through your nose, long exhale through your mouth, then ask: what do I actually want to happen here?",
-            "go in trying to understand their side, not to win - you can't repair things while you're still arguing",
-            "say what you actually feel, not just what you think - those are often different",
-            "make one small gesture toward repair - you don't need to resolve everything, just signal that you want to",
+            "wait until you've calmed down before trying to resolve anything",
+            "ask yourself: what do I actually want to happen here?",
+            "go in to understand their side, not to win",
+            "say what you feel, not just what you think",
+            "make one small gesture toward repair",
           ],
         },
 
@@ -2518,10 +2703,9 @@
           name: "brain dump",
           category: "work",
           tasks: [
-            "set a timer for 10-15 min",
-            "write everything in your head - tasks, worries, ideas, half-thoughts - without filtering",
-            "don't organize while dumping - get it out first, sort after",
-            "when the timer ends, sort into: do today, do later, delegate, drop",
+            "write everything in your head — tasks, worries, ideas, half-thoughts — without filtering",
+            "don't organize while dumping, get it all out first",
+            "sort into: do today, do later, delegate, drop",
             "pick one thing to start with and close the list",
           ],
         },
@@ -2530,11 +2714,10 @@
           name: "eat the frog",
           category: "work",
           tasks: [
-            "identify the task you've been most avoiding - that's the frog",
-            "do it first, before email or anything reactive",
-            "set a timer for 25 min and start with the smallest possible first step",
-            "do not switch tasks until the timer ends",
-            "when done, note that you did it - this helps you start more easily next time",
+            "identify the task you've been most avoiding",
+            "do it before email or anything reactive",
+            "start with the smallest possible first step",
+            "stay with it until it's done",
           ],
         },
         {
@@ -2543,10 +2726,9 @@
           category: "work",
           tasks: [
             "write the one thing you need to get out of this meeting",
-            "review any relevant context: previous notes, decisions, open questions",
+            "review relevant context: previous notes, open questions",
             "prepare one question to ask if the conversation stalls",
-            "set a 2-min reminder before start time so you're not rushing",
-            "have a place to capture action items in real time",
+            "have somewhere to capture action items",
           ],
         },
         {
@@ -2555,10 +2737,10 @@
           category: "work",
           tasks: [
             "write the question you're trying to answer before opening any software",
-            "set up your workspace: project folder open, relevant scripts visible, notes doc ready",
-            "do a quick check of your data before any analysis - dimensions, missing values, basic distributions",
-            "work in tidy chunks: write a comment describing your intent before each block of code",
-            "end by writing 2-3 sentences about what you found and what the next question is",
+            "open your project folder, relevant scripts, and a notes doc",
+            "do a quick look at your data before diving in — dimensions, gaps, distributions",
+            "write a note describing your intent before each chunk of code",
+            "end by writing what you found and what the next question is",
           ],
         },
         {
@@ -2567,12 +2749,10 @@
           category: "work",
           tasks: [
             "name the specific section or goal for this session",
-            "set a time limit - 50 min on, 10 min off",
-            "close email, Slack, and unrelated tabs",
+            "close email and unrelated tabs",
             "re-read the last paragraph you wrote to get back into the flow",
-            "write - do not edit while drafting",
-            "when the timer goes off: stop mid-sentence if needed, note what comes next",
-            "save and back up",
+            "write — don't edit while drafting",
+            "when you stop: note what comes next so future-you can pick it up easily",
           ],
         },
         {
@@ -2580,11 +2760,11 @@
           name: "read journal article",
           category: "work",
           tasks: [
-            "read the abstract and conclusion first - know the main finding before the argument",
-            "read methods actively: could you replicate this? what are the limitations?",
+            "read the abstract and conclusion first",
+            "read the methods critically — could you replicate this? what are the limits?",
             "note one thing you agree with, one thing you question, one thing relevant to your work",
-            "close the paper and write 3 sentences from memory: question, finding, relevance to your work",
-            "tag and file - if you can't find it later, the reading didn't count",
+            "write 2–3 sentences from memory after finishing",
+            "tag and file it",
           ],
         },
         {
@@ -2592,13 +2772,12 @@
           name: "peer review",
           category: "work",
           tasks: [
-            "read the paper once through without taking notes - get the full picture first",
-            "read again critically: is the question clear? are the methods right for it? do the results support the claims?",
-            "identify the 2-3 most important issues - these are your main concerns",
-            "note smaller issues separately: writing, framing, missing references",
-            "write your review leading with what the paper does well before raising concerns",
-            "check your tone: be direct but fair - you would want the same",
-            "submit before the deadline, not the morning of",
+            "read the paper once through without taking notes",
+            "read again: is the question clear? do the methods fit? do the results support the claims?",
+            "identify the 2–3 most important issues",
+            "note smaller things separately: writing, framing, missing references",
+            "lead your review with what the paper does well",
+            "check your tone — be direct but fair",
           ],
         },
         {
@@ -2606,12 +2785,11 @@
           name: "writing a blog post",
           category: "work",
           tasks: [
-            "identify your reader and what they'll walk away knowing",
-            "write the opening hook first - if it's boring, the rest won't matter",
-            "outline in 3-5 beats before drafting - don't discover your structure mid-draft",
-            "draft fast without editing - get to the end before going back",
-            "cut your first paragraph and see if the post is better - it usually is",
-            "read aloud before publishing: your ear catches what your eye misses",
+            "know who you're writing for and what they'll walk away with",
+            "write the opening first — if it's boring, the rest won't matter",
+            "outline 3–5 beats before drafting",
+            "draft fast and get to the end before going back",
+            "read it aloud before publishing",
           ],
         },
         {
@@ -2619,13 +2797,11 @@
           name: "talk prep",
           category: "work",
           tasks: [
-            "write the one thing you want the audience to leave knowing - your anchor",
-            "build the arc: opening hook, 3 key points max, a closing that ties back to the hook",
-            "do a full out-loud run-through alone - not in your head, out loud, timed",
-            "think through the two moments most likely to make you nervous and walk through them in your head at real speed: walking up, your opening line, the start of Q&A",
-            "record one run-through and watch it once - posture, pace, filler words",
-            "the night before: no new edits, just one slow read-through, then sleep - your brain keeps processing overnight",
-            "day of: take a slow breath before you go on (double inhale through your nose, long exhale through your mouth) to take the edge off",
+            "write the one thing you want the audience to leave knowing",
+            "build the arc: opening, 3 key points, a close that ties back to the opening",
+            "do a full out-loud run-through, timed",
+            "think through the moments most likely to make you nervous",
+            "the night before: one slow read-through, then stop — you're ready enough",
           ],
         },
 
@@ -2634,11 +2810,10 @@
           name: "movement",
           category: "body",
           tasks: [
-            "pick a form of movement you'll actually do today - not the ideal one, the real one",
-            "set a minimum: 10 min is enough to count and often leads to more",
-            "leave your phone behind or on silent if possible",
-            "notice how you feel before and after - that contrast is what makes movement stick as a habit",
-            "log it, even if it was short",
+            "pick the form of movement you'll actually do today — not the ideal one, the real one",
+            "even 10 minutes counts",
+            "leave your phone behind if you can",
+            "notice how you feel after",
           ],
         },
         {
@@ -2646,11 +2821,10 @@
           name: "PT stretches",
           category: "body",
           tasks: [
-            "do these before your day gets busy - morning or before exercise works well",
-            "move slowly through each stretch: you're retraining movement patterns, not just loosening up",
-            "breathe out on the effort or release - holding your breath works against you",
-            "note any unevenness or pain: that's useful information, not a sign of failure",
-            "finish with 2 min lying flat and letting everything settle",
+            "do these before the day gets busy",
+            "move slowly — you're relearning patterns, not just loosening up",
+            "breathe through each stretch",
+            "note anything uneven or uncomfortable",
           ],
         },
         {
@@ -2658,22 +2832,20 @@
           name: "post-exertion recovery",
           category: "body",
           tasks: [
-            "spend 5 min breathing slowly right after training - double inhale through your nose, long exhale; this helps your body shift out of exercise mode",
-            "eat something with protein within an hour - your muscles start repairing now",
-            "if very sore, do light movement rather than full rest - gentle movement helps soreness clear faster than lying still",
-            "if your goal is building strength or muscle, avoid ice baths or cold showers for at least 4 hours after training - the cold blunts the body's repair response",
-            "protect that night's sleep above all else - the actual repair happens there",
+            "slow your breathing down after training",
+            "eat something with protein within the hour",
+            "if you're sore, gentle movement helps more than lying still",
+            "protect tonight's sleep — that's when the actual recovery happens",
           ],
         },
         {
           id: "morning-light-anchor",
-          name: "morning light anchor",
+          name: "morning light",
           category: "body",
           tasks: [
-            "go outside within 30-60 min of waking - no sunglasses, no window glass, just open sky",
-            "look toward the light (not at the sun) for 5-10 min - blinking is fine, having your phone is fine",
-            "wait 90-120 min after waking before having caffeine - this prevents the afternoon energy crash",
-            "drink a full glass of water first - you've gone 8 hours without any",
+            "go outside before checking your phone",
+            "drink water first",
+            "wait a bit before coffee — your body wakes up on its own first",
           ],
         },
         {
@@ -2681,11 +2853,10 @@
           name: "midday rest",
           category: "body",
           tasks: [
-            "lie down flat, close your eyes, set a timer for 20 min",
-            "starting from your feet, let each part of your body relax in turn - don't force it, just notice",
-            "breathe naturally but exhale slowly and fully each time",
-            "if you fall asleep, that's fine - if you stay awake, you'll feel more alert than a nap usually leaves you",
-            "don't check your phone for 5 min after",
+            "lie down and close your eyes",
+            "let your body relax from feet upward",
+            "breathe naturally, exhale slowly",
+            "don't check your phone right after",
           ],
         },
 
@@ -2694,52 +2865,44 @@
           name: "body check",
           category: "mind",
           tasks: [
-            "if you're hungry, eat something with protein and fat before sitting down - not a snack, a small meal",
-            "if you're thirsty or haven't had water recently, fill a full glass now and set a second one out for later",
-            "if you're tired, take a 10-20 min nap now rather than spending 2 hours not working - if just foggy, try 5 min of movement or splash cold water on your face",
-            "if you're anxious, try this breathing pattern: inhale for 4 counts, hold for 7, exhale for 8 - you don't need to feel calm, just a little less on edge",
-            "if you're restless or physically stiff, move for 2 min before sitting down - it won't go away once you're at your desk",
-            "if your eyes hurt or you have a headache, look at something far away for 20 seconds and adjust your screen brightness before opening anything",
-            "if everything feels like too much, put on headphones with quiet or steady background sound, close extra tabs, and dim your screen",
-            "if everything feels fine but you still can't start, that's usually low-level anxiety - try the breathing step above, then go straight to your research warmup",
+            "are you hungry? eat something real before sitting down",
+            "are you thirsty? fill a glass of water now",
+            "are you tired? a short rest is faster than two hours of not working",
+            "are you stiff or restless? move for a few minutes first",
+            "is everything feeling like too much? close extra tabs, dim your screen, put on headphones",
           ],
         },
         {
           id: "low-stakes-research-warmup",
-          name: "low-stakes research warmup",
+          name: "research warmup",
           category: "mind",
           tasks: [
-            "do a body check before opening anything",
-            "clear one surface if your desk is cluttered - mess in your space adds to mess in your head",
-            "make your drink and sit down without opening your laptop yet - just settle in for 2 min",
-            "open something you've already written that you like and read it without editing",
-            "do one tiny task: rename a file, add a citation, fix a figure label",
-            "if you feel like continuing, set a 25 min timer and keep going",
-            "if you don't, close everything and count it as done - showing up is the whole point",
+            "clear one surface if your desk is cluttered",
+            "make your drink and sit down without opening your laptop yet",
+            "open something you've already written that you like",
+            "do one small task to get moving: rename a file, add a citation, fix a label",
           ],
         },
         {
           id: "knowledge-consolidation-session",
-          name: "knowledge consolidation session",
+          name: "knowledge consolidation",
           category: "mind",
           tasks: [
-            "close everything you used to learn - notes, papers, browser tabs",
-            "write freely for 10 min: everything you can remember about the topic without looking - mistakes are useful, they show you what to revisit",
-            "go back and check what you missed or got wrong - those are the exact things to go over again",
-            "plan your next review: look at it again in 2-3 days, then a week, then a month - cramming once doesn't stick",
-            "don't try to review right before sleep - your brain does the actual storing while you sleep, so let it",
+            "close everything you used to learn",
+            "write from memory: everything you can recall about the topic without looking",
+            "go back and check what you missed or got wrong",
+            "plan when to review it again",
           ],
         },
         {
           id: "emotional-processing-check-in",
-          name: "emotional processing check-in",
+          name: "emotional check-in",
           category: "mind",
           tasks: [
-            "name the feeling precisely - 'frustrated', 'humiliated', and 'disappointed' are different and need different responses",
-            "if the feeling is intense, slow your breathing first: long exhale, then breathe normally for a minute before trying to think through anything",
-            "set aside 10-30 min to actually feel it - no what-ifs, no problem-solving, just sit with it while staying aware of where you are right now",
-            "write one sentence about what you actually need right now - not what happened, what you need",
-            "decide whether to sit with it alone, talk it through with someone, or set it aside for now - all three are valid",
+            "name what you're feeling as precisely as you can",
+            "sit with it for a few minutes without trying to fix it",
+            "write one sentence about what you actually need right now",
+            "decide: sit with it, talk it through, or set it aside for now",
           ],
         },
         {
@@ -2747,11 +2910,9 @@
           name: "social recharge",
           category: "mind",
           tasks: [
-            "notice whether you feel drained or just tired - drained after a lot of people-time needs different recovery than ordinary tiredness",
-            "spend 10-20 min in real quiet first: no podcast, no phone, no input - just silence or ambient sound",
-            "if you feel overstimulated, dim the lights and reduce noise before trying to do anything else",
-            "do one thing that's entirely for you and requires nothing from anyone else: a walk, cooking, reading, sketching",
-            "if you need to re-enter work or social mode soon, take a slow breath first: double inhale through your nose, long exhale through your mouth",
+            "spend some time in real quiet — no input",
+            "do one thing that's entirely for you and requires nothing from anyone else",
+            "let yourself be slow for a bit",
           ],
         },
         {
@@ -2759,12 +2920,11 @@
           name: "feedback separation",
           category: "mind",
           tasks: [
-            "before reading, take a slow breath: double inhale through your nose, long exhale through your mouth - you'll process it more clearly when you're not braced",
-            "read it once all the way through without annotating - get the full picture before reacting to any part",
-            "write list 1: what the feedback is actually about - the argument, the method, the framing, the execution",
-            "write list 2: what it is definitely not about - your intelligence, your right to be here, your worth as a person",
-            "pick the one most useful piece of feedback and write one next step for it",
-            "put the rest aside for 24 hours - it will read differently tomorrow",
+            "read it once all the way through before reacting",
+            "write down what the feedback is actually about",
+            "write down what it is definitely not about",
+            "pick the one most useful piece and write one next step",
+            "put the rest aside — it will read differently tomorrow",
           ],
         },
         {
@@ -2772,37 +2932,32 @@
           name: "minimum viable response",
           category: "mind",
           tasks: [
-            "if you feel the urge to go quiet after difficult feedback, notice it - going silent is a self-protective reflex, not a decision",
-            "before responding, take a slow breath or move around for 5 min - you can't think straight when you're in that state",
-            "send one sentence to keep the conversation going: 'thanks, I need some time to sit with this' is enough",
-            "don't write a real response until you've calmed down - schedule it for later",
-            "write down what triggered the shutdown so you can spot the pattern next time",
+            "notice if you're going quiet — it's a reflex, not a decision",
+            "send one sentence to keep the conversation going before you're ready to say more",
+            "write your real response once you've had some time",
           ],
         },
         {
           id: "low-stakes-sharing-ramp",
-          name: "low-stakes sharing ramp",
+          name: "sharing practice",
           category: "mind",
           tasks: [
-            "name the work you've been avoiding putting out - be specific",
-            "find the smallest piece you could share: a paragraph, a figure, a rough idea - not the whole thing",
-            "pick the lowest-pressure person for this: a peer, a trusted labmate, a writing group",
-            "share it with them before sharing anything with your advisor or committee",
-            "after getting feedback, notice: did anything bad actually happen? use that as evidence that it's safer than it felt",
-            "repeat with progressively bigger pieces and wider audiences - each time you do it, the next one feels slightly less scary",
+            "name the work you've been avoiding putting out",
+            "find the smallest piece you could share: a paragraph, a figure, a rough idea",
+            "share it with one low-pressure person first",
+            "notice: did anything bad actually happen?",
           ],
         },
 
         {
           id: "context-switch-field-to-desk",
-          name: "context switch: field to desk",
+          name: "field to desk",
           category: "liminal",
           tasks: [
-            "don't open your laptop immediately after coming back from the field - give yourself 20-30 min to decompress first",
-            "write rough field notes while everything is fresh: observations, surprises, anything that stood out",
-            "do a quick body check before sitting down to write",
-            "write one sentence about what question you're trying to answer in today's writing - field mode and writing mode are different, and the sentence bridges them",
-            "start with the easiest writing task, not the hardest",
+            "give yourself time before opening your laptop",
+            "write rough field notes while everything is fresh",
+            "write one sentence about what question you're working on today",
+            "start with the easiest writing task",
           ],
         },
         {
@@ -2810,35 +2965,32 @@
           name: "post-fieldwork decompress",
           category: "liminal",
           tasks: [
-            "change out of field clothes - the physical change helps signal to yourself that you've shifted contexts",
-            "eat something real before doing anything else - field days often throw off eating",
-            "don't check email for at least 30 min after getting back",
-            "take a 10-15 min walk or sit outside with no agenda - let your senses wind down",
-            "write one sentence about what you noticed today - even if it feels unimportant",
+            "change out of field clothes",
+            "eat something real",
+            "take a walk or sit outside with no agenda",
+            "write one thing you noticed today",
           ],
         },
         {
           id: "recalibration-after-an-off-week",
-          name: "recalibration after an off week",
+          name: "recalibration",
           category: "liminal",
           tasks: [
-            "don't try to catch up on everything immediately - that just adds more pressure on top of an already hard week",
-            "get back to basics first: a consistent sleep time and morning daylight - everything else works better when those are in place",
-            "do one full brain dump: everything unfinished, deferred, or weighing on you, onto paper - then sort into this week, later, and drop",
-            "pick one meaningful thing to finish today - one real win does more for momentum than a packed schedule",
-            "acknowledge that the week was hard and don't count it against yourself",
+            "don't try to catch up on everything at once",
+            "write down everything unfinished or weighing on you, then sort it",
+            "pick one meaningful thing to finish today",
+            "be easy on yourself about the week",
           ],
         },
         {
           id: "travel-day-protocol",
-          name: "travel day protocol",
+          name: "travel day",
           category: "liminal",
           tasks: [
-            "get outside in daylight at your destination as soon as you can after arriving - this is the fastest way to help your body adjust to the new time zone",
-            "try to eat your main meal closer to local mealtimes on day one",
-            "if you arrive during the day, avoid napping more than 20 min - do the midday rest instead if you need a break",
-            "keep a low-effort task on hand for the post-travel fog period - your thinking will be sluggish for 12-24 hrs and that's normal",
-            "don't schedule anything that needs sharp thinking until day two at the earliest",
+            "get outside in daylight when you arrive",
+            "eat closer to local mealtimes",
+            "keep something low-effort on hand for the foggy period after travel",
+            "don't schedule anything demanding until you've had a full night's sleep",
           ],
         },
         {
@@ -2847,10 +2999,9 @@
           category: "liminal",
           tasks: [
             "wait until you've calmed down before trying to resolve anything",
-            "take a slow breath: double inhale through your nose, long exhale through your mouth, then ask: what do I actually want to happen here?",
-            "go in trying to understand their side, not to win",
-            "say what you actually feel, not just what you think",
-            "make one small gesture toward repair - you don't need to resolve everything, just signal that you want to",
+            "ask yourself what you actually want to happen",
+            "go in to understand, not to win",
+            "make one small gesture toward repair",
           ],
         },
       ];
@@ -3466,6 +3617,8 @@
         draggingTaskId: null,
         draggingKnKey: null,
         draggingTplId: null,
+        draggingChipType: null,
+        draggingChipValue: null,
         breakdownMode: "manual",
         collapsedPanels: new Set(),
       };
@@ -3502,8 +3655,10 @@
 
       function applyPanelCollapseState() {
         const mapping = [
+          { id: "timeline", el: "panel-timeline", btn: "panel-toggle-timeline" },
           { id: "calendar", el: "panel-calendar", btn: "panel-toggle-calendar" },
           { id: "time", el: "panel-time", btn: "panel-toggle-time" },
+          { id: "tags", el: "panel-tags", btn: "panel-toggle-tags" },
           { id: "integrations", el: "panel-integrations", btn: "panel-toggle-integrations" },
         ];
         for (const panel of mapping) {
@@ -3728,6 +3883,21 @@
         const s = getAddedSet(d);
         s.delete(textKey(c));
         localStorage.setItem(addedKey(d), JSON.stringify([...s]));
+      }
+      function skippedKey(d) {
+        return "df-skipped-" + d;
+      }
+      function getSkippedSet(d) {
+        try {
+          return new Set(JSON.parse(localStorage.getItem(skippedKey(d)) || "[]"));
+        } catch {
+          return new Set();
+        }
+      }
+      function markSkippedOnDay(d, c) {
+        const s = getSkippedSet(d);
+        s.add(textKey(c));
+        localStorage.setItem(skippedKey(d), JSON.stringify([...s]));
       }
       function getKnCardIdMap() {
         try {
@@ -4485,6 +4655,7 @@
           defers: 0,
           taskType,
           collection: null,
+          tags: [],
         };
         state.tasks.push(task);
         await persistTasks(state.currentDate, state.tasks);
@@ -4720,6 +4891,7 @@
       async function skipTask(taskId) {
         const task = state.tasks.find((t) => t.id === taskId);
         if (task && task.fromKinopio) unmarkAddedToDay(state.currentDate, task.content);
+        if (task) markSkippedOnDay(state.currentDate, task.content);
         state.tasks = state.tasks.filter((t) => t.id !== taskId);
         await persistTasks(state.currentDate, state.tasks);
         render();
@@ -4781,6 +4953,18 @@
           // Only carry over if the target date is today or later than today
           if (targetDateISO < todayISO) return;
 
+          // Collect all explicitly-skipped task keys across the lookback window
+          // so we never re-carry something the user deliberately removed.
+          const globalSkippedKeys = new Set();
+          {
+            let scanDate = isoAddDays(targetDateISO, -1);
+            for (let i = 0; i < 30; i++) {
+              if (scanDate < "2024-01-01") break;
+              for (const k of getSkippedSet(scanDate)) globalSkippedKeys.add(k);
+              scanDate = isoAddDays(scanDate, -1);
+            }
+          }
+
           // Start from yesterday and go back to find all undone tasks
           let currentBackDate = isoAddDays(targetDateISO, -1);
           const tasksToCarry = [];
@@ -4801,7 +4985,9 @@
               const alreadyInCarry = tasksToCarry.some(
                 (t) => textKey(t.content) === textKey(task.content),
               );
-              if (!alreadyExists && !alreadyInCarry) {
+              // Skip tasks the user explicitly removed on any day in the window
+              const wasSkipped = globalSkippedKeys.has(textKey(task.content));
+              if (!alreadyExists && !alreadyInCarry && !wasSkipped) {
                 tasksToCarry.push({
                   ...task,
                   id: genId(),
@@ -4931,10 +5117,13 @@
       async function saveSubtaskEdit(taskId, subtaskId, content) {
         const task = state.tasks.find((t) => t.id === taskId);
         if (!task) return;
-        const subtask = (task.subtasks || []).find((s) => s.id === subtaskId);
-        if (!subtask) return;
         const trimmed = String(content || "").trim();
-        if (trimmed) subtask.content = trimmed;
+        if (!trimmed) {
+          task.subtasks = (task.subtasks || []).filter((s) => s.id !== subtaskId);
+        } else {
+          const subtask = (task.subtasks || []).find((s) => s.id === subtaskId);
+          if (subtask) subtask.content = trimmed;
+        }
         state.editingSubtask = null;
         await persistTasks(state.currentDate, state.tasks);
         render();
@@ -4963,6 +5152,7 @@
             knCardId: cardObj.id || null,
             taskType: "task",
             collection: normalizeCollectionName(cardObj.space),
+            tags: [],
           });
           await persistTasks(state.currentDate, state.tasks);
         } else if (!existing.collection && cardObj.space) {
@@ -5284,7 +5474,7 @@
               state.editingSubtask.taskId === task.id &&
               state.editingSubtask.subtaskId === sub.id;
             const content = isEditing
-              ? `<input class="subtask-input" type="text" data-sub-id="${esc(sub.id)}" data-parent-id="${esc(task.id)}" value="${esc(sub.content)}" autocomplete="off"/>`
+              ? `<input class="subtask-input" type="text" data-sub-id="${esc(sub.id)}" data-parent-id="${esc(task.id)}" value="${esc(sub.content)}" placeholder="clear to remove" autocomplete="off"/>`
               : `<span class="subtask-text ${done ? "done" : ""}" data-sub-id="${esc(sub.id)}" data-parent-id="${esc(task.id)}">${linkifyContent(sub.content)}</span>`;
             return `<div class="subtask-item">
       <div class="subtask-check ${done ? "done" : ""}" data-sub-id="${esc(sub.id)}" data-parent-id="${esc(task.id)}">${done ? "x" : "•"}</div>
@@ -5339,9 +5529,7 @@
               ? `<span class="due-badge ${dueDateClass(task.dueDate)}">${esc(formatDueDate(task.dueDate))}</span>`
               : "";
             const pri = getPriority(task);
-            const priClass = pri ? "pri-" + pri.toLowerCase() : "pri-none";
-            const priLabel = pri || "";
-            const priBadge = `<button class="priority-badge ${priClass}" data-pri-id="${esc(task.id)}" title="priority (click to cycle A \u2192 B \u2192 C \u2192 none)">${priLabel}</button>`;
+            const priBadge = "";
             // strip legacy [#X] out of what we show in the task row; the badge carries the priority
             const displayContent = stripPriority(task.content);
             const contentHtml = isEditingContent
@@ -5366,13 +5554,18 @@
                 ? ""
                 : `<button class="sched-btn${isScheduled ? " scheduled" : ""}" data-sched-id="${esc(task.id)}" title="${isScheduled ? "already on calendar" : "schedule as focus time"}">&#x2d35;</button>`;
             const hasMeta = estEdit || actHtml || dueBadge || collectionBadge;
+            const tagsHtml = (task.tags || []).length
+              ? `<div class="task-meta">${(task.tags || []).map((t) => `<span class="task-tag">${esc(t)}</span>`).join("")}</div>`
+              : "";
             return `
-      <div class="task-item${task.fromKinopio ? " kn-task" : ""}${isDone ? " done-task" : ""}" data-id="${esc(task.id)}" draggable="true">
+      <div class="task-item${task.fromKinopio ? " kn-task" : ""}${isDone ? " done-task" : ""}${pri ? " pri-" + pri.toLowerCase() : ""}" data-id="${esc(task.id)}" draggable="true">
+        <div class="pri-tab" data-pri-id="${esc(task.id)}" title="click to cycle priority"></div>
         <span class="drag-handle" title="drag to reorder">&#x22ee;&#x22ee;</span>
         <div class="task-check${isDone ? " done" : ""}${taskCanComplete ? "" : " passive"}" data-done-id="${esc(task.id)}" data-done-state="${isDone ? "done" : "todo"}" title="${taskCanComplete ? (isDone ? "completed" : "mark done") : `${task.taskType} entry`}">${taskGlyph(task)}</div>
         <div class="task-body">
           <div class="task-text">${toggleHtml}${priBadge}${doingBadge}${deferBadge}${recurBadge}${contentHtml}${isEditingContent ? "" : estTag + schedBtn}</div>
           ${hasMeta ? `<div class="task-meta">${estEdit}${actHtml}${dueBadge}${collectionBadge}</div>` : ""}
+          ${tagsHtml}
         </div>
         <button class="task-menu-btn" data-menu-id="${esc(task.id)}" title="options">&#x22ef;</button>
       </div>
@@ -5501,7 +5694,7 @@
             .join("") || '<div class="empty-state">no templates yet</div>';
       }
 
-      async function renderRightCol() {
+      function renderRightCol() {
         const calendarConfigured = !!GCAL_SCRIPT_URL;
         const refreshBtn = document.getElementById("cal-refresh-btn");
         if (refreshBtn) {
@@ -5520,12 +5713,18 @@
         } else if (state.calendarEvents.length === 0) {
           calEl.innerHTML = '<div class="cal-loading">no events</div>';
         } else {
+          const calEvTypes = getCalEventTypes();
           calEl.innerHTML = state.calendarEvents
             .map((ev) => {
               const isFocus = ev.title.startsWith("Focus:");
+              const evType = calEvTypes[ev.id] || "default";
+              const def = CAL_EVENT_TYPE_DEFS[evType];
+              const dotHtml = def.icon
+                ? `<i class="bi ${def.icon} cal-event-dot${isFocus ? " focus" : ""} type-${evType}" data-ev-id="${esc(ev.id)}" style="color:${def.color}" title="click to change type"></i>`
+                : `<span class="cal-event-dot${isFocus ? " focus" : ""} type-default" data-ev-id="${esc(ev.id)}" title="click to change type"></span>`;
               return `<div class="cal-event">
         <span class="cal-event-time">${esc(fmtCalTime(ev.start) + "\u2013" + fmtCalTime(ev.end))}</span>
-        <span class="cal-event-dot${isFocus ? " focus" : ""}"></span>
+        ${dotHtml}
         <span class="cal-event-title${isFocus ? " focus" : ""}" title="${esc(ev.title)}">${esc(isFocus ? ev.title.replace(/^Focus:\s*/, "") : ev.title)}</span>
       </div>`;
             })
@@ -5542,11 +5741,6 @@
         const now = new Date(),
           end = new Date(now.getTime() + totalMin * 60000),
           endStr = fmtHM(end.getHours(), end.getMinutes());
-        const acc = await getEstimateAccuracy();
-        const accHtml =
-          acc !== null
-            ? `<span class="accuracy-badge ${acc >= 80 ? "accuracy-good" : acc >= 55 ? "accuracy-ok" : "accuracy-poor"}" title="accuracy over last 14 days">${acc}% acc.</span>`
-            : "";
         const byPri = { A: 0, B: 0, C: 0 };
         for (const t of state.tasks) {
           const p = getPriority(t);
@@ -5559,7 +5753,87 @@
               `<span class="pri-chip pri-${p.toLowerCase()}">#${p} ${formatMinutes(byPri[p])}</span>`,
           )
           .join("");
-        summaryEl.innerHTML = `<div class="summary-row"><span>${formatMinutes(totalMin)} est &middot; done ~${endStr}</span>${accHtml}</div>${priChips ? `<div class="pri-row">${priChips}</div>` : ""}`;
+        summaryEl.innerHTML = `<div class="summary-row"><span>${formatMinutes(totalMin)} est &middot; done ~${endStr}</span></div>${priChips ? `<div class="pri-row">${priChips}</div>` : ""}`;
+        renderTimeline();
+      }
+
+      function renderTimeline() {
+        const el = document.getElementById("day-timeline");
+        if (!el) return;
+        const PX_PER_HOUR = 48;
+        const HOUR_START = 7;
+        const HOUR_END = 22;
+        const totalHours = HOUR_END - HOUR_START;
+        const totalHeight = totalHours * PX_PER_HOUR;
+
+        function timeToY(isoStr) {
+          const d = new Date(isoStr);
+          if (isNaN(d)) return null;
+          const hours = d.getHours() + d.getMinutes() / 60;
+          return (hours - HOUR_START) * PX_PER_HOUR;
+        }
+
+        // hour lines + labels
+        let html = `<div class="timeline-track" style="height:${totalHeight}px">`;
+        for (let h = HOUR_START; h <= HOUR_END; h++) {
+          const y = (h - HOUR_START) * PX_PER_HOUR;
+          const label = h === 12 ? "12p" : h > 12 ? `${h - 12}p` : `${h}a`;
+          html += `<div class="timeline-hour-line" style="top:${y}px"></div>`;
+          html += `<div class="timeline-hour-label" style="top:${y}px">${label}</div>`;
+        }
+
+        // calendar event blocks
+        const calEvTypes = getCalEventTypes();
+        for (const ev of (state.calendarEvents || [])) {
+          const y = timeToY(ev.start);
+          if (y === null) continue;
+          const endY = timeToY(ev.end);
+          const blockH = Math.max(14, (endY ?? y + PX_PER_HOUR * 0.5) - y);
+          const evType = calEvTypes[ev.id] || "default";
+          const def = CAL_EVENT_TYPE_DEFS[evType];
+          const color = def.color || "var(--border)";
+          const isFocus = ev.title.startsWith("Focus:");
+          const label = isFocus ? ev.title.replace(/^Focus:\s*/, "") : ev.title;
+          html += `<div class="timeline-event-block" style="top:${y}px;height:${blockH}px;background:${color};opacity:0.82" title="${esc(ev.title)}">${esc(label)}</div>`;
+        }
+
+        // "now" indicator — only show if viewing today
+        const nowDate = isoToday();
+        if (state.currentDate === nowDate) {
+          const now = new Date();
+          const nowY = (now.getHours() + now.getMinutes() / 60 - HOUR_START) * PX_PER_HOUR;
+          if (nowY >= 0 && nowY <= totalHeight) {
+            html += `<div class="timeline-now-line" style="top:${nowY}px"></div>`;
+          }
+        }
+
+        html += "</div>";
+        el.innerHTML = html;
+
+        // scroll to current time (or 8am)
+        const now = new Date();
+        const scrollTarget = Math.max(0, (now.getHours() + now.getMinutes() / 60 - HOUR_START - 1) * PX_PER_HOUR);
+        el.scrollTop = state.currentDate === isoToday() ? scrollTarget : 0;
+      }
+
+      function renderTagPalette() {
+        const container = document.getElementById("tag-palette-container");
+        if (!container) return;
+        const timeChips = ["5m", "15m", "25m", "50m"]
+          .map((v) => `<div class="tag-chip time-chip" draggable="true" data-chip-type="time" data-chip-value="${v}">${v}</div>`)
+          .join("");
+        const tplChips = (TEMPLATES || [])
+          .map((t) => `<div class="tag-chip tpl-chip" draggable="true" data-chip-type="tpl" data-chip-value="${esc(t.name)}" title="${esc(t.name)}">${esc(t.name)}</div>`)
+          .join("");
+        container.innerHTML = `
+          <div class="tag-palette-group">
+            <div class="tag-palette-group-label">time</div>
+            <div class="tag-palette-chips">${timeChips}</div>
+          </div>
+          <div class="tag-palette-group">
+            <div class="tag-palette-group-label">templates</div>
+            <div class="tag-palette-chips">${tplChips}</div>
+          </div>`;
       }
 
       function render() {
@@ -5567,6 +5841,8 @@
         renderInboxTab();
         renderTemplatesTab();
         renderRightCol();
+        renderTimeline();
+        renderTagPalette();
         applyPanelCollapseState();
         bindDynamicEvents();
       }
@@ -5842,6 +6118,71 @@
         bindTaskDragEvents();
         bindInboxDragEvents();
         bindTouchReorderListeners();
+        bindChipDragEvents();
+
+        // kinopio hover tooltip
+        document.querySelectorAll(".inbox-item").forEach((item) => {
+          item.addEventListener("mouseenter", (e) => {
+            clearTimeout(_knTooltipTimer);
+            _knTooltipTimer = setTimeout(() => showKnTooltip(item, e), 350);
+          });
+          item.addEventListener("mouseleave", () => {
+            clearTimeout(_knTooltipTimer);
+            hideKnTooltip();
+          });
+          item.addEventListener("mousemove", (e) => positionKnTooltip(e));
+        });
+      }
+
+      // ---- kinopio tooltip ----
+      let _knTooltipTimer = null;
+
+      function showKnTooltip(item, e) {
+        const space = item.dataset.knSpace;
+        const cards = (state.kinopioGroups[space] || []).filter((c) => c && !c.isDone);
+        if (cards.length <= 1) return;
+        const currentText = item.querySelector(".inbox-text")?.textContent?.trim() || "";
+        const curIdx = cards.findIndex((c) => (c.text || "").trim() === currentText);
+        const nearby = [];
+        for (let i = Math.max(0, curIdx - 2); i <= Math.min(cards.length - 1, curIdx + 2); i++) {
+          nearby.push({ text: cards[i].text, isCurrent: i === curIdx });
+        }
+        const tooltip = document.getElementById("kn-tooltip");
+        tooltip.innerHTML = `<div class="kn-tooltip-title">${esc(space)}</div>` +
+          nearby.map((c) => `<div class="kn-tooltip-card${c.isCurrent ? " current" : ""}">${esc((c.text || "").slice(0, 60))}</div>`).join("");
+        tooltip.style.display = "block";
+        positionKnTooltip(e);
+      }
+
+      function positionKnTooltip(e) {
+        const tooltip = document.getElementById("kn-tooltip");
+        if (tooltip.style.display === "none") return;
+        const x = Math.min(e.clientX + 14, window.innerWidth - 260);
+        const y = Math.min(e.clientY - 8, window.innerHeight - 160);
+        tooltip.style.left = x + "px";
+        tooltip.style.top = y + "px";
+      }
+
+      function hideKnTooltip() {
+        const tooltip = document.getElementById("kn-tooltip");
+        if (tooltip) tooltip.style.display = "none";
+      }
+
+      function bindChipDragEvents() {
+        document.querySelectorAll(".tag-chip").forEach((chip) => {
+          chip.addEventListener("dragstart", (e) => {
+            state.draggingChipType = chip.dataset.chipType;
+            state.draggingChipValue = chip.dataset.chipValue;
+            chip.classList.add("dragging");
+            if (e.dataTransfer) e.dataTransfer.effectAllowed = "copy";
+          });
+          chip.addEventListener("dragend", () => {
+            chip.classList.remove("dragging");
+            clearDropHints(".task-item");
+            state.draggingChipType = null;
+            state.draggingChipValue = null;
+          });
+        });
       }
 
       // ============================================================
@@ -6050,22 +6391,44 @@
             state.draggingTaskId = null;
           });
           item.addEventListener("dragover", (e) => {
-            if (!state.draggingTaskId) return;
+            if (!state.draggingTaskId && !state.draggingChipType) return;
             e.preventDefault();
-            if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
-            const rect = item.getBoundingClientRect();
-            const above = e.clientY - rect.top < rect.height / 2;
-            clearDropHints(".task-item");
-            item.classList.add(above ? "drop-above" : "drop-below");
+            if (state.draggingChipType) {
+              if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+              clearDropHints(".task-item");
+              item.classList.add("chip-drop-target");
+            } else {
+              if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+              const rect = item.getBoundingClientRect();
+              const above = e.clientY - rect.top < rect.height / 2;
+              clearDropHints(".task-item");
+              item.classList.add(above ? "drop-above" : "drop-below");
+            }
           });
           item.addEventListener("dragleave", () => {
-            item.classList.remove("drop-above", "drop-below");
+            item.classList.remove("drop-above", "drop-below", "chip-drop-target");
           });
           item.addEventListener("drop", async (e) => {
             e.preventDefault();
+            clearDropHints(".task-item");
+            item.classList.remove("chip-drop-target");
+            if (state.draggingChipType) {
+              const task = state.tasks.find((t) => t.id === item.dataset.id);
+              if (!task) return;
+              if (state.draggingChipType === "time") {
+                task.estimate = state.draggingChipValue;
+              } else if (state.draggingChipType === "tpl") {
+                task.tags = task.tags || [];
+                if (!task.tags.includes(state.draggingChipValue)) {
+                  task.tags.push(state.draggingChipValue);
+                }
+              }
+              await persistTasks(state.currentDate, state.tasks);
+              render();
+              return;
+            }
             const srcId = state.draggingTaskId;
             const dstId = item.dataset.id;
-            clearDropHints(".task-item");
             if (!srcId || !dstId || srcId === dstId) return;
             const rect = item.getBoundingClientRect();
             const above = e.clientY - rect.top < rect.height / 2;
@@ -6165,6 +6528,10 @@
         if (e.key === "Enter") doLogin();
       });
       document.getElementById("logout-btn").addEventListener("click", doLogout);
+      document.getElementById("theme-toggle-btn").addEventListener("click", () => {
+        setTheme(getTheme() === "light" ? "dark" : "light");
+      });
+      setTheme(getTheme());
 
       document
         .getElementById("prev-day-btn")
@@ -6182,6 +6549,25 @@
       document
         .getElementById("panel-toggle-integrations")
         .addEventListener("click", () => togglePanelCollapsed("integrations"));
+      document
+        .getElementById("panel-toggle-tags")
+        .addEventListener("click", () => togglePanelCollapsed("tags"));
+      document
+        .getElementById("panel-toggle-timeline")
+        .addEventListener("click", () => togglePanelCollapsed("timeline"));
+
+      // calendar event type cycling
+      document.getElementById("cal-events").addEventListener("click", (e) => {
+        const dot = e.target.closest("[data-ev-id]");
+        if (!dot) return;
+        const id = dot.dataset.evId;
+        const types = getCalEventTypes();
+        const cur = types[id] || "default";
+        const idx = CAL_EVENT_TYPE_ORDER.indexOf(cur);
+        const next = CAL_EVENT_TYPE_ORDER[(idx + 1) % CAL_EVENT_TYPE_ORDER.length];
+        setCalEventType(id, next);
+        renderRightCol();
+      });
 
       document
         .querySelectorAll(".tab")
@@ -6246,12 +6632,6 @@
           setTimeout(() => document.getElementById("breakdown-input").focus(), 50);
         } else if (action === "set-recurring") {
           openRecurringModal(id);
-        } else if (action === "type-task") {
-          await setTaskType(id, "task");
-        } else if (action === "type-note") {
-          await setTaskType(id, "note");
-        } else if (action === "type-event") {
-          await setTaskType(id, "event");
         } else if (action === "skip") await skipTask(id);
         else if (action === "move-tomorrow") await moveToTomorrow(id);
       });
@@ -6466,5 +6846,6 @@
         }
       })();
     </script>
+  <div id="kn-tooltip" class="kn-tooltip"></div>
   </body>
 </html>
