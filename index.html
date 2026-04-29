@@ -778,6 +778,24 @@
         opacity: 0.45;
         text-decoration: line-through;
         text-decoration-color: rgba(239, 159, 118, 0.35);
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+      }
+      .deferred-remove {
+        flex-shrink: 0;
+        font-size: 11px;
+        color: var(--text-muted);
+        cursor: pointer;
+        opacity: 0;
+        text-decoration: none;
+        line-height: 1;
+      }
+      .deferred-item:hover .deferred-remove {
+        opacity: 0.6;
+      }
+      .deferred-remove:hover {
+        opacity: 1 !important;
       }
 
       .recurring-badge {
@@ -5433,7 +5451,7 @@
         const deferredHtml =
           deferred.length === 0
             ? ""
-            : `<div class="deferred-section"><div class="deferred-label">&#x2192; tomorrow</div>${deferred.map((t) => `<div class="deferred-item">${linkifyContent(t)}</div>`).join("")}</div>`;
+            : `<div class="deferred-section"><div class="deferred-label">&#x2192; tomorrow</div>${deferred.map((t) => `<div class="deferred-item"><span>${linkifyContent(t)}</span><span class="deferred-remove" data-deferred-remove="${esc(t)}" title="remove">&times;</span></div>`).join("")}</div>`;
 
         el.innerHTML = items + deferredHtml;
       }
@@ -5936,31 +5954,39 @@
         bindTouchReorderListeners();
         bindChipDragEvents();
 
+        const taskListDeferred = document.getElementById("task-list");
+        if (taskListDeferred && !taskListDeferred._deferredRemoveDelegated) {
+          taskListDeferred._deferredRemoveDelegated = true;
+          taskListDeferred.addEventListener("click", (e) => {
+            const btn = e.target.closest("[data-deferred-remove]");
+            if (!btn) return;
+            e.stopPropagation();
+            const text = btn.dataset.deferredRemove;
+            const list = getDeferredList(state.currentDate).filter((t) => t !== text);
+            localStorage.setItem(deferredKey(state.currentDate), JSON.stringify(list));
+            renderFocusTab();
+          });
+        }
+
         // kinopio hover tooltip — delegated on inbox-list so it survives re-renders
         const inboxList = document.getElementById("inbox-list");
         if (inboxList && !inboxList._tooltipDelegated) {
           inboxList._tooltipDelegated = true;
           inboxList.addEventListener("mouseover", (e) => {
             const item = e.target.closest(".inbox-item");
-            if (!item || item === _knTooltipCurrentItem) return;
-            _knTooltipCurrentItem = item;
+            if (item === _knTooltipCurrentItem) return;
             clearTimeout(_knTooltipTimer);
+            hideKnTooltip();
+            _knTooltipCurrentItem = item;
+            if (!item) return;
             _knTooltipTimer = setTimeout(() => showKnTooltip(item, e), 400);
           });
           inboxList.addEventListener("mouseleave", () => {
-            _knTooltipCurrentItem = null;
             clearTimeout(_knTooltipTimer);
             hideKnTooltip();
+            _knTooltipCurrentItem = null;
           });
-          inboxList.addEventListener("mousemove", (e) => {
-            const item = e.target.closest(".inbox-item");
-            if (!item) {
-              _knTooltipCurrentItem = null;
-              clearTimeout(_knTooltipTimer);
-              hideKnTooltip();
-            }
-            positionKnTooltip(e);
-          });
+          inboxList.addEventListener("mousemove", positionKnTooltip);
         }
       }
 
