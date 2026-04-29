@@ -1164,18 +1164,6 @@
         scrollbar-width: thin;
         scrollbar-color: var(--border) transparent;
       }
-      .section-resize-handle {
-        height: 5px;
-        margin: 6px -16px -16px;
-        cursor: ns-resize;
-        background: transparent;
-        transition: background 0.15s;
-        flex-shrink: 0;
-      }
-      .section-resize-handle:hover,
-      .section-resize-handle.dragging {
-        background: var(--border);
-      }
 
       .right-section-title {
         font-size: 10px;
@@ -2011,96 +1999,6 @@
           min-height: 30px;
         }
 
-        /* --- mobile: quick-add only mode --- */
-
-        /* hide header, right col, tabs, and task list */
-        #app-header {
-          display: none !important;
-        }
-        #right-col {
-          display: none !important;
-        }
-        .tabs-bar {
-          display: none !important;
-        }
-        #left-scroll {
-          display: none !important;
-        }
-
-        /* turn columns + left-col into a full-screen centering container */
-        #columns {
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          height: 100vh;
-          height: 100dvh;
-          overflow: hidden;
-        }
-        #left-col {
-          display: flex !important;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          width: 100%;
-          height: 100%;
-          border: none;
-          overflow: visible;
-        }
-
-        /* small brand label above the input */
-        #left-col::before {
-          content: "dashboard";
-          display: block;
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          color: var(--text-muted);
-          text-transform: lowercase;
-          text-align: center;
-          margin-bottom: 28px;
-          font-family: var(--font);
-        }
-
-        /* quick-add row: large, centered, full-width up to 480px */
-        #quick-add-row {
-          display: flex !important;
-          flex-direction: column;
-          gap: 12px;
-          padding: 0 20px;
-          width: 100%;
-          max-width: 480px;
-          border: none;
-          background: transparent;
-        }
-
-        #quick-add-row input {
-          font-size: 18px !important;
-          padding: 16px 18px !important;
-          border-radius: 10px;
-          border: 1.5px solid var(--border);
-          background: var(--surface);
-          width: 100%;
-        }
-        #quick-add-row input:focus {
-          border-color: var(--accent);
-          box-shadow: 0 0 0 3px rgba(202, 158, 230, 0.18);
-          outline: none;
-        }
-
-        #quick-add-row .quick-add-btn {
-          width: 100%;
-          padding: 14px !important;
-          font-size: 18px !important;
-          border-radius: 10px;
-          min-height: 52px;
-          background: var(--surface2);
-          border-color: var(--border);
-          color: var(--accent);
-          letter-spacing: 0.04em;
-        }
-        #quick-add-row .quick-add-btn:active {
-          background: rgba(202, 158, 230, 0.18);
-        }
       }
 
       /* ---- tag filter bar ---- */
@@ -2327,11 +2225,6 @@
             </div>
             <div class="right-section-body" id="panel-body-calendar">
               <div id="cal-events"><div class="cal-loading">loading&#x2026;</div></div>
-              <div
-                class="section-resize-handle"
-                data-resize-panel="panel-body-calendar"
-                title="drag to resize"
-              ></div>
             </div>
           </div>
           <div class="right-section" id="panel-time">
@@ -2343,11 +2236,6 @@
             </div>
             <div class="right-section-body" id="panel-body-time">
               <div id="time-summary-body"><div class="cal-loading">no estimates set</div></div>
-              <div
-                class="section-resize-handle"
-                data-resize-panel="panel-body-time"
-                title="drag to resize"
-              ></div>
             </div>
           </div>
           <div class="right-section" id="panel-tags">
@@ -2364,11 +2252,6 @@
             </div>
             <div class="right-section-body" id="panel-body-tags">
               <div id="tag-palette-container"></div>
-              <div
-                class="section-resize-handle"
-                data-resize-panel="panel-body-tags"
-                title="drag to resize"
-              ></div>
             </div>
           </div>
           <div class="right-section integrations-inline-section" id="panel-integrations">
@@ -2427,11 +2310,6 @@
                 <button id="integrations-inline-test-btn">test time tracking</button>
                 <button id="integrations-inline-save-btn" class="primary">save</button>
               </div>
-              <div
-                class="section-resize-handle"
-                data-resize-panel="panel-body-integrations"
-                title="drag to resize"
-              ></div>
             </div>
           </div>
         </div>
@@ -3238,10 +3116,6 @@
       }
 
       function openIntegrationsModal(focusField) {
-        if (window.innerWidth <= 768) {
-          openIntegrationsInline(focusField);
-          return;
-        }
         cancelTouchDrag();
         const modal = document.getElementById("integrations-modal");
         document.getElementById("kn-api-key-input").value = KN_API_KEY || "";
@@ -4372,12 +4246,13 @@
                 const cardNameById = {};
                 for (const c of d.cards || []) if (c.id) cardNameById[c.id] = (c.name || "").split("\n")[0].replace(/^\[[ xX]?\]\s*/, "").trim();
                 for (const conn of d.connections || []) {
-                  const { startCardId, endCardId } = conn;
-                  if (startCardId && endCardId) {
-                    if (!connectionsByCardId[startCardId]) connectionsByCardId[startCardId] = [];
-                    if (!connectionsByCardId[endCardId]) connectionsByCardId[endCardId] = [];
-                    if (cardNameById[endCardId]) connectionsByCardId[startCardId].push(cardNameById[endCardId]);
-                    if (cardNameById[startCardId]) connectionsByCardId[endCardId].push(cardNameById[startCardId]);
+                  const startId = conn.startItemId || conn.startCardId;
+                  const endId = conn.endItemId || conn.endCardId;
+                  if (startId && endId) {
+                    if (!connectionsByCardId[startId]) connectionsByCardId[startId] = [];
+                    if (!connectionsByCardId[endId]) connectionsByCardId[endId] = [];
+                    if (cardNameById[endId]) connectionsByCardId[startId].push(cardNameById[endId]);
+                    if (cardNameById[startId]) connectionsByCardId[endId].push(cardNameById[startId]);
                   }
                 }
               } catch {}
@@ -5782,7 +5657,6 @@
         renderTagPalette();
         applyPanelCollapseState();
         bindDynamicEvents();
-        clearStaleHeights();
       }
 
       // ============================================================
@@ -5796,9 +5670,8 @@
         document
           .querySelectorAll(".tab-content")
           .forEach((c) => c.classList.toggle("active", c.id === "tab-" + name));
-        const isMobile = window.innerWidth <= 768;
         document.getElementById("quick-add-row").style.display =
-          isMobile || name === "focus" ? "flex" : "none";
+          name === "focus" ? "flex" : "none";
         state.currentTab = name;
       }
 
@@ -6592,98 +6465,22 @@
           applyPct(0.62);
           localStorage.setItem(STORAGE_KEY, 0.62);
         });
+
+        // collapse right col when window is too narrow
+        const WINDOW_COLLAPSE_WIDTH = 700;
+        function checkWindowCollapse() {
+          if (window.innerWidth < WINDOW_COLLAPSE_WIDTH) {
+            rightCol.classList.add("collapsed");
+            handle.classList.add("hidden-handle");
+          } else {
+            const saved = parseFloat(localStorage.getItem(STORAGE_KEY)) || 0.62;
+            applyPct(saved);
+          }
+        }
+        window.addEventListener("resize", checkWindowCollapse);
+        checkWindowCollapse();
       })();
 
-      (function initSectionResize() {
-        const STORAGE_KEY = "df-section-heights";
-        const MIN_H = 60;
-        const MAX_H = 800;
-
-        function loadHeights() {
-          try {
-            return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-          } catch {
-            return {};
-          }
-        }
-        function saveHeights(h) {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(h));
-        }
-        function applyHeights() {
-          const heights = loadHeights();
-          for (const [id, h] of Object.entries(heights)) {
-            const el = document.getElementById(id);
-            if (el) el.style.maxHeight = h + "px";
-          }
-        }
-        function clearStaleHeights() {
-          const heights = loadHeights();
-          let changed = false;
-          for (const [id, h] of Object.entries(heights)) {
-            const el = document.getElementById(id);
-            if (!el) continue;
-            el.style.maxHeight = "";
-            const naturalH = el.scrollHeight;
-            if (h < naturalH) {
-              delete heights[id];
-              changed = true;
-            } else {
-              el.style.maxHeight = h + "px";
-            }
-          }
-          if (changed) saveHeights(heights);
-        }
-        applyHeights();
-
-        let activeHandle = null,
-          startY = 0,
-          startH = 0,
-          targetEl = null;
-
-        document.addEventListener("mousedown", (e) => {
-          const handle = e.target.closest(".section-resize-handle");
-          if (!handle) return;
-          const panelId = handle.dataset.resizePanel;
-          targetEl = document.getElementById(panelId);
-          if (!targetEl) return;
-          e.preventDefault();
-          activeHandle = handle;
-          startY = e.clientY;
-          startH = targetEl.getBoundingClientRect().height;
-          handle.classList.add("dragging");
-          document.body.style.cursor = "ns-resize";
-          document.body.style.userSelect = "none";
-        });
-        document.addEventListener("mousemove", (e) => {
-          if (!activeHandle || !targetEl) return;
-          const newH = Math.min(MAX_H, Math.max(MIN_H, startH + (e.clientY - startY)));
-          targetEl.style.maxHeight = newH + "px";
-        });
-        document.addEventListener("mouseup", () => {
-          if (!activeHandle || !targetEl) return;
-          const heights = loadHeights();
-          heights[targetEl.id] = parseInt(targetEl.style.maxHeight);
-          saveHeights(heights);
-          activeHandle.classList.remove("dragging");
-          document.body.style.cursor = "";
-          document.body.style.userSelect = "";
-          activeHandle = null;
-          targetEl = null;
-        });
-
-        // double-click handle to reset section height
-        document.addEventListener("dblclick", (e) => {
-          const handle = e.target.closest(".section-resize-handle");
-          if (!handle) return;
-          const panelId = handle.dataset.resizePanel;
-          const el = document.getElementById(panelId);
-          if (!el) return;
-          el.style.maxHeight = "";
-          const heights = loadHeights();
-          delete heights[panelId];
-          saveHeights(heights);
-        });
-      })();
 
       document
         .getElementById("prev-day-btn")
