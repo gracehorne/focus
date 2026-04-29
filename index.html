@@ -275,11 +275,15 @@
       }
       #right-col.collapsed {
         flex: 0 0 0;
+        min-width: 0;
         overflow: hidden;
         opacity: 0;
         pointer-events: none;
       }
 
+      #col-resize-handle.hidden-handle {
+        display: none;
+      }
       #col-resize-handle {
         flex: 0 0 5px;
         background: transparent;
