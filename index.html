@@ -1095,13 +1095,13 @@
         border-left: 3px solid #8caaee;
       }
       .template-card.category-body {
-        border-left: 3px solid #ef9f76;
+        border-left: 3px solid #e5c890;
       }
       .template-card.category-mind {
         border-left: 3px solid #ca9ee6;
       }
       .template-card.category-liminal {
-        border-left: 3px solid #e5c890;
+        border-left: 3px solid #81c8be;
       }
       .template-category-badge.category-life {
         color: #a6d189;
@@ -1114,9 +1114,9 @@
         background: rgba(140, 170, 238, 0.12);
       }
       .template-category-badge.category-body {
-        color: #ef9f76;
-        border-color: rgba(239, 159, 118, 0.3);
-        background: rgba(239, 159, 118, 0.12);
+        color: #e5c890;
+        border-color: rgba(229, 200, 144, 0.3);
+        background: rgba(229, 200, 144, 0.12);
       }
       .template-category-badge.category-mind {
         color: #ca9ee6;
@@ -1124,9 +1124,9 @@
         background: rgba(202, 158, 230, 0.12);
       }
       .template-category-badge.category-liminal {
-        color: #e5c890;
-        border-color: rgba(229, 200, 144, 0.3);
-        background: rgba(229, 200, 144, 0.12);
+        color: #81c8be;
+        border-color: rgba(129, 200, 190, 0.3);
+        background: rgba(129, 200, 190, 0.12);
       }
       .tpl-category-select {
         width: 100%;
@@ -1157,10 +1157,13 @@
         border-bottom: none;
       }
       .right-section-body {
-        overflow: auto;
+        overflow: hidden;
         scrollbar-width: thin;
         scrollbar-color: var(--border) transparent;
         min-width: 0;
+      }
+      .right-section-body[style*="max-height"] {
+        overflow: auto;
       }
       .section-resize-handle {
         height: 5px;
@@ -1335,6 +1338,11 @@
         background: var(--surface2);
         margin-left: 3px;
       }
+      .task-tag.cat-life   { color: #a6d189; border-color: rgba(166,209,137,0.3); background: rgba(166,209,137,0.12); }
+      .task-tag.cat-work   { color: #8caaee; border-color: rgba(140,170,238,0.3); background: rgba(140,170,238,0.12); }
+      .task-tag.cat-body   { color: #e5c890; border-color: rgba(229,200,144,0.3); background: rgba(229,200,144,0.12); }
+      .task-tag.cat-mind   { color: #ca9ee6; border-color: rgba(202,158,230,0.3); background: rgba(202,158,230,0.12); }
+      .task-tag.cat-liminal{ color: #81c8be; border-color: rgba(129,200,190,0.3); background: rgba(129,200,190,0.12); }
 
       .integrations-inline-section {
         display: none;
@@ -2647,14 +2655,14 @@
       // ---- calendar event types ----
       const CAL_EVENT_TYPES_KEY = "df-cal-event-types";
       const CAL_EVENT_TYPE_DEFS = {
-        default: { icon: null, color: null },
-        movement: { icon: "bi-person-arms-up", color: "#a6d189" },
-        focus: { icon: "bi-bell-slash-fill", color: "#babbf1" },
-        meal: { icon: "bi-egg-fried", color: "#ef9f76" },
-        social: { icon: "bi-emoji-smile-fill", color: "#e5c890" },
-        hobby: { icon: "bi-palette", color: "#ca9ee6" },
-        meeting: { icon: "bi-person-fill", color: "#89b4fa" },
-        work: { icon: "bi-buildings-fill", color: "#e78284" },
+        default:  { icon: null,                    color: null       },
+        movement: { icon: "bi-person-arms-up",     color: "#e5c890" },
+        focus:    { icon: "bi-bell-slash-fill",    color: "#ca9ee6" },
+        meal:     { icon: "bi-egg-fried",          color: "#ef9f76" },
+        social:   { icon: "bi-emoji-smile-fill",   color: "#81c8be" },
+        hobby:    { icon: "bi-palette",            color: "#ca9ee6" },
+        meeting:  { icon: "bi-person-fill",        color: "#8caaee" },
+        work:     { icon: "bi-buildings-fill",     color: "#8caaee" },
       };
       const CAL_EVENT_TYPE_ORDER = [
         "default",
@@ -2753,7 +2761,7 @@
           tasks: [
             "go outside before checking your phone",
             "drink a glass of water",
-            "do one quiet thing before the day starts — stretch, journal, sit with your coffee",
+            "do one quiet thing before the day starts: stretch, journal, sit with your coffee",
             "set one intention for today",
           ],
         },
@@ -2764,8 +2772,8 @@
           tasks: [
             "close tabs and apps",
             "write down what tomorrow needs from you",
-            "note anything still on your mind so your head can let it go",
-            "leave your workspace — physically step away",
+            "write down anything still on your mind",
+            "leave your workspace. physically step away",
             "name one thing that went okay today",
           ],
         },
@@ -2796,8 +2804,8 @@
           name: "write it all down",
           category: "work",
           tasks: [
-            "write everything in your head — tasks, worries, ideas, half-thoughts — without filtering",
-            "don't organize yet, get it all out first",
+            "write everything in your head: tasks, worries, ideas, half-thoughts",
+            "don't organize yet, just get it all out",
             "sort into: do today, do later, delegate, drop",
             "pick one thing to start with and close the list",
           ],
@@ -2831,8 +2839,8 @@
           tasks: [
             "write the question you're trying to answer before opening any software",
             "open your project folder, relevant scripts, and a notes doc",
-            "do a quick look at your data before diving in — dimensions, gaps, distributions",
-            "write a note describing your intent before each chunk of code",
+            "do a quick look at your data before diving in: dimensions, gaps, distributions",
+            "add a short comment before each chunk of code describing what you're doing",
             "end by writing what you found and what the next question is",
           ],
         },
@@ -2844,7 +2852,7 @@
             "name the specific section or goal for this session",
             "close email and unrelated tabs",
             "re-read the last paragraph you wrote to get back into the flow",
-            "write — don't edit while drafting",
+            "write without editing while you draft",
             "when you stop: note what comes next so you can pick it up easily",
           ],
         },
@@ -2854,8 +2862,8 @@
           category: "work",
           tasks: [
             "read the abstract and conclusion first",
-            "read the methods critically — could you replicate this? what are the limits?",
-            "note one thing you agree with, one thing you question, one thing relevant to your work",
+            "read the methods critically: could you replicate this? what are the limits?",
+            "note what stood out, what you question, and what connects to your work",
             "write 2–3 sentences from memory after finishing",
             "tag and file it",
           ],
@@ -2870,7 +2878,7 @@
             "identify the 2–3 most important issues",
             "note smaller things separately: writing, framing, missing references",
             "lead your review with what the paper does well",
-            "check your tone — be direct but fair",
+            "check your tone. be direct but fair",
           ],
         },
         {
@@ -2879,8 +2887,8 @@
           category: "work",
           tasks: [
             "know who you're writing for and what they'll walk away with",
-            "write the opening first — if it's boring, the rest won't matter",
-            "outline 3–5 beats before drafting",
+            "write the opening first. if it's boring, the rest won't matter",
+            "outline the main points before drafting",
             "draft fast and get to the end before going back",
             "read it aloud before publishing",
           ],
@@ -2891,10 +2899,10 @@
           category: "work",
           tasks: [
             "write the one thing you want the audience to leave knowing",
-            "build the arc: opening, 3 key points, a close that ties back to the opening",
+            "sketch the structure: how does it open, what are the main points, how does it end",
             "do a full out-loud run-through, timed",
             "think through the moments most likely to make you nervous",
-            "the night before: one slow read-through, then stop — you're ready enough",
+            "the night before: one slow read-through, then stop. you're ready enough",
           ],
         },
 
@@ -2903,7 +2911,7 @@
           name: "movement",
           category: "body",
           tasks: [
-            "pick the form of movement you'll actually do today — not the ideal one, the real one",
+            "pick the form of movement you'll actually do today",
             "even 10 minutes counts",
             "leave your phone behind if you can",
           ],
@@ -2914,7 +2922,7 @@
           category: "body",
           tasks: [
             "do these before the day gets busy",
-            "move slowly — don't rush through them",
+            "move slowly. don't rush through them",
             "breathe through each stretch",
             "note anything uneven or uncomfortable",
           ],
@@ -2937,7 +2945,7 @@
           category: "mind",
           tasks: [
             "spend some time in real quiet",
-            "do one thing that's entirely for you and requires nothing from anyone else",
+            "do one thing that's entirely for you",
             "let yourself be slow for a bit",
           ],
         },
@@ -2949,7 +2957,7 @@
             "read it all the way through before reacting",
             "write down what's actually useful",
             "pick one thing to act on",
-            "set the rest aside — it'll read differently tomorrow",
+            "set the rest aside. it'll read differently tomorrow",
           ],
         },
         {
@@ -2957,7 +2965,7 @@
           name: "when you're going quiet",
           category: "mind",
           tasks: [
-            "notice if you're going quiet — it's a reflex, not a decision",
+            "notice if you're going quiet. it's a reflex, not a decision",
             "send something short to keep the conversation open",
             "write your real response once you've had some time",
           ],
@@ -4345,10 +4353,23 @@
             if (KN_HIDDEN_SPACES.has(knSlug(spaceName))) continue;
             const spaceCards = space.cards || [];
             let lists = {};
-            if (space.id && spaceCards.some((c) => c.listId)) {
+            let connectionsByCardId = {}; // cardId → [connected card texts]
+            if (space.id) {
               try {
                 const d = await knFetch(`/space/${space.id}`);
                 for (const l of d.lists || []) if (l.id) lists[l.id] = l.name || "";
+                // build a map of cardId → card name for connection resolution
+                const cardNameById = {};
+                for (const c of d.cards || []) if (c.id) cardNameById[c.id] = (c.name || "").split("\n")[0].replace(/^\[[ xX]?\]\s*/, "").trim();
+                for (const conn of d.connections || []) {
+                  const { startCardId, endCardId } = conn;
+                  if (startCardId && endCardId) {
+                    if (!connectionsByCardId[startCardId]) connectionsByCardId[startCardId] = [];
+                    if (!connectionsByCardId[endCardId]) connectionsByCardId[endCardId] = [];
+                    if (cardNameById[endCardId]) connectionsByCardId[startCardId].push(cardNameById[endCardId]);
+                    if (cardNameById[startCardId]) connectionsByCardId[endCardId].push(cardNameById[startCardId]);
+                  }
+                }
               } catch {}
             }
             for (const rawCard of spaceCards) {
@@ -4359,6 +4380,7 @@
               if (completedKeys.has(textKey(parsed.text))) continue;
               // skip cards we already marked done locally this session
               if (_knLocalDone.has(textKey(parsed.text))) continue;
+              parsed.connectedCards = connectionsByCardId[rawCard.id] || [];
               if (!groups[spaceName]) groups[spaceName] = [];
               groups[spaceName].push(parsed);
             }
@@ -5526,8 +5548,9 @@
                 ? ""
                 : `<button class="sched-btn${isScheduled ? " scheduled" : ""}" data-sched-id="${esc(task.id)}" title="${isScheduled ? "already on calendar" : "schedule as focus time"}">&#x2d35;</button>`;
             const hasMeta = estEdit || actHtml || dueBadge || collectionBadge;
+            const CATEGORY_TAG_CLASSES = new Set(["life","work","body","mind","liminal"]);
             const tagsHtml = (task.tags || []).length
-              ? `<div class="task-meta">${(task.tags || []).map((t) => `<span class="task-tag${state.activeTagFilter === t ? " active-filter" : ""}" data-tag="${esc(t)}" title="click to filter">${esc(t)}</span>`).join("")}</div>`
+              ? `<div class="task-meta">${(task.tags || []).map((t) => { const catClass = CATEGORY_TAG_CLASSES.has(t) ? ` cat-${t}` : ""; return `<span class="task-tag${state.activeTagFilter === t ? " active-filter" : ""}${catClass}" data-tag="${esc(t)}" title="click to filter">${esc(t)}</span>`; }).join("")}</div>`
               : "";
             return `
       <div class="task-item${task.fromKinopio ? " kn-task" : ""}${isDone ? " done-task" : ""}" data-id="${esc(task.id)}" draggable="true">
@@ -5633,7 +5656,6 @@
         const sort = getTplSort();
         const sortSelect = document.getElementById("tpl-sort");
         if (sortSelect && sortSelect.value !== sort) sortSelect.value = sort;
-        const uses = getTplUses();
         const list = getSortedTemplates();
         const grouped = TEMPLATE_CATEGORY_ORDER.map((category) => ({
           category,
@@ -5650,18 +5672,15 @@
               return `<section class="template-section">
       <div class="template-section-title">
         <span>${esc(categoryMeta.label)}</span>
-        <span class="template-section-count">${group.templates.length}</span>
       </div>
       <div class="template-section-body">${group.templates
         .map((t) => {
-          const count = uses[t.id] || 0;
           const category = normalizeTemplateCategory(t.category, t.name, t.tasks);
           const badgeMeta = getTemplateCategoryMeta(category);
-          const meta = `${t.tasks.length} steps${count > 0 ? ` \u00b7 used ${count}\u00d7` : ""}`;
           return `<div class="template-card category-${esc(category)}" data-tpl-id="${esc(t.id)}">
           <button class="tpl-edit-btn" data-tpl-edit="${esc(t.id)}" title="edit template">edit</button>
           <div class="template-name">${esc(t.name)}</div>
-          <div class="template-count"><span class="template-category-badge category-${esc(category)}">${esc(badgeMeta.label)}</span><span>${esc(meta)}</span></div>
+          <div class="template-count"><span class="template-category-badge category-${esc(category)}">${esc(badgeMeta.label)}</span></div>
         </div>`;
         })
         .join("")}</div>
@@ -5998,14 +6017,13 @@
           ),
         );
         document.querySelectorAll(".inbox-readd-btn").forEach((el) =>
-          el.addEventListener("click", () => {
-            unmarkAddedToDay(state.currentDate, el.dataset.knText);
-            addKinopioItemToDay({
-              text: el.dataset.knText,
-              id: el.dataset.knId || null,
-              due: el.dataset.knDue || null,
-              space: el.dataset.knSpace || null,
-            });
+          el.addEventListener("click", async () => {
+            const knText = el.dataset.knText;
+            unmarkAddedToDay(state.currentDate, knText);
+            const key = textKey(knText);
+            state.tasks = state.tasks.filter((t) => textKey(t.content) !== key);
+            await persistTasks(state.currentDate, state.tasks);
+            render();
           }),
         );
         document
@@ -6036,7 +6054,6 @@
             const tag = el.dataset.tag;
             state.activeTagFilter = state.activeTagFilter === tag ? null : tag;
             renderFocusTab();
-            bindDynamicEvents();
           }),
         );
 
@@ -6065,21 +6082,15 @@
       function showKnTooltip(item, e) {
         const space = item.dataset.knSpace;
         const cards = (state.kinopioGroups[space] || []).filter((c) => c && !c.isDone);
-        if (cards.length <= 1) return;
         const currentText = item.querySelector(".inbox-text")?.textContent?.trim() || "";
-        const curIdx = cards.findIndex((c) => (c.text || "").trim() === currentText);
-        const nearby = [];
-        for (let i = Math.max(0, curIdx - 2); i <= Math.min(cards.length - 1, curIdx + 2); i++) {
-          nearby.push({ text: cards[i].text, isCurrent: i === curIdx });
-        }
+        const card = cards.find((c) => (c.text || "").trim() === currentText);
+        const connected = (card && card.connectedCards) ? card.connectedCards.filter(Boolean) : [];
+        if (connected.length === 0) return;
         const tooltip = document.getElementById("kn-tooltip");
         tooltip.innerHTML =
-          `<div class="kn-tooltip-title">${esc(space)}</div>` +
-          nearby
-            .map(
-              (c) =>
-                `<div class="kn-tooltip-card${c.isCurrent ? " current" : ""}">${esc((c.text || "").slice(0, 60))}</div>`,
-            )
+          `<div class="kn-tooltip-title">connected</div>` +
+          connected
+            .map((text) => `<div class="kn-tooltip-card">${esc((text || "").slice(0, 60))}</div>`)
             .join("");
         tooltip.style.display = "block";
         positionKnTooltip(e);
