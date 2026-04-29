@@ -1154,9 +1154,7 @@
         border-bottom: none;
       }
       .right-section-body {
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: var(--border) transparent;
+        overflow: visible;
       }
       .section-resize-handle {
         height: 5px;
@@ -5604,12 +5602,7 @@
               (task.defers || 0) > 0
                 ? `<span class="carried-badge" title="deferred ${task.defers} time${task.defers === 1 ? "" : "s"}">&#x21bb;${task.defers}</span>`
                 : "";
-            const recurRule = task.recurringId
-              ? loadRecurring().find((r) => r.id === task.recurringId)
-              : null;
-            const recurBadge = recurRule
-              ? `<span class="recurring-badge" title="${esc(recurringLabel(recurRule.recurrence))}">&#x21ba;</span>`
-              : "";
+            const recurBadge = "";
             const collectionBadge = task.collection
               ? `<span class="collection-badge" title="collection: ${esc(task.collection)}">${esc(task.collection)}</span>`
               : "";
@@ -6061,21 +6054,37 @@
             state.activeMenuId = el.dataset.menuId;
             const rect = el.getBoundingClientRect(),
               menu = document.getElementById("options-menu");
+            const menuHeight = 200; // approximate menu height
+            const spaceBelow = window.innerHeight - rect.bottom;
+            const spaceAbove = rect.top;
+            const useDropUp = spaceBelow < menuHeight && spaceAbove > spaceBelow;
+
             menu.style.display = "block";
             if (window.innerWidth < 768) {
               // on mobile: center the menu horizontally with 16px side margins
               const mw = window.innerWidth - 32;
               menu.style.width = mw + "px";
               menu.style.left = "16px";
-              // position below the tapped button, but keep inside the viewport
-              const top = Math.min(rect.bottom + 4, window.innerHeight - menu.offsetHeight - 12);
-              menu.style.top = Math.max(8, top) + "px";
+              if (useDropUp) {
+                // drop-up: position above the button
+                menu.style.top = Math.max(8, rect.top - menuHeight - 4) + "px";
+              } else {
+                // drop-down: position below the button
+                const top = Math.min(rect.bottom + 4, window.innerHeight - menuHeight - 12);
+                menu.style.top = Math.max(8, top) + "px";
+              }
             } else {
               menu.style.width = "";
-              const menuW = 180,
-                left = Math.min(rect.left - menuW + rect.width, window.innerWidth - menuW - 8);
+              const menuW = 180;
+              const left = Math.min(rect.left - menuW + rect.width, window.innerWidth - menuW - 8);
               menu.style.left = Math.max(8, left) + "px";
-              menu.style.top = rect.bottom + 4 + "px";
+              if (useDropUp) {
+                // drop-up: position above the button
+                menu.style.top = Math.max(8, rect.top - menuHeight - 4) + "px";
+              } else {
+                // drop-down: position below the button
+                menu.style.top = rect.bottom + 4 + "px";
+              }
             }
           }),
         );
@@ -6407,6 +6416,10 @@
 
       function bindTaskDragEvents() {
         document.querySelectorAll('.task-item[draggable="true"]').forEach((item) => {
+          // Remove old listeners to prevent duplicates
+          item.replaceWith(item.cloneNode(true));
+        });
+        document.querySelectorAll('.task-item[draggable="true"]').forEach((item) => {
           item.addEventListener("dragstart", (e) => {
             state.draggingTaskId = item.dataset.id;
             item.classList.add("dragging");
@@ -6492,6 +6505,10 @@
       }
 
       function bindInboxDragEvents() {
+        document.querySelectorAll('.inbox-item[draggable="true"]').forEach((item) => {
+          // Remove old listeners to prevent duplicates
+          item.replaceWith(item.cloneNode(true));
+        });
         document.querySelectorAll('.inbox-item[draggable="true"]').forEach((item) => {
           item.addEventListener("dragstart", (e) => {
             state.draggingKnKey = { key: item.dataset.knKey, space: item.dataset.knSpace };
