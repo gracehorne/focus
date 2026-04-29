@@ -1032,15 +1032,12 @@
         gap: 8px;
       }
       .template-section-title {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
         font-size: 10px;
         font-family: var(--font-mono);
         letter-spacing: 0.08em;
         text-transform: uppercase;
         color: var(--text-muted);
+        margin-bottom: 2px;
       }
       .template-section-count {
         font-size: 10px;
@@ -1157,13 +1154,12 @@
         border-bottom: none;
       }
       .right-section-body {
-        overflow: hidden;
-        scrollbar-width: thin;
-        scrollbar-color: var(--border) transparent;
         min-width: 0;
       }
       .right-section-body[style*="max-height"] {
         overflow: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
       }
       .section-resize-handle {
         height: 5px;
@@ -1343,6 +1339,16 @@
       .task-tag.cat-body   { color: #e5c890; border-color: rgba(229,200,144,0.3); background: rgba(229,200,144,0.12); }
       .task-tag.cat-mind   { color: #ca9ee6; border-color: rgba(202,158,230,0.3); background: rgba(202,158,230,0.12); }
       .task-tag.cat-liminal{ color: #81c8be; border-color: rgba(129,200,190,0.3); background: rgba(129,200,190,0.12); }
+      .tag-remove {
+        display: none;
+        margin-left: 3px;
+        opacity: 0.6;
+        cursor: pointer;
+        font-size: 10px;
+        line-height: 1;
+      }
+      .task-tag:hover .tag-remove { display: inline; }
+      .tag-remove:hover { opacity: 1; }
 
       .integrations-inline-section {
         display: none;
@@ -3496,7 +3502,7 @@
       const TPL_USES_KEY = "df-tpl-uses"; // use counts: { [id]: number }
       const TPL_SORT_KEY = "df-tpl-sort"; // 'popular' | 'alpha'
       const TPL_RESET_VERSION_KEY = "df-tpl-reset-version";
-      const TPL_RESET_VERSION = "2026-04-20-template-refresh-v1";
+      const TPL_RESET_VERSION = "2026-04-28-template-refresh-v2";
 
       function loadTemplates() {
         try {
@@ -5550,7 +5556,7 @@
             const hasMeta = estEdit || actHtml || dueBadge || collectionBadge;
             const CATEGORY_TAG_CLASSES = new Set(["life","work","body","mind","liminal"]);
             const tagsHtml = (task.tags || []).length
-              ? `<div class="task-meta">${(task.tags || []).map((t) => { const catClass = CATEGORY_TAG_CLASSES.has(t) ? ` cat-${t}` : ""; return `<span class="task-tag${state.activeTagFilter === t ? " active-filter" : ""}${catClass}" data-tag="${esc(t)}" title="click to filter">${esc(t)}</span>`; }).join("")}</div>`
+              ? `<div class="task-meta">${(task.tags || []).map((t) => { const catClass = CATEGORY_TAG_CLASSES.has(t) ? ` cat-${t}` : ""; return `<span class="task-tag${state.activeTagFilter === t ? " active-filter" : ""}${catClass}" data-tag="${esc(t)}" title="click to filter">${esc(t)}<span class="tag-remove" data-tag="${esc(t)}" data-tag-remove="1" title="remove tag">&times;</span></span>`; }).join("")}</div>`
               : "";
             return `
       <div class="task-item${task.fromKinopio ? " kn-task" : ""}${isDone ? " done-task" : ""}" data-id="${esc(task.id)}" draggable="true">
@@ -6048,32 +6054,58 @@
           }),
         );
 
-        document.querySelectorAll("[data-tag]").forEach((el) =>
-          el.addEventListener("click", (e) => {
+        // tag filter — delegated so it survives renderFocusTab() DOM replacement
+        const taskList = document.getElementById("task-list");
+        if (taskList && !taskList._tagDelegated) {
+          taskList._tagDelegated = true;
+          taskList.addEventListener("click", (e) => {
+            const el = e.target.closest("[data-tag]");
+            if (!el) return;
             e.stopPropagation();
             const tag = el.dataset.tag;
-            state.activeTagFilter = state.activeTagFilter === tag ? null : tag;
-            renderFocusTab();
-          }),
-        );
+            if (el.dataset.tagRemove) {
+              // remove tag from task
+              const taskId = el.closest("[data-id]")?.dataset.id;
+              const task = state.tasks.find((t) => t.id === taskId);
+              if (task) {
+                task.tags = (task.tags || []).filter((t) => t !== tag);
+                persistTasks(state.currentDate, state.tasks);
+                render();
+              }
+            } else {
+              state.activeTagFilter = state.activeTagFilter === tag ? null : tag;
+              renderFocusTab();
+            }
+          });
+        }
 
         bindTaskDragEvents();
         bindInboxDragEvents();
         bindTouchReorderListeners();
         bindChipDragEvents();
 
-        // kinopio hover tooltip
-        document.querySelectorAll(".inbox-item").forEach((item) => {
-          item.addEventListener("mouseenter", (e) => {
+        // kinopio hover tooltip — delegated on inbox-list so it survives re-renders
+        const inboxList = document.getElementById("inbox-list");
+        if (inboxList && !inboxList._tooltipDelegated) {
+          inboxList._tooltipDelegated = true;
+          inboxList.addEventListener("mouseover", (e) => {
+            const item = e.target.closest(".inbox-item");
+            if (!item) return;
+            if (item === inboxList._tooltipItem) return;
+            inboxList._tooltipItem = item;
             clearTimeout(_knTooltipTimer);
             _knTooltipTimer = setTimeout(() => showKnTooltip(item, e), 350);
           });
-          item.addEventListener("mouseleave", () => {
+          inboxList.addEventListener("mouseout", (e) => {
+            const item = e.target.closest(".inbox-item");
+            if (!item) return;
+            if (e.relatedTarget && item.contains(e.relatedTarget)) return;
+            inboxList._tooltipItem = null;
             clearTimeout(_knTooltipTimer);
             hideKnTooltip();
           });
-          item.addEventListener("mousemove", (e) => positionKnTooltip(e));
-        });
+          inboxList.addEventListener("mousemove", (e) => positionKnTooltip(e));
+        }
       }
 
       // ---- kinopio tooltip ----
@@ -6082,8 +6114,11 @@
       function showKnTooltip(item, e) {
         const space = item.dataset.knSpace;
         const cards = (state.kinopioGroups[space] || []).filter((c) => c && !c.isDone);
-        const currentText = item.querySelector(".inbox-text")?.textContent?.trim() || "";
-        const card = cards.find((c) => (c.text || "").trim() === currentText);
+        const knKey = item.dataset.knKey || "";
+        const cardTextKey = knKey.includes("::") ? knKey.slice(knKey.indexOf("::") + 2) : "";
+        const card = cardTextKey
+          ? cards.find((c) => textKey(c.text) === cardTextKey)
+          : cards.find((c) => (c.text || "").trim() === (item.querySelector(".inbox-text")?.textContent?.trim() || ""));
         const connected = (card && card.connectedCards) ? card.connectedCards.filter(Boolean) : [];
         if (connected.length === 0) return;
         const tooltip = document.getElementById("kn-tooltip");
