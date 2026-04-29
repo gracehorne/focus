@@ -265,7 +265,7 @@
         overflow-y: auto;
         scrollbar-width: thin;
         scrollbar-color: var(--border) transparent;
-        min-width: 0;
+        min-width: 280px;
         transition:
           min-width 0.15s,
           opacity 0.15s;
@@ -1149,12 +1149,18 @@
       .right-section {
         padding: 16px;
         border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
       }
       .right-section:last-child {
         border-bottom: none;
       }
       .right-section-body {
-        overflow: visible;
+        overflow: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
+        min-width: 0;
       }
       .section-resize-handle {
         height: 5px;
@@ -2607,8 +2613,19 @@
       "use strict";
 
       // ============================================================
-      //  constants
+      //  constants & pre-compiled regexes
       // ============================================================
+
+      // Pre-compiled regex patterns for performance
+      const TIME_REGEX_HM = /^(\d{1,2}):(\d{2})$/;
+      const TIME_REGEX_HMAM = /^(\d{1,2}):(\d{2})(am|pm)$/;
+      const TIME_REGEX_HAM = /^(\d{1,2})(am|pm)$/;
+      const TIME_REGEX_H = /^(\d{1,2})$/;
+      const MINUTES_REGEX_H = /(\d+(?:\.\d+)?)\s*h/i;
+      const MINUTES_REGEX_M = /(\d+)\s*m(?!o)/i;
+      const LINK_REGEX = /(\[[^\]]+\]\([^)]+\)|https?:\/\/[^\s]+)/g;
+      const WEEKLY_SINGLE = /^weekly:(\d)$/;
+      const WEEKLY_MANY = /^weekly:([0-6](?:,[0-6])*)$/;
 
       // dev mode: open focus.html?dev=1 to skip login and stub the backend with localStorage.
       // intended for local testing only — no server/DB/webhook needed.
@@ -2775,29 +2792,6 @@
           ],
         },
         {
-          id: "connection-deposit",
-          name: "connection deposit",
-          category: "life",
-          tasks: [
-            "think of one person you've been meaning to reach out to",
-            "message them with something specific — a question, a memory, something that made you think of them",
-            "suggest something to do together if it feels right",
-          ],
-        },
-        {
-          id: "post-conflict-reset-life",
-          name: "post-conflict reset",
-          category: "life",
-          tasks: [
-            "wait until you've calmed down before trying to resolve anything",
-            "ask yourself: what do I actually want to happen here?",
-            "go in to understand their side, not to win",
-            "say what you feel, not just what you think",
-            "make one small gesture toward repair",
-          ],
-        },
-
-        {
           id: "brain-dump",
           name: "brain dump",
           category: "work",
@@ -2927,39 +2921,6 @@
           ],
         },
         {
-          id: "post-exertion-recovery",
-          name: "post-exertion recovery",
-          category: "body",
-          tasks: [
-            "slow your breathing down after training",
-            "eat something with protein within the hour",
-            "if you're sore, gentle movement helps more than lying still",
-            "protect tonight's sleep — that's when the actual recovery happens",
-          ],
-        },
-        {
-          id: "morning-light-anchor",
-          name: "morning light",
-          category: "body",
-          tasks: [
-            "go outside before checking your phone",
-            "drink water first",
-            "wait a bit before coffee — your body wakes up on its own first",
-          ],
-        },
-        {
-          id: "nsdr-reset",
-          name: "midday rest",
-          category: "body",
-          tasks: [
-            "lie down and close your eyes",
-            "let your body relax from feet upward",
-            "breathe naturally, exhale slowly",
-            "don't check your phone right after",
-          ],
-        },
-
-        {
           id: "body-check",
           name: "body check",
           category: "mind",
@@ -2969,39 +2930,6 @@
             "are you tired? a short rest is faster than two hours of not working",
             "are you stiff or restless? move for a few minutes first",
             "is everything feeling like too much? close extra tabs, dim your screen, put on headphones",
-          ],
-        },
-        {
-          id: "low-stakes-research-warmup",
-          name: "research warmup",
-          category: "mind",
-          tasks: [
-            "clear one surface if your desk is cluttered",
-            "make your drink and sit down without opening your laptop yet",
-            "open something you've already written that you like",
-            "do one small task to get moving: rename a file, add a citation, fix a label",
-          ],
-        },
-        {
-          id: "knowledge-consolidation-session",
-          name: "knowledge consolidation",
-          category: "mind",
-          tasks: [
-            "close everything you used to learn",
-            "write from memory: everything you can recall about the topic without looking",
-            "go back and check what you missed or got wrong",
-            "plan when to review it again",
-          ],
-        },
-        {
-          id: "emotional-processing-check-in",
-          name: "emotional check-in",
-          category: "mind",
-          tasks: [
-            "name what you're feeling as precisely as you can",
-            "sit with it for a few minutes without trying to fix it",
-            "write one sentence about what you actually need right now",
-            "decide: sit with it, talk it through, or set it aside for now",
           ],
         },
         {
@@ -3037,18 +2965,6 @@
           ],
         },
         {
-          id: "low-stakes-sharing-ramp",
-          name: "sharing practice",
-          category: "mind",
-          tasks: [
-            "name the work you've been avoiding putting out",
-            "find the smallest piece you could share: a paragraph, a figure, a rough idea",
-            "share it with one low-pressure person first",
-            "notice: did anything bad actually happen?",
-          ],
-        },
-
-        {
           id: "context-switch-field-to-desk",
           name: "field to desk",
           category: "liminal",
@@ -3060,17 +2976,6 @@
           ],
         },
         {
-          id: "post-fieldwork-decompress",
-          name: "post-fieldwork decompress",
-          category: "liminal",
-          tasks: [
-            "change out of field clothes",
-            "eat something real",
-            "take a walk or sit outside with no agenda",
-            "write one thing you noticed today",
-          ],
-        },
-        {
           id: "recalibration-after-an-off-week",
           name: "recalibration",
           category: "liminal",
@@ -3079,17 +2984,6 @@
             "write down everything unfinished or weighing on you, then sort it",
             "pick one meaningful thing to finish today",
             "be easy on yourself about the week",
-          ],
-        },
-        {
-          id: "travel-day-protocol",
-          name: "travel day",
-          category: "liminal",
-          tasks: [
-            "get outside in daylight when you arrive",
-            "eat closer to local mealtimes",
-            "keep something low-effort on hand for the foggy period after travel",
-            "don't schedule anything demanding until you've had a full night's sleep",
           ],
         },
         {
@@ -4103,8 +3997,8 @@
       function parseMinutes(str) {
         if (!str) return 0;
         let mins = 0;
-        const h = str.match(/(\d+(?:\.\d+)?)\s*h/i);
-        const m = str.match(/(\d+)\s*m(?!o)/i);
+        const h = str.match(MINUTES_REGEX_H);
+        const m = str.match(MINUTES_REGEX_M);
         if (h) mins += parseFloat(h[1]) * 60;
         if (m) mins += parseInt(m[1]);
         if (!h && !m) mins = parseInt(str) || 0;
@@ -4122,12 +4016,12 @@
           [1, 2, 3, 4, 5].forEach((day) => set.add(day));
           return set;
         }
-        const single = String(recurrence || "").match(/^weekly:(\d)$/);
+        const single = String(recurrence || "").match(WEEKLY_SINGLE);
         if (single) {
           set.add(parseInt(single[1], 10));
           return set;
         }
-        const many = String(recurrence || "").match(/^weekly:([0-6](?:,[0-6])*)$/);
+        const many = String(recurrence || "").match(WEEKLY_MANY);
         if (many) {
           many[1].split(",").forEach((day) => set.add(parseInt(day, 10)));
         }
@@ -4189,20 +4083,20 @@
       function parseTimeInput(str) {
         const s = (str || "").trim().toLowerCase().replace(/\s+/g, "");
         let h, min, m;
-        if ((m = s.match(/^(\d{1,2}):(\d{2})$/))) {
+        if ((m = s.match(TIME_REGEX_HM))) {
           h = +m[1];
           min = +m[2];
-        } else if ((m = s.match(/^(\d{1,2}):(\d{2})(am|pm)$/))) {
+        } else if ((m = s.match(TIME_REGEX_HMAM))) {
           h = +m[1];
           min = +m[2];
           if (m[3] === "pm" && h < 12) h += 12;
           if (m[3] === "am" && h === 12) h = 0;
-        } else if ((m = s.match(/^(\d{1,2})(am|pm)$/))) {
+        } else if ((m = s.match(TIME_REGEX_HAM))) {
           h = +m[1];
           min = 0;
           if (m[2] === "pm" && h < 12) h += 12;
           if (m[2] === "am" && h === 12) h = 0;
-        } else if ((m = s.match(/^(\d{1,2})$/))) {
+        } else if ((m = s.match(TIME_REGEX_H))) {
           h = +m[1];
           min = 0;
         }
@@ -4259,7 +4153,7 @@
 
       function linkifyContent(raw) {
         if (!raw) return "";
-        const parts = raw.split(/(\[[^\]]+\]\([^)]+\)|https?:\/\/[^\s]+)/g);
+        const parts = raw.split(LINK_REGEX);
         return parts
           .map((part, i) => {
             if (i % 2 === 0) return esc(part.replace(/\n/g, " "));
@@ -4361,7 +4255,7 @@
 
       async function knMarkCardDone(cardText, cardId = null) {
         if (DEV_MODE) {
-          console.log("[df dev] knMarkCardDone suppressed:", cardText);
+          // Dev logging suppressed
           return;
         }
         const resolvedId = cardId || getKnCardId(cardText) || findKnCardIdInState(cardText);
@@ -4840,7 +4734,7 @@
 
       async function logToWebhook(payload) {
         if (DEV_MODE) {
-          console.log("[df dev] logToWebhook suppressed:", payload);
+          // Dev logging suppressed
           return;
         }
         if (!LOG_WEBHOOK_URL) {
@@ -5015,7 +4909,7 @@
 
       async function autoCarryUndoneTasksToDate(targetDateISO) {
         if (DEV_MODE) {
-          console.log("[df dev] autoCarryUndoneTasksToDate suppressed:", targetDateISO);
+          // Dev logging suppressed
           return;
         }
 
@@ -6144,6 +6038,7 @@
             const tag = el.dataset.tag;
             state.activeTagFilter = state.activeTagFilter === tag ? null : tag;
             renderFocusTab();
+            bindDynamicEvents();
           }),
         );
 
