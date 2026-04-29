@@ -262,6 +262,37 @@
         overflow-y: auto;
         scrollbar-width: thin;
         scrollbar-color: var(--border) transparent;
+        min-width: 0;
+        transition: min-width 0.15s, opacity 0.15s;
+      }
+      #right-col.collapsed {
+        flex: 0 0 0;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      #col-resize-handle {
+        flex: 0 0 5px;
+        background: transparent;
+        cursor: col-resize;
+        position: relative;
+        z-index: 10;
+        transition: background 0.15s;
+        flex-shrink: 0;
+      }
+      #col-resize-handle::after {
+        content: "";
+        position: absolute;
+        top: 0; bottom: 0;
+        left: 2px; right: 2px;
+        background: var(--border);
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      #col-resize-handle:hover::after,
+      #col-resize-handle.dragging::after {
+        opacity: 1;
       }
 
       /* ---- tabs ---- */
@@ -1694,6 +1725,8 @@
        ============================================================ */
 
       @media (max-width: 768px) {
+        #col-resize-handle { display: none; }
+
         /* --- base --- */
         html,
         body {
@@ -2042,7 +2075,7 @@
       /* ---- day timeline ---- */
       #day-timeline {
         position: relative;
-        height: 280px;
+        height: 320px;
         overflow-y: auto;
         overflow-x: hidden;
       }
@@ -2096,14 +2129,20 @@
         border-radius: 3px;
         font-size: 9px;
         font-family: var(--font-mono);
-        padding: 1px 5px;
+        padding: 2px 5px;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
         opacity: 0.85;
         color: var(--bg);
         z-index: 1;
-        min-height: 14px;
+        min-height: 18px;
+        display: flex;
+        align-items: center;
+      }
+      .timeline-task-block {
+        border-left: 2px dashed rgba(255,255,255,0.4);
+        border-radius: 0 3px 3px 0;
       }
 
       /* ---- light mode (Catppuccin Latte) ---- */
@@ -2227,6 +2266,7 @@
           </div>
         </div>
 
+        <div id="col-resize-handle" title="drag to resize"></div>
         <div id="right-col">
           <div class="right-section" id="panel-timeline">
             <div class="right-section-title">
@@ -2546,14 +2586,16 @@
       // ---- calendar event types ----
       const CAL_EVENT_TYPES_KEY = "df-cal-event-types";
       const CAL_EVENT_TYPE_DEFS = {
-        default:  { icon: null,                  color: null },
-        movement: { icon: "bi-person-arms-up",   color: "#a6d189" },
-        focus:    { icon: "bi-bell-slash-fill",  color: "#babbf1" },
-        meal:     { icon: "bi-egg-fried",        color: "#ef9f76" },
-        social:   { icon: "bi-emoji-smile-fill", color: "#e5c890" },
-        hobby:    { icon: "bi-palette",          color: "#ca9ee6" },
+        default:  { icon: null,                   color: null },
+        movement: { icon: "bi-person-arms-up",    color: "#a6d189" },
+        focus:    { icon: "bi-bell-slash-fill",   color: "#babbf1" },
+        meal:     { icon: "bi-egg-fried",         color: "#ef9f76" },
+        social:   { icon: "bi-emoji-smile-fill",  color: "#e5c890" },
+        hobby:    { icon: "bi-palette",           color: "#ca9ee6" },
+        meeting:  { icon: "bi-person-fill",       color: "#89b4fa" },
+        work:     { icon: "bi-buildings-fill",    color: "#e78284" },
       };
-      const CAL_EVENT_TYPE_ORDER = ["default","movement","focus","meal","social","hobby"];
+      const CAL_EVENT_TYPE_ORDER = ["default","movement","focus","meal","social","hobby","meeting","work"];
       function getCalEventTypes() {
         try { return JSON.parse(localStorage.getItem(CAL_EVENT_TYPES_KEY) || "{}"); } catch { return {}; }
       }
@@ -5760,7 +5802,7 @@
       function renderTimeline() {
         const el = document.getElementById("day-timeline");
         if (!el) return;
-        const PX_PER_HOUR = 48;
+        const PX_PER_HOUR = 64;
         const HOUR_START = 7;
         const HOUR_END = 22;
         const totalHours = HOUR_END - HOUR_START;
@@ -5770,7 +5812,7 @@
           const d = new Date(isoStr);
           if (isNaN(d)) return null;
           const hours = d.getHours() + d.getMinutes() / 60;
-          return (hours - HOUR_START) * PX_PER_HOUR;
+          return Math.max(0, (hours - HOUR_START) * PX_PER_HOUR);
         }
 
         // hour lines + labels
@@ -5782,25 +5824,55 @@
           html += `<div class="timeline-hour-label" style="top:${y}px">${label}</div>`;
         }
 
-        // calendar event blocks
+        // calendar event blocks — use event type colors, fall back to accent-dim
         const calEvTypes = getCalEventTypes();
         for (const ev of (state.calendarEvents || [])) {
           const y = timeToY(ev.start);
           if (y === null) continue;
           const endY = timeToY(ev.end);
-          const blockH = Math.max(14, (endY ?? y + PX_PER_HOUR * 0.5) - y);
+          const blockH = Math.max(18, (endY !== null ? endY : y + PX_PER_HOUR * 0.75) - y);
           const evType = calEvTypes[ev.id] || "default";
           const def = CAL_EVENT_TYPE_DEFS[evType];
-          const color = def.color || "var(--border)";
+          const color = def.color || "#a37fce";
           const isFocus = ev.title.startsWith("Focus:");
           const label = isFocus ? ev.title.replace(/^Focus:\s*/, "") : ev.title;
-          html += `<div class="timeline-event-block" style="top:${y}px;height:${blockH}px;background:${color};opacity:0.82" title="${esc(ev.title)}">${esc(label)}</div>`;
+          const icon = def.icon ? `<i class="bi ${def.icon}" style="margin-right:3px"></i>` : "";
+          html += `<div class="timeline-event-block" style="top:${y}px;height:${blockH}px;background:${color}" title="${esc(ev.title)}">${icon}${esc(label)}</div>`;
         }
 
-        // "now" indicator — only show if viewing today
-        const nowDate = isoToday();
-        if (state.currentDate === nowDate) {
-          const now = new Date();
+        // task estimate blocks — stack sequentially starting after any calendar events
+        // find the latest calendar event end time as the "start cursor"
+        const now = new Date();
+        let cursorHours = HOUR_START + 1; // default: 8am
+        if (state.currentDate === isoToday()) {
+          cursorHours = Math.max(cursorHours, now.getHours() + now.getMinutes() / 60);
+        }
+        // push cursor past any overlapping calendar events
+        for (const ev of (state.calendarEvents || [])) {
+          const d = new Date(ev.end);
+          if (!isNaN(d)) {
+            const h = d.getHours() + d.getMinutes() / 60;
+            if (h > cursorHours) cursorHours = h;
+          }
+        }
+        const taskColors = ["#a37fce", "#7dc4e4", "#8bd5ca", "#85c1dc", "#91d7e3"];
+        let colorIdx = 0;
+        for (const task of state.tasks) {
+          if (task.marker === "DONE" || task.marker === "CANCELED") continue;
+          const mins = parseMinutes(task.estimate || "");
+          if (!mins) continue;
+          const y = (cursorHours - HOUR_START) * PX_PER_HOUR;
+          const blockH = Math.max(18, (mins / 60) * PX_PER_HOUR);
+          if (y + blockH > totalHeight) break;
+          const color = taskColors[colorIdx % taskColors.length];
+          colorIdx++;
+          const label = stripPriority(task.content);
+          html += `<div class="timeline-event-block timeline-task-block" style="top:${y}px;height:${blockH}px;background:${color};opacity:0.65;left:42px;right:4px" title="${esc(label)}">&#x2022; ${esc(label)}</div>`;
+          cursorHours += mins / 60;
+        }
+
+        // "now" indicator
+        if (state.currentDate === isoToday()) {
           const nowY = (now.getHours() + now.getMinutes() / 60 - HOUR_START) * PX_PER_HOUR;
           if (nowY >= 0 && nowY <= totalHeight) {
             html += `<div class="timeline-now-line" style="top:${nowY}px"></div>`;
@@ -5810,9 +5882,8 @@
         html += "</div>";
         el.innerHTML = html;
 
-        // scroll to current time (or 8am)
-        const now = new Date();
-        const scrollTarget = Math.max(0, (now.getHours() + now.getMinutes() / 60 - HOUR_START - 1) * PX_PER_HOUR);
+        // scroll to show current time centered
+        const scrollTarget = Math.max(0, (now.getHours() + now.getMinutes() / 60 - HOUR_START - 1.5) * PX_PER_HOUR);
         el.scrollTop = state.currentDate === isoToday() ? scrollTarget : 0;
       }
 
@@ -5822,8 +5893,8 @@
         const timeChips = ["5m", "15m", "25m", "50m"]
           .map((v) => `<div class="tag-chip time-chip" draggable="true" data-chip-type="time" data-chip-value="${v}">${v}</div>`)
           .join("");
-        const tplChips = (TEMPLATES || [])
-          .map((t) => `<div class="tag-chip tpl-chip" draggable="true" data-chip-type="tpl" data-chip-value="${esc(t.name)}" title="${esc(t.name)}">${esc(t.name)}</div>`)
+        const catChips = TEMPLATE_CATEGORIES
+          .map((c) => `<div class="tag-chip tpl-chip" draggable="true" data-chip-type="tpl" data-chip-value="${esc(c.id)}">${esc(c.label)}</div>`)
           .join("");
         container.innerHTML = `
           <div class="tag-palette-group">
@@ -5831,8 +5902,8 @@
             <div class="tag-palette-chips">${timeChips}</div>
           </div>
           <div class="tag-palette-group">
-            <div class="tag-palette-group-label">templates</div>
-            <div class="tag-palette-chips">${tplChips}</div>
+            <div class="tag-palette-group-label">category</div>
+            <div class="tag-palette-chips">${catChips}</div>
           </div>`;
       }
 
@@ -6532,6 +6603,61 @@
         setTheme(getTheme() === "light" ? "dark" : "light");
       });
       setTheme(getTheme());
+
+      // ---- column resize handle ----
+      (function initColResize() {
+        const STORAGE_KEY = "df-col-left-pct";
+        const COLLAPSE_THRESHOLD = 0.82; // collapse right panel when left exceeds 82% of total width
+        const MIN_LEFT_PCT = 0.30;
+        const MAX_LEFT_PCT = 0.97;
+
+        const handle = document.getElementById("col-resize-handle");
+        const leftCol = document.getElementById("left-col");
+        const rightCol = document.getElementById("right-col");
+        if (!handle || !leftCol || !rightCol) return;
+
+        function applyPct(pct) {
+          const collapsed = pct >= COLLAPSE_THRESHOLD;
+          const clampedPct = Math.min(pct, collapsed ? 1 : COLLAPSE_THRESHOLD - 0.01);
+          leftCol.style.flex = `0 0 ${(clampedPct * 100).toFixed(1)}%`;
+          rightCol.classList.toggle("collapsed", collapsed);
+          handle.classList.toggle("hidden-handle", collapsed);
+        }
+
+        // restore saved width
+        const saved = parseFloat(localStorage.getItem(STORAGE_KEY));
+        if (!isNaN(saved)) applyPct(saved);
+
+        let startX, startLeftW, totalW;
+        handle.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          startX = e.clientX;
+          startLeftW = leftCol.getBoundingClientRect().width;
+          totalW = document.getElementById("columns").getBoundingClientRect().width;
+          handle.classList.add("dragging");
+          document.body.style.cursor = "col-resize";
+          document.body.style.userSelect = "none";
+        });
+        document.addEventListener("mousemove", (e) => {
+          if (!handle.classList.contains("dragging")) return;
+          const delta = e.clientX - startX;
+          const newPct = Math.min(MAX_LEFT_PCT, Math.max(MIN_LEFT_PCT, (startLeftW + delta) / totalW));
+          applyPct(newPct);
+          localStorage.setItem(STORAGE_KEY, newPct);
+        });
+        document.addEventListener("mouseup", () => {
+          if (!handle.classList.contains("dragging")) return;
+          handle.classList.remove("dragging");
+          document.body.style.cursor = "";
+          document.body.style.userSelect = "";
+        });
+
+        // double-click to reset to default
+        handle.addEventListener("dblclick", () => {
+          applyPct(0.62);
+          localStorage.setItem(STORAGE_KEY, 0.62);
+        });
+      })();
 
       document
         .getElementById("prev-day-btn")
