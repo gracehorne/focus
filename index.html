@@ -263,13 +263,16 @@
         display: flex;
         flex-direction: column;
         overflow-y: auto;
+        overflow-x: hidden;
         scrollbar-width: none;
         min-width: 280px;
         transition:
           min-width 0.15s,
           opacity 0.15s;
       }
-      #right-col::-webkit-scrollbar { display: none; }
+      #right-col::-webkit-scrollbar {
+        display: none;
+      }
       #right-col.collapsed {
         flex: 0 0 0;
         overflow: hidden;
@@ -6120,12 +6123,12 @@
 
       function showKnTooltip(item, e) {
         const space = item.dataset.knSpace;
-        const cards = (state.kinopioGroups[space] || []).filter((c) => c && !c.isDone);
+        const cards = (state.kinopioGroups[space] || []).filter(Boolean);
         const knKey = item.dataset.knKey || "";
         const cardTextKey = knKey.includes("::") ? knKey.slice(knKey.indexOf("::") + 2) : "";
         const card = cardTextKey
           ? cards.find((c) => textKey(c.text) === cardTextKey)
-          : cards.find((c) => (c.text || "").trim() === (item.querySelector(".inbox-text")?.textContent?.trim() || ""));
+          : cards.find((c) => textKey(c.text) === textKey(item.querySelector(".inbox-text")?.textContent || ""));
         const connected = (card && card.connectedCards) ? card.connectedCards.filter(Boolean) : [];
         if (connected.length === 0) return;
         const tooltip = document.getElementById("kn-tooltip");
@@ -6153,23 +6156,25 @@
       }
 
       function bindChipDragEvents() {
-        document.querySelectorAll(".tag-chip").forEach((chip) => {
-          chip.addEventListener("dragstart", (e) => {
-            state.draggingChipType = chip.dataset.chipType;
-            state.draggingChipValue = chip.dataset.chipValue;
-            state.draggingChipEl = chip;
-            chip.classList.add("dragging");
-            if (e.dataTransfer) e.dataTransfer.effectAllowed = "copy";
-          });
-          chip.addEventListener("dragend", () => {
-            // only clear if this chip started the drag (guards against stale events)
-            if (state.draggingChipEl !== chip) return;
-            if (chip.classList) chip.classList.remove("dragging");
-            clearDropHints(".task-item");
-            state.draggingChipType = null;
-            state.draggingChipValue = null;
-            state.draggingChipEl = null;
-          });
+        const palette = document.getElementById("tag-palette-container");
+        if (!palette || palette._chipDragDelegated) return;
+        palette._chipDragDelegated = true;
+        palette.addEventListener("dragstart", (e) => {
+          const chip = e.target.closest(".tag-chip");
+          if (!chip) return;
+          state.draggingChipType = chip.dataset.chipType;
+          state.draggingChipValue = chip.dataset.chipValue;
+          state.draggingChipEl = chip;
+          chip.classList.add("dragging");
+          if (e.dataTransfer) e.dataTransfer.effectAllowed = "copy";
+        });
+        palette.addEventListener("dragend", (e) => {
+          const chip = e.target.closest(".tag-chip");
+          if (chip) chip.classList.remove("dragging");
+          clearDropHints(".task-item");
+          state.draggingChipType = null;
+          state.draggingChipValue = null;
+          state.draggingChipEl = null;
         });
       }
 
