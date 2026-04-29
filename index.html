@@ -9,7 +9,10 @@
       type="image/svg+xml"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cellipse cx='20' cy='24' rx='16' ry='10' fill='%23ca9ee6' opacity='0.85' transform='rotate(-20 20 24)'/%3E%3Cellipse cx='44' cy='24' rx='16' ry='10' fill='%23a37fce' opacity='0.85' transform='rotate(20 44 24)'/%3E%3Cellipse cx='18' cy='42' rx='12' ry='8' fill='%23ca9ee6' opacity='0.7' transform='rotate(15 18 42)'/%3E%3Cellipse cx='46' cy='42' rx='12' ry='8' fill='%23a37fce' opacity='0.7' transform='rotate(-15 46 42)'/%3E%3Cellipse cx='32' cy='32' rx='3' ry='18' fill='%23414559'/%3E%3Ccircle cx='32' cy='14' r='3' fill='%23414559'/%3E%3Cline x1='30' y1='14' x2='22' y2='6' stroke='%23414559' stroke-width='1.5' stroke-linecap='round'/%3E%3Cline x1='34' y1='14' x2='42' y2='6' stroke='%23414559' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"
     />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
     <style>
       * {
         box-sizing: border-box;
@@ -263,7 +266,9 @@
         scrollbar-width: thin;
         scrollbar-color: var(--border) transparent;
         min-width: 0;
-        transition: min-width 0.15s, opacity 0.15s;
+        transition:
+          min-width 0.15s,
+          opacity 0.15s;
       }
       #right-col.collapsed {
         flex: 0 0 0;
@@ -284,8 +289,10 @@
       #col-resize-handle::after {
         content: "";
         position: absolute;
-        top: 0; bottom: 0;
-        left: 2px; right: 2px;
+        top: 0;
+        bottom: 0;
+        left: 2px;
+        right: 2px;
         background: var(--border);
         opacity: 0;
         transition: opacity 0.15s;
@@ -896,7 +903,7 @@
         background: var(--surface);
         border: 1px solid var(--border);
         border-radius: var(--radius);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
         padding: 8px 10px;
         max-width: 240px;
         min-width: 160px;
@@ -1147,9 +1154,7 @@
         border-bottom: none;
       }
       .right-section-body {
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: var(--border) transparent;
+        overflow: visible;
       }
       .section-resize-handle {
         height: 5px;
@@ -1254,7 +1259,9 @@
       .cal-event-dot.focus.type-default::before {
         background: var(--accent-dim);
       }
-      .cal-event-dot:hover { opacity: 0.75; }
+      .cal-event-dot:hover {
+        opacity: 0.75;
+      }
       .cal-event-title {
         flex: 1;
         white-space: nowrap;
@@ -1272,7 +1279,9 @@
       }
 
       /* ---- tag palette ---- */
-      .tag-palette-group { margin-bottom: 8px; }
+      .tag-palette-group {
+        margin-bottom: 8px;
+      }
       .tag-palette-group-label {
         font-family: var(--font-mono);
         font-size: 9px;
@@ -1281,7 +1290,11 @@
         letter-spacing: 0.07em;
         margin-bottom: 5px;
       }
-      .tag-palette-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+      .tag-palette-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
       .tag-chip {
         font-family: var(--font-mono);
         font-size: 10px;
@@ -1300,8 +1313,12 @@
         border-color: rgba(202, 158, 230, 0.35);
         color: var(--accent);
       }
-      .tag-chip.dragging { opacity: 0.35; }
-      .task-item.chip-drop-target { box-shadow: inset 0 0 0 2px var(--accent); }
+      .tag-chip.dragging {
+        opacity: 0.35;
+      }
+      .task-item.chip-drop-target {
+        box-shadow: inset 0 0 0 2px var(--accent);
+      }
       .task-tag {
         font-family: var(--font-mono);
         font-size: 9px;
@@ -1405,10 +1422,18 @@
       }
 
       /* ---- priority left border ---- */
-      .task-item { border-left: 3px solid transparent; }
-      .task-item.pri-a { border-left-color: #e78284; }
-      .task-item.pri-b { border-left-color: #e5c890; }
-      .task-item.pri-c { border-left-color: #a6d189; }
+      .task-item {
+        border-left: 3px solid transparent;
+      }
+      .task-item.pri-a {
+        border-left-color: #e78284;
+      }
+      .task-item.pri-b {
+        border-left-color: #e5c890;
+      }
+      .task-item.pri-c {
+        border-left-color: #a6d189;
+      }
       .pri-tab {
         position: absolute;
         left: 0;
@@ -1755,7 +1780,9 @@
        ============================================================ */
 
       @media (max-width: 768px) {
-        #col-resize-handle { display: none; }
+        #col-resize-handle {
+          display: none;
+        }
 
         /* --- base --- */
         html,
@@ -2113,7 +2140,9 @@
         flex-shrink: 0;
         flex-wrap: wrap;
       }
-      #tag-filter-bar.active { display: flex; }
+      #tag-filter-bar.active {
+        display: flex;
+      }
       .tag-filter-label {
         font-family: var(--font-mono);
         font-size: 9px;
@@ -2142,10 +2171,21 @@
         background: none;
         border: none;
       }
-      .tag-filter-clear:hover { color: var(--danger); }
-      .task-tag { cursor: pointer; }
-      .task-tag:hover { border-color: var(--accent); color: var(--accent); }
-      .task-tag.active-filter { background: rgba(202,158,230,0.25); border-color: var(--accent); color: var(--accent); }
+      .tag-filter-clear:hover {
+        color: var(--danger);
+      }
+      .task-tag {
+        cursor: pointer;
+      }
+      .task-tag:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .task-tag.active-filter {
+        background: rgba(202, 158, 230, 0.25);
+        border-color: var(--accent);
+        color: var(--accent);
+      }
 
       /* ---- light mode (Catppuccin Latte) ---- */
       [data-theme="light"] {
@@ -2161,11 +2201,21 @@
         --success: #40a02b;
         --peach: #fe640b;
       }
-      [data-theme="light"] .task-item:hover { background: rgba(0,0,0,0.04); }
-      [data-theme="light"] #options-menu { box-shadow: 0 4px 20px rgba(0,0,0,0.18); }
-      [data-theme="light"] .toast { box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
-      [data-theme="light"] .modal-box { box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
-      [data-theme="light"] .kn-tooltip { box-shadow: 0 4px 20px rgba(0,0,0,0.18); }
+      [data-theme="light"] .task-item:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+      [data-theme="light"] #options-menu {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+      }
+      [data-theme="light"] .toast {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      }
+      [data-theme="light"] .modal-box {
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      }
+      [data-theme="light"] .kn-tooltip {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+      }
 
       .theme-toggle-btn {
         background: none;
@@ -2177,7 +2227,9 @@
         border-radius: 3px;
         line-height: 1;
       }
-      .theme-toggle-btn:hover { color: var(--accent); }
+      .theme-toggle-btn:hover {
+        color: var(--accent);
+      }
     </style>
   </head>
   <body>
@@ -2223,7 +2275,14 @@
           "
           >DEV MODE</span
         >
-        <button type="button" class="theme-toggle-btn" id="theme-toggle-btn" title="toggle light/dark mode">&#x263c;</button>
+        <button
+          type="button"
+          class="theme-toggle-btn"
+          id="theme-toggle-btn"
+          title="toggle light/dark mode"
+        >
+          &#x263c;
+        </button>
         <button class="logout-btn" id="logout-btn" title="sign out">&#x2192; out</button>
       </header>
 
@@ -2248,7 +2307,14 @@
           <div id="tag-filter-bar">
             <span class="tag-filter-label">filter:</span>
             <span class="tag-filter-chip" id="tag-filter-active"></span>
-            <button type="button" class="tag-filter-clear" id="tag-filter-clear" title="clear filter">&#xd7; clear</button>
+            <button
+              type="button"
+              class="tag-filter-clear"
+              id="tag-filter-clear"
+              title="clear filter"
+            >
+              &#xd7; clear
+            </button>
           </div>
           <div id="left-scroll">
             <section id="tab-focus" class="tab-content active">
@@ -2287,7 +2353,11 @@
             </div>
             <div class="right-section-body" id="panel-body-calendar">
               <div id="cal-events"><div class="cal-loading">loading&#x2026;</div></div>
-              <div class="section-resize-handle" data-resize-panel="panel-body-calendar" title="drag to resize"></div>
+              <div
+                class="section-resize-handle"
+                data-resize-panel="panel-body-calendar"
+                title="drag to resize"
+              ></div>
             </div>
           </div>
           <div class="right-section" id="panel-time">
@@ -2299,17 +2369,32 @@
             </div>
             <div class="right-section-body" id="panel-body-time">
               <div id="time-summary-body"><div class="cal-loading">no estimates set</div></div>
-              <div class="section-resize-handle" data-resize-panel="panel-body-time" title="drag to resize"></div>
+              <div
+                class="section-resize-handle"
+                data-resize-panel="panel-body-time"
+                title="drag to resize"
+              ></div>
             </div>
           </div>
           <div class="right-section" id="panel-tags">
             <div class="right-section-title">
               <span>tags</span>
-              <button type="button" class="panel-toggle-btn" id="panel-toggle-tags" title="collapse/expand">&#x2212;</button>
+              <button
+                type="button"
+                class="panel-toggle-btn"
+                id="panel-toggle-tags"
+                title="collapse/expand"
+              >
+                &#x2212;
+              </button>
             </div>
             <div class="right-section-body" id="panel-body-tags">
               <div id="tag-palette-container"></div>
-              <div class="section-resize-handle" data-resize-panel="panel-body-tags" title="drag to resize"></div>
+              <div
+                class="section-resize-handle"
+                data-resize-panel="panel-body-tags"
+                title="drag to resize"
+              ></div>
             </div>
           </div>
           <div class="right-section integrations-inline-section" id="panel-integrations">
@@ -2368,7 +2453,11 @@
                 <button id="integrations-inline-test-btn">test time tracking</button>
                 <button id="integrations-inline-save-btn" class="primary">save</button>
               </div>
-              <div class="section-resize-handle" data-resize-panel="panel-body-integrations" title="drag to resize"></div>
+              <div
+                class="section-resize-handle"
+                data-resize-panel="panel-body-integrations"
+                title="drag to resize"
+              ></div>
             </div>
           </div>
         </div>
@@ -2576,7 +2665,9 @@
 
       // ---- theme ----
       const THEME_KEY = "df-theme";
-      function getTheme() { return localStorage.getItem(THEME_KEY) || "dark"; }
+      function getTheme() {
+        return localStorage.getItem(THEME_KEY) || "dark";
+      }
       function setTheme(t) {
         localStorage.setItem(THEME_KEY, t);
         document.documentElement.setAttribute("data-theme", t === "light" ? "light" : "");
@@ -2588,18 +2679,31 @@
       // ---- calendar event types ----
       const CAL_EVENT_TYPES_KEY = "df-cal-event-types";
       const CAL_EVENT_TYPE_DEFS = {
-        default:  { icon: null,                   color: null },
-        movement: { icon: "bi-person-arms-up",    color: "#a6d189" },
-        focus:    { icon: "bi-bell-slash-fill",   color: "#babbf1" },
-        meal:     { icon: "bi-egg-fried",         color: "#ef9f76" },
-        social:   { icon: "bi-emoji-smile-fill",  color: "#e5c890" },
-        hobby:    { icon: "bi-palette",           color: "#ca9ee6" },
-        meeting:  { icon: "bi-person-fill",       color: "#89b4fa" },
-        work:     { icon: "bi-buildings-fill",    color: "#e78284" },
+        default: { icon: null, color: null },
+        movement: { icon: "bi-person-arms-up", color: "#a6d189" },
+        focus: { icon: "bi-bell-slash-fill", color: "#babbf1" },
+        meal: { icon: "bi-egg-fried", color: "#ef9f76" },
+        social: { icon: "bi-emoji-smile-fill", color: "#e5c890" },
+        hobby: { icon: "bi-palette", color: "#ca9ee6" },
+        meeting: { icon: "bi-person-fill", color: "#89b4fa" },
+        work: { icon: "bi-buildings-fill", color: "#e78284" },
       };
-      const CAL_EVENT_TYPE_ORDER = ["default","movement","focus","meal","social","hobby","meeting","work"];
+      const CAL_EVENT_TYPE_ORDER = [
+        "default",
+        "movement",
+        "focus",
+        "meal",
+        "social",
+        "hobby",
+        "meeting",
+        "work",
+      ];
       function getCalEventTypes() {
-        try { return JSON.parse(localStorage.getItem(CAL_EVENT_TYPES_KEY) || "{}"); } catch { return {}; }
+        try {
+          return JSON.parse(localStorage.getItem(CAL_EVENT_TYPES_KEY) || "{}");
+        } catch {
+          return {};
+        }
       }
       function setCalEventType(evId, type) {
         const types = getCalEventTypes();
@@ -3933,8 +4037,11 @@
       // so marking them skipped only on currentDate never matched the carry-over scan.
       const GLOBAL_SKIP_KEY = "df-global-skipped";
       function getGlobalSkippedSet() {
-        try { return new Set(JSON.parse(localStorage.getItem(GLOBAL_SKIP_KEY) || "[]")); }
-        catch { return new Set(); }
+        try {
+          return new Set(JSON.parse(localStorage.getItem(GLOBAL_SKIP_KEY) || "[]"));
+        } catch {
+          return new Set();
+        }
       }
       function markSkippedGlobal(c) {
         const s = getGlobalSkippedSet();
@@ -3942,9 +4049,15 @@
         localStorage.setItem(GLOBAL_SKIP_KEY, JSON.stringify([...s]));
       }
       // Keep old per-date API names so call sites don't need changing
-      function skippedKey(d) { return "df-skipped-" + d; }
-      function getSkippedSet(d) { return getGlobalSkippedSet(); }
-      function markSkippedOnDay(d, c) { markSkippedGlobal(c); }
+      function skippedKey(d) {
+        return "df-skipped-" + d;
+      }
+      function getSkippedSet(d) {
+        return getGlobalSkippedSet();
+      }
+      function markSkippedOnDay(d, c) {
+        markSkippedGlobal(c);
+      }
       function getKnCardIdMap() {
         try {
           return JSON.parse(localStorage.getItem(knCardIdMapKey()) || "{}");
@@ -5364,11 +5477,14 @@
       // inject any recurring tasks for dateISO that are not already present in tasks array
       function injectRecurringTasks(dateISO, tasks) {
         const recurring = loadRecurring();
+        const skipped = getGlobalSkippedSet();
         let changed = false;
         for (const r of recurring) {
           if (!recurringFiresOn(r.recurrence, dateISO)) continue;
           const already = tasks.some((t) => textKey(t.content) === textKey(r.content));
           if (already) continue;
+          // Don't re-add tasks that were previously skipped/deleted
+          if (skipped.has(textKey(r.content))) continue;
           tasks.push({
             id: genId(),
             content: r.content,
@@ -5546,9 +5662,7 @@
         }
 
         const filterTag = state.activeTagFilter;
-        const filterFn = filterTag
-          ? (task) => (task.tags || []).includes(filterTag)
-          : () => true;
+        const filterFn = filterTag ? (task) => (task.tags || []).includes(filterTag) : () => true;
 
         const openTasks = state.tasks.filter((task) => task.marker !== "DONE" && filterFn(task));
         const doneTasks = state.tasks.filter((task) => task.marker === "DONE" && filterFn(task));
@@ -5821,11 +5935,15 @@
         const container = document.getElementById("tag-palette-container");
         if (!container) return;
         const timeChips = ["5m", "15m", "25m", "50m"]
-          .map((v) => `<div class="tag-chip time-chip" draggable="true" data-chip-type="time" data-chip-value="${v}">${v}</div>`)
+          .map(
+            (v) =>
+              `<div class="tag-chip time-chip" draggable="true" data-chip-type="time" data-chip-value="${v}">${v}</div>`,
+          )
           .join("");
-        const catChips = TEMPLATE_CATEGORIES
-          .map((c) => `<div class="tag-chip tpl-chip" draggable="true" data-chip-type="tpl" data-chip-value="${esc(c.id)}">${esc(c.label)}</div>`)
-          .join("");
+        const catChips = TEMPLATE_CATEGORIES.map(
+          (c) =>
+            `<div class="tag-chip tpl-chip" draggable="true" data-chip-type="tpl" data-chip-value="${esc(c.id)}">${esc(c.label)}</div>`,
+        ).join("");
         container.innerHTML = `
           <div class="tag-palette-group">
             <div class="tag-palette-group-label">time</div>
@@ -6107,15 +6225,18 @@
           }),
         );
 
-        // priority badge: cycle A -> B -> C -> none
-        document.querySelectorAll("[data-pri-id]").forEach((el) =>
-          el.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const task = state.tasks.find((t) => t.id === el.dataset.priId);
-            if (!task) return;
-            setPriority(task.id, nextPriority(getPriority(task)));
-          }),
-        );
+        // priority badge: cycle A -> B -> C -> none — use event delegation on task items
+        const priDelegate = (e) => {
+          const priTab = e.target.closest(".pri-tab[data-pri-id]");
+          if (!priTab) return;
+          e.stopPropagation();
+          const taskId = priTab.dataset.priId;
+          const task = state.tasks.find((t) => t.id === taskId);
+          if (!task) return;
+          setPriority(task.id, nextPriority(getPriority(task)));
+        };
+        document.getElementById("task-list").removeEventListener("click", priDelegate);
+        document.getElementById("task-list").addEventListener("click", priDelegate);
 
         document.querySelectorAll("[data-tag]").forEach((el) =>
           el.addEventListener("click", (e) => {
@@ -6159,8 +6280,14 @@
           nearby.push({ text: cards[i].text, isCurrent: i === curIdx });
         }
         const tooltip = document.getElementById("kn-tooltip");
-        tooltip.innerHTML = `<div class="kn-tooltip-title">${esc(space)}</div>` +
-          nearby.map((c) => `<div class="kn-tooltip-card${c.isCurrent ? " current" : ""}">${esc((c.text || "").slice(0, 60))}</div>`).join("");
+        tooltip.innerHTML =
+          `<div class="kn-tooltip-title">${esc(space)}</div>` +
+          nearby
+            .map(
+              (c) =>
+                `<div class="kn-tooltip-card${c.isCurrent ? " current" : ""}">${esc((c.text || "").slice(0, 60))}</div>`,
+            )
+            .join("");
         tooltip.style.display = "block";
         positionKnTooltip(e);
       }
@@ -6188,7 +6315,7 @@
             if (e.dataTransfer) e.dataTransfer.effectAllowed = "copy";
           });
           chip.addEventListener("dragend", () => {
-            chip.classList.remove("dragging");
+            if (chip.classList) chip.classList.remove("dragging");
             clearDropHints(".task-item");
             state.draggingChipType = null;
             state.draggingChipValue = null;
@@ -6425,7 +6552,12 @@
             item.classList.remove("chip-drop-target");
             if (state.draggingChipType) {
               const task = state.tasks.find((t) => t.id === item.dataset.id);
-              if (!task) return;
+              if (!task) {
+                // Clear state even if task not found
+                state.draggingChipType = null;
+                state.draggingChipValue = null;
+                return;
+              }
               if (state.draggingChipType === "time") {
                 task.estimate = state.draggingChipValue;
               } else if (state.draggingChipType === "tpl") {
@@ -6434,6 +6566,9 @@
                   task.tags.push(state.draggingChipValue);
                 }
               }
+              // Clear the dragging state before render
+              state.draggingChipType = null;
+              state.draggingChipValue = null;
               await persistTasks(state.currentDate, state.tasks);
               render();
               return;
@@ -6548,7 +6683,7 @@
       (function initColResize() {
         const STORAGE_KEY = "df-col-left-pct";
         const COLLAPSE_THRESHOLD = 0.82; // collapse right panel when left exceeds 82% of total width
-        const MIN_LEFT_PCT = 0.30;
+        const MIN_LEFT_PCT = 0.3;
         const MAX_LEFT_PCT = 0.97;
 
         const handle = document.getElementById("col-resize-handle");
@@ -6581,7 +6716,10 @@
         document.addEventListener("mousemove", (e) => {
           if (!handle.classList.contains("dragging")) return;
           const delta = e.clientX - startX;
-          const newPct = Math.min(MAX_LEFT_PCT, Math.max(MIN_LEFT_PCT, (startLeftW + delta) / totalW));
+          const newPct = Math.min(
+            MAX_LEFT_PCT,
+            Math.max(MIN_LEFT_PCT, (startLeftW + delta) / totalW),
+          );
           applyPct(newPct);
           localStorage.setItem(STORAGE_KEY, newPct);
         });
@@ -6605,8 +6743,11 @@
         const MAX_H = 800;
 
         function loadHeights() {
-          try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); }
-          catch { return {}; }
+          try {
+            return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+          } catch {
+            return {};
+          }
         }
         function saveHeights(h) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(h));
@@ -6620,7 +6761,10 @@
         }
         applyHeights();
 
-        let activeHandle = null, startY = 0, startH = 0, targetEl = null;
+        let activeHandle = null,
+          startY = 0,
+          startH = 0,
+          targetEl = null;
 
         document.addEventListener("mousedown", (e) => {
           const handle = e.target.closest(".section-resize-handle");
@@ -6982,6 +7126,6 @@
         }
       })();
     </script>
-  <div id="kn-tooltip" class="kn-tooltip"></div>
+    <div id="kn-tooltip" class="kn-tooltip"></div>
   </body>
 </html>
