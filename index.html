@@ -5782,6 +5782,7 @@
         renderTagPalette();
         applyPanelCollapseState();
         bindDynamicEvents();
+        clearStaleHeights();
       }
 
       // ============================================================
@@ -6614,6 +6615,23 @@
             const el = document.getElementById(id);
             if (el) el.style.maxHeight = h + "px";
           }
+        }
+        function clearStaleHeights() {
+          const heights = loadHeights();
+          let changed = false;
+          for (const [id, h] of Object.entries(heights)) {
+            const el = document.getElementById(id);
+            if (!el) continue;
+            el.style.maxHeight = "";
+            const naturalH = el.scrollHeight;
+            if (h < naturalH) {
+              delete heights[id];
+              changed = true;
+            } else {
+              el.style.maxHeight = h + "px";
+            }
+          }
+          if (changed) saveHeights(heights);
         }
         applyHeights();
 
