@@ -4811,8 +4811,8 @@
           let currentBackDate = isoAddDays(targetDateISO, -1);
           const tasksToCarry = [];
 
-          // Look back up to 30 days to find undone tasks
-          for (let i = 0; i < 30; i++) {
+          // Look back up to 7 days to find undone tasks
+          for (let i = 0; i < 7; i++) {
             if (currentBackDate < "2024-01-01") break; // Safety limit
 
             const prevTasks = await fetchTasks(currentBackDate);
