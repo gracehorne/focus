@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>daily focus</title>
+    <title>dashboard</title>
     <link
       rel="icon"
       type="image/svg+xml"
@@ -1154,7 +1154,9 @@
         border-bottom: none;
       }
       .right-section-body {
-        overflow: visible;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--border) transparent;
       }
       .section-resize-handle {
         height: 5px;
@@ -1393,55 +1395,6 @@
         color: var(--text-muted);
         font-family: var(--font-mono);
         margin-bottom: 5px;
-      }
-
-      .pri-row {
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
-        margin-top: 4px;
-      }
-      .pri-chip {
-        font-family: var(--font-mono);
-        font-size: 10px;
-        padding: 1px 6px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-      }
-      .pri-a {
-        color: #e78284;
-        border-color: rgba(231, 130, 132, 0.3);
-      }
-      .pri-b {
-        color: #e5c890;
-        border-color: rgba(229, 200, 144, 0.3);
-      }
-      .pri-c {
-        color: #a6d189;
-        border-color: rgba(166, 209, 137, 0.3);
-      }
-
-      /* ---- priority left border ---- */
-      .task-item {
-        border-left: 3px solid transparent;
-      }
-      .task-item.pri-a {
-        border-left-color: #e78284;
-      }
-      .task-item.pri-b {
-        border-left-color: #e5c890;
-      }
-      .task-item.pri-c {
-        border-left-color: #a6d189;
-      }
-      .pri-tab {
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 10px;
-        cursor: pointer;
-        z-index: 1;
       }
 
       /* ---- drag and drop ---- */
@@ -2075,7 +2028,7 @@
 
         /* small brand label above the input */
         #left-col::before {
-          content: "daily focus";
+          content: "dashboard";
           display: block;
           font-size: 11px;
           font-weight: 700;
@@ -2236,7 +2189,7 @@
     <!-- login overlay — shown when not authenticated -->
     <div id="login-overlay">
       <div class="login-box">
-        <div class="login-title">daily focus</div>
+        <div class="login-title">dashboard</div>
         <input
           type="password"
           id="login-pw"
@@ -2251,7 +2204,7 @@
     <div id="layout">
       <header id="app-header">
         <button class="app-name app-name-btn" id="open-settings-btn" title="open settings">
-          daily focus
+          dashboard
         </button>
         <div class="date-nav">
           <button class="date-nav-btn" id="prev-day-btn">&#x2039;</button>
@@ -4149,25 +4102,6 @@
         return normalizeTaskType(task && task.taskType) === "task";
       }
 
-      // ---- priority helpers --------------------------------------
-      // priority lives either on task.priority ('A'|'B'|'C'|null)
-      // or legacy [#A] / [#B] / [#C] anywhere in task.content
-      function getPriority(task) {
-        if (task && task.priority && /^[ABC]$/i.test(task.priority))
-          return task.priority.toUpperCase();
-        const m = ((task && task.content) || "").match(/\[#([ABC])\]/i);
-        return m ? m[1].toUpperCase() : null;
-      }
-      function stripPriority(content) {
-        return (content || "").replace(/\[#[ABC]\]\s*/gi, "").trim();
-      }
-      function nextPriority(cur) {
-        if (!cur) return "A";
-        if (cur === "A") return "B";
-        if (cur === "B") return "C";
-        return null; // C -> none
-      }
-
       function parseMinutes(str) {
         if (!str) return 0;
         let mins = 0;
@@ -4681,7 +4615,7 @@
           const calEl = document.getElementById("cal-events");
           if (calEl) {
             const msg = err.message || "connection error";
-            calEl.innerHTML = `<div class="cal-loading" style="font-size:11px;color:var(--danger)">calendar unavailable: ${esc(msg)}. open daily focus/settings to check URL.</div>`;
+            calEl.innerHTML = `<div class="cal-loading" style="font-size:11px;color:var(--danger)">calendar unavailable: ${esc(msg)}. open dashboard/settings to check URL.</div>`;
           }
           return;
         }
@@ -4725,7 +4659,7 @@
         const [y, mo, d] = state.currentDate.split("-").map(Number);
         const start = new Date(y, mo - 1, d, parsed.h, parsed.min, 0);
         const end = new Date(start.getTime() + durationMins * 60000);
-        const title = stripPriority(task.content);
+        const title = task.content;
         state.schedulingId = null;
         try {
           showToast("adding to calendar\u2026", "info", 2000);
@@ -4823,16 +4757,6 @@
         showToast("task added", "success");
       }
 
-      async function setPriority(taskId, pri) {
-        const task = state.tasks.find((t) => t.id === taskId);
-        if (!task) return;
-        // clear any legacy [#X] out of the content so it doesn't double-up
-        task.content = stripPriority(task.content);
-        task.priority = pri || null;
-        await persistTasks(state.currentDate, state.tasks);
-        render();
-      }
-
       function markDone(taskId) {
         const task = state.tasks.find((t) => t.id === taskId);
         if (!task || !canCompleteTask(task)) return;
@@ -4861,13 +4785,12 @@
         await persistTasks(state.currentDate, state.tasks);
         logToWebhook({
           date: state.currentDate,
-          task: stripPriority(task.content),
+          task: task.content,
           estimate: task.estimate || "",
           actual: actualTrimmed,
           deferred: task.defers || 0,
           notes: (notes || "").trim(),
           event: "done",
-          priority: getPriority(task) || "",
         });
         if (task.fromKinopio && task.knCardId) {
           try {
@@ -4892,7 +4815,7 @@
         const payload = {
           action: "delete_task",
           date: state.currentDate,
-          task: stripPriority(task.content),
+          task: task.content,
           taskId: task.id,
           event: "done",
         };
@@ -5078,12 +5001,11 @@
         // log the defer so we keep a running count per task
         logToWebhook({
           date: state.currentDate,
-          task: stripPriority(task.content),
+          task: task.content,
           estimate: task.estimate || "",
           actual: "",
           deferred: newDefers,
           event: "defer",
-          priority: getPriority(task) || "",
         });
         state.tasks = state.tasks.filter((t) => t.id !== taskId);
         await persistTasks(state.currentDate, state.tasks);
@@ -5175,12 +5097,11 @@
               for (const task of finalTasksToCarry) {
                 logToWebhook({
                   date: targetDateISO,
-                  task: stripPriority(task.content),
+                  task: task.content,
                   estimate: task.estimate || "",
                   actual: "",
                   deferred: task.defers,
                   event: "autocarry",
-                  priority: getPriority(task) || "",
                   carriedFrom: task.carriedFrom,
                 });
               }
@@ -5698,10 +5619,7 @@
             const dueBadge = task.dueDate
               ? `<span class="due-badge ${dueDateClass(task.dueDate)}">${esc(formatDueDate(task.dueDate))}</span>`
               : "";
-            const pri = getPriority(task);
-            const priBadge = "";
-            // strip legacy [#X] out of what we show in the task row; the badge carries the priority
-            const displayContent = stripPriority(task.content);
+            const displayContent = task.content;
             const contentHtml = isEditingContent
               ? `<input class="task-content-input" type="text" data-edit-id="${esc(task.id)}" value="${esc(task.content)}" autocomplete="off"/>`
               : `<span class="task-content" data-content-id="${esc(task.id)}" title="double-click to edit">${linkifyContent(displayContent)}</span>`;
@@ -5715,7 +5633,7 @@
             const actHtml = task.actual
               ? `<span class="actual-badge">&#x2713; ${esc(task.actual)}</span>`
               : "";
-            const taskTitle = stripPriority(task.content);
+            const taskTitle = task.content;
             const isScheduled = (state.calendarEvents || []).some(
               (ev) => ev.title === "Focus: " + taskTitle,
             );
@@ -5728,12 +5646,11 @@
               ? `<div class="task-meta">${(task.tags || []).map((t) => `<span class="task-tag${state.activeTagFilter === t ? " active-filter" : ""}" data-tag="${esc(t)}" title="click to filter">${esc(t)}</span>`).join("")}</div>`
               : "";
             return `
-      <div class="task-item${task.fromKinopio ? " kn-task" : ""}${isDone ? " done-task" : ""}${pri ? " pri-" + pri.toLowerCase() : ""}" data-id="${esc(task.id)}" draggable="true">
-        <div class="pri-tab" data-pri-id="${esc(task.id)}" title="click to cycle priority"></div>
+      <div class="task-item${task.fromKinopio ? " kn-task" : ""}${isDone ? " done-task" : ""}" data-id="${esc(task.id)}" draggable="true">
         <span class="drag-handle" title="drag to reorder">&#x22ee;&#x22ee;</span>
         <div class="task-check${isDone ? " done" : ""}${taskCanComplete ? "" : " passive"}" data-done-id="${esc(task.id)}" data-done-state="${isDone ? "done" : "todo"}" title="${taskCanComplete ? (isDone ? "completed" : "mark done") : `${task.taskType} entry`}">${taskGlyph(task)}</div>
         <div class="task-body">
-          <div class="task-text">${toggleHtml}${priBadge}${doingBadge}${deferBadge}${recurBadge}${contentHtml}${isEditingContent ? "" : estTag + schedBtn}</div>
+          <div class="task-text">${toggleHtml}${doingBadge}${deferBadge}${recurBadge}${contentHtml}${isEditingContent ? "" : estTag + schedBtn}</div>
           ${hasMeta ? `<div class="task-meta">${estEdit}${actHtml}${dueBadge}${collectionBadge}</div>` : ""}
           ${tagsHtml}
         </div>
@@ -5916,19 +5833,7 @@
         const now = new Date(),
           end = new Date(now.getTime() + totalMin * 60000),
           endStr = fmtHM(end.getHours(), end.getMinutes());
-        const byPri = { A: 0, B: 0, C: 0 };
-        for (const t of state.tasks) {
-          const p = getPriority(t);
-          if (p) byPri[p] = (byPri[p] || 0) + parseMinutes(t.estimate || "");
-        }
-        const priChips = ["A", "B", "C"]
-          .filter((p) => byPri[p] > 0)
-          .map(
-            (p) =>
-              `<span class="pri-chip pri-${p.toLowerCase()}">#${p} ${formatMinutes(byPri[p])}</span>`,
-          )
-          .join("");
-        summaryEl.innerHTML = `<div class="summary-row"><span>${formatMinutes(totalMin)} est &middot; done ~${endStr}</span></div>${priChips ? `<div class="pri-row">${priChips}</div>` : ""}`;
+        summaryEl.innerHTML = `<div class="summary-row"><span>${formatMinutes(totalMin)} est &middot; done ~${endStr}</span></div>`;
       }
 
       function renderTagPalette() {
@@ -6224,19 +6129,6 @@
             openTemplateEditor(el.dataset.tplEdit);
           }),
         );
-
-        // priority badge: cycle A -> B -> C -> none — use event delegation on task items
-        const priDelegate = (e) => {
-          const priTab = e.target.closest(".pri-tab[data-pri-id]");
-          if (!priTab) return;
-          e.stopPropagation();
-          const taskId = priTab.dataset.priId;
-          const task = state.tasks.find((t) => t.id === taskId);
-          if (!task) return;
-          setPriority(task.id, nextPriority(getPriority(task)));
-        };
-        document.getElementById("task-list").removeEventListener("click", priDelegate);
-        document.getElementById("task-list").addEventListener("click", priDelegate);
 
         document.querySelectorAll("[data-tag]").forEach((el) =>
           el.addEventListener("click", (e) => {
@@ -6906,7 +6798,7 @@
             "breakdown (edit before saving)";
           document.getElementById("breakdown-input").value = "generating...";
           document.getElementById("breakdown-modal").style.display = "flex";
-          const lines = await generateAIBreakdown(stripPriority(task.content));
+          const lines = await generateAIBreakdown(task.content);
           if (state.breakdownId !== id) return;
           document.getElementById("breakdown-input").value = lines.join("\n");
           setTimeout(() => document.getElementById("breakdown-input").focus(), 50);
