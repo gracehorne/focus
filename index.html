@@ -1790,32 +1790,6 @@
           min-height: 36px;
         }
 
-        /* --- columns: stack vertically --- */
-        #columns {
-          flex-direction: column;
-          overflow-y: auto;
-          overflow-x: hidden;
-        }
-
-        #left-col {
-          flex: none;
-          width: 100%;
-          border-right: none;
-          border-bottom: 1px solid var(--border);
-          overflow: visible;
-        }
-
-        /* cap the task list scroll area so the right col is reachable below */
-        #left-scroll {
-          max-height: 58vh;
-        }
-
-        #right-col {
-          flex: none;
-          width: 100%;
-          overflow-y: visible;
-          padding-bottom: 32px;
-        }
 
         /* --- tabs: fill full width --- */
         .tabs-bar {
@@ -6050,6 +6024,21 @@
           state.draggingChipValue = null;
           state.draggingChipEl = null;
         });
+
+        // document-level fallback: cleans up if dragend fires on a detached chip
+        // (happens when render() replaces innerHTML before dragend fires)
+        if (!document._chipDragEndBound) {
+          document._chipDragEndBound = true;
+          document.addEventListener("dragend", () => {
+            state.draggingChipType = null;
+            state.draggingChipValue = null;
+            if (state.draggingChipEl) {
+              state.draggingChipEl.classList.remove("dragging");
+              state.draggingChipEl = null;
+            }
+            clearDropHints(".task-item");
+          });
+        }
       }
 
       // ============================================================
@@ -6467,7 +6456,7 @@
         });
 
         // collapse right col when window is too narrow
-        const WINDOW_COLLAPSE_WIDTH = 700;
+        const WINDOW_COLLAPSE_WIDTH = 768;
         function checkWindowCollapse() {
           if (window.innerWidth < WINDOW_COLLAPSE_WIDTH) {
             rightCol.classList.add("collapsed");
