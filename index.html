@@ -5598,11 +5598,10 @@
               collapsed = state.collapsedTasks.has(task.id);
             const doingBadge =
               task.marker === "DOING" ? '<span class="doing-badge">DOING</span>' : "";
-            const deferBadge =
-              (task.defers || 0) > 0
-                ? `<span class="carried-badge" title="deferred ${task.defers} time${task.defers === 1 ? "" : "s"}">&#x21bb;${task.defers}</span>`
-                : "";
-            const recurBadge = "";
+            const deferBadge = "";
+            const recurBadge = task.recurringId
+              ? '<span class="recurring-badge" title="recurring task">&#x21ba;</span>'
+              : "";
             const collectionBadge = task.collection
               ? `<span class="collection-badge" title="collection: ${esc(task.collection)}">${esc(task.collection)}</span>`
               : "";
@@ -6416,10 +6415,6 @@
 
       function bindTaskDragEvents() {
         document.querySelectorAll('.task-item[draggable="true"]').forEach((item) => {
-          // Remove old listeners to prevent duplicates
-          item.replaceWith(item.cloneNode(true));
-        });
-        document.querySelectorAll('.task-item[draggable="true"]').forEach((item) => {
           item.addEventListener("dragstart", (e) => {
             state.draggingTaskId = item.dataset.id;
             item.classList.add("dragging");
@@ -6505,10 +6500,6 @@
       }
 
       function bindInboxDragEvents() {
-        document.querySelectorAll('.inbox-item[draggable="true"]').forEach((item) => {
-          // Remove old listeners to prevent duplicates
-          item.replaceWith(item.cloneNode(true));
-        });
         document.querySelectorAll('.inbox-item[draggable="true"]').forEach((item) => {
           item.addEventListener("dragstart", (e) => {
             state.draggingKnKey = { key: item.dataset.knKey, space: item.dataset.knSpace };
