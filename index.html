@@ -251,7 +251,7 @@
       }
 
       #left-col {
-        flex: 0 0 62%;
+        flex: 1;
         display: flex;
         flex-direction: column;
         border-right: 1px solid var(--border);
@@ -1791,15 +1791,10 @@
         }
 
 
-        /* --- tabs: fill full width --- */
-        .tabs-bar {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-        }
-        .tab {
-          padding: 11px 8px 12px;
-          font-size: 13px;
-          text-align: center;
+        /* --- tabs: focus only --- */
+        .tab[data-tab="inbox"],
+        .tab[data-tab="templates"] {
+          display: none;
         }
 
         /* --- quick-add --- */
@@ -6418,9 +6413,9 @@
           handle.classList.toggle("hidden-handle", collapsed);
         }
 
-        // restore saved width
+        // restore saved width (default 62%)
         const saved = parseFloat(localStorage.getItem(STORAGE_KEY));
-        if (!isNaN(saved)) applyPct(saved);
+        applyPct(!isNaN(saved) ? saved : 0.62);
 
         let startX, startLeftW, totalW;
         handle.addEventListener("mousedown", (e) => {
@@ -6461,6 +6456,7 @@
           if (window.innerWidth < WINDOW_COLLAPSE_WIDTH) {
             rightCol.classList.add("collapsed");
             handle.classList.add("hidden-handle");
+            leftCol.style.flex = "";
           } else {
             const saved = parseFloat(localStorage.getItem(STORAGE_KEY)) || 0.62;
             applyPct(saved);
