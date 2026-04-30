@@ -1570,8 +1570,6 @@
         cursor: pointer;
         -webkit-user-select: none;
         user-select: none;
-        /* extra bottom space so the paper layers peek out below */
-        padding-bottom: 12px;
         position: relative;
       }
       .pile-header-row {
@@ -1590,34 +1588,34 @@
         border-bottom-right-radius: 0;
         border-bottom-color: transparent;
       }
-      /* paper layers — always rendered, opacity 0 when expanded */
+      /* paper layers — absolute inside .task-pile, overlap the header */
       .pile-paper-1,
       .pile-paper-2 {
         position: absolute;
         left: 0; right: 0;
+        top: 0;
         height: 38px;
         border-radius: 3px;
         border: 1px solid var(--border);
+        pointer-events: none;
         transition: opacity 0.15s;
       }
       .pile-paper-1 {
-        background: color-mix(in srgb, var(--surface2) 80%, transparent);
-        bottom: 4px;
-        transform: rotate(1.4deg);
-        transform-origin: left center;
-        z-index: 2;
+        background: var(--surface2);
+        transform: rotate(1.2deg);
+        transform-origin: center center;
+        z-index: 1;
       }
       .pile-paper-2 {
-        background: color-mix(in srgb, var(--surface2) 55%, transparent);
-        bottom: 0;
-        transform: rotate(-2.1deg);
-        transform-origin: right center;
-        z-index: 1;
+        background: var(--surface2);
+        opacity: 0.75;
+        transform: rotate(-1.6deg);
+        transform-origin: center center;
+        z-index: 0;
       }
       .task-pile:not(.pile-collapsed) .pile-paper-1,
       .task-pile:not(.pile-collapsed) .pile-paper-2 {
         opacity: 0;
-        pointer-events: none;
       }
       .pile-icon { color: var(--text-muted); font-size: 15px; flex-shrink: 0; }
       .pile-name { flex: 1; font-size: 13px; color: var(--text); }
@@ -5705,8 +5703,8 @@
             const childCount = (task.subtasks || []).length;
             const childrenHtml = collapsed ? "" : `<div class="pile-children">${renderPileChildren(task)}</div>`;
             return `<div class="task-pile${collapsed ? " pile-collapsed" : ""}" data-id="${esc(task.id)}" data-pile-toggle="${esc(task.id)}">
-              <div class="pile-paper-1"></div>
               <div class="pile-paper-2"></div>
+              <div class="pile-paper-1"></div>
               <div class="pile-header-row">
                 <span class="drag-handle" title="drag to reorder">&#x22ee;&#x22ee;</span>
                 <span class="pile-icon">&#x25a4;</span>
