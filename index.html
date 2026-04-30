@@ -1555,6 +1555,10 @@
         margin-right: 4px;
         vertical-align: middle;
       }
+      .pin-badge { cursor: pointer; }
+      .pin-empty { opacity: 0; background: none; border-color: transparent; color: var(--text-muted); }
+      .task-item:hover .pin-empty { opacity: 0.35; }
+      .pin-empty:hover { opacity: 0.7 !important; }
       .pin-A { background: rgba(166,218,149,0.18); color: #a6da95; border: 1px solid rgba(166,218,149,0.3); }
       .pin-B { background: rgba(138,173,244,0.18); color: #8aadf4; border: 1px solid rgba(138,173,244,0.3); }
       .pin-C { background: rgba(245,169,127,0.18); color: #f5a97f; border: 1px solid rgba(245,169,127,0.3); }
@@ -2482,13 +2486,7 @@
       <button data-action="breakdown">breakdown</button>
       <button data-action="set-recurring">set recurring</button>
       <div class="menu-sep"></div>
-      <button data-action="pin-A">pin as A</button>
-      <button data-action="pin-B">pin as B</button>
-      <button data-action="pin-C">pin as C</button>
-      <button data-action="unpin">unpin</button>
-      <div class="menu-sep"></div>
-      <button data-action="new-pile">make a pile</button>
-      <button data-action="add-to-pile" id="menu-add-to-pile" style="display:none">add to pile…</button>
+      <button data-action="pile-action" id="menu-pile-action">make a pile</button>
       <div class="menu-sep"></div>
       <button data-action="move-tomorrow">move to tomorrow</button>
       <button data-action="skip" class="danger">remove</button>
@@ -5644,9 +5642,7 @@
             isEditingContent = state.editingContentId === task.id;
           const hasSubtasks = task.subtasks && task.subtasks.length > 0,
             collapsed = state.collapsedTasks.has(task.id);
-          const pinBadge = task.pin
-            ? `<span class="pin-badge pin-${esc(task.pin)}" title="pinned ${esc(task.pin)}">${esc(task.pin)}</span>`
-            : "";
+          const pinBadge = `<span class="pin-badge${task.pin ? " pin-" + esc(task.pin) : " pin-empty"}" data-pin-id="${esc(task.id)}" title="click to pin / cycle (A → B → C → off)">${task.pin ? esc(task.pin) : "·"}</span>`;
           const doingBadge = task.marker === "DOING" ? '<span class="doing-badge">DOING</span>' : "";
           const recurBadge = task.recurringId
             ? '<span class="recurring-badge" title="recurring task">&#x21ba;</span>'
@@ -5975,6 +5971,24 @@
         state.tasks = state.tasks.filter((t) => t.id !== taskId);
         await persistTasks(state.currentDate, state.tasks);
         render();
+      }
+
+      async function dissolvePile(pileId) {
+        const pile = state.tasks.find((t) => t.id === pileId && t.isStack);
+        if (!pile) return;
+        const ejected = (pile.subtasks || []).map((sub) => ({
+          id: genId(), content: sub.content, marker: sub.marker || "TODO",
+          subtasks: [], dueDate: null, carriedFrom: null,
+          estimate: sub.estimate || "", actual: sub.actual || "",
+          createdAt: new Date().toISOString(), fromKinopio: false, knCardId: null,
+          priority: null, defers: sub.defers || 0, taskType: "task",
+          collection: null, tags: sub.tags || [], pin: null, isStack: false,
+        }));
+        state.tasks = state.tasks.filter((t) => t.id !== pileId);
+        state.tasks.push(...ejected);
+        await persistTasks(state.currentDate, state.tasks);
+        render();
+        showToast("pile dissolved", "success");
       }
 
       async function removeFromPile(pileId, subtaskId) {
@@ -6315,6 +6329,19 @@
           }),
         );
 
+        // pin badge — click cycles null → A → B → C → null
+        document.querySelectorAll("[data-pin-id]").forEach((el) =>
+          el.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const PIN_CYCLE = [null, "A", "B", "C"];
+            const task = state.tasks.find((t) => t.id === el.dataset.pinId);
+            if (!task || task.isStack) return;
+            const cur = PIN_CYCLE.indexOf(task.pin || null);
+            const next = PIN_CYCLE[(cur + 1) % PIN_CYCLE.length];
+            await pinTask(el.dataset.pinId, next);
+          })
+        );
+
         // pile toggle (click header to expand/collapse)
         document.querySelectorAll("[data-pile-toggle]").forEach((el) => {
           el.addEventListener("click", (e) => {
@@ -6351,14 +6378,6 @@
           })
         );
 
-        // show/hide "add to pile" menu item based on whether piles exist
-        document.querySelectorAll("[data-menu-id]").forEach((el) => {
-          el.addEventListener("click", () => {
-            const hasPiles = state.tasks.some((t) => t.isStack && t.id !== el.dataset.menuId);
-            const addToPileBtn = document.getElementById("menu-add-to-pile");
-            if (addToPileBtn) addToPileBtn.style.display = hasPiles ? "block" : "none";
-          });
-        });
 
         document.querySelectorAll(".subtask-check").forEach((el) =>
           el.addEventListener("click", (e) => {
@@ -6399,6 +6418,13 @@
           el.addEventListener("click", (e) => {
             e.stopPropagation();
             state.activeMenuId = el.dataset.menuId;
+            const menuTask = state.tasks.find((t) => t.id === el.dataset.menuId);
+            const pileBtn = document.getElementById("menu-pile-action");
+            if (pileBtn) {
+              if (menuTask && menuTask.isStack) pileBtn.textContent = "dissolve pile";
+              else if (state.tasks.some((t) => t.isStack && t.id !== el.dataset.menuId)) pileBtn.textContent = "add to pile";
+              else pileBtn.textContent = "make a pile";
+            }
             const rect = el.getBoundingClientRect(),
               menu = document.getElementById("options-menu");
             const menuHeight = 200; // approximate menu height
@@ -7159,22 +7185,18 @@
           setTimeout(() => document.getElementById("breakdown-input").focus(), 50);
         } else if (action === "set-recurring") {
           openRecurringModal(id);
-        } else if (action === "pin-A") await pinTask(id, "A");
-        else if (action === "pin-B") await pinTask(id, "B");
-        else if (action === "pin-C") await pinTask(id, "C");
-        else if (action === "unpin") await pinTask(id, null);
-        else if (action === "new-pile") await convertToPile(id);
-        else if (action === "add-to-pile") {
-          const piles = state.tasks.filter((t) => t.isStack && t.id !== id);
-          if (!piles.length) { showToast("no piles yet — use 'make a pile' first", "info"); return; }
-          if (piles.length === 1) { await addToPile(id, piles[0].id); }
-          else {
-            const name = piles.map((p) => p.content).join(" / ");
-            const chosen = piles.find((p) => p.content === name) || piles[0];
-            await addToPile(id, chosen.id);
+        } else if (action === "pile-action") {
+          const task = state.tasks.find((t) => t.id === id);
+          if (!task) return;
+          if (task.isStack) {
+            await dissolvePile(id);
+          } else {
+            const piles = state.tasks.filter((t) => t.isStack && t.id !== id);
+            if (piles.length === 0) await convertToPile(id);
+            else if (piles.length === 1) await addToPile(id, piles[0].id);
+            else await addToPile(id, piles[0].id);
           }
-        }
-        else if (action === "skip") await skipTask(id);
+        } else if (action === "skip") await skipTask(id);
         else if (action === "move-tomorrow") await moveToTomorrow(id);
       });
 
