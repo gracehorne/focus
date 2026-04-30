@@ -1567,48 +1567,57 @@
 
       /* ---- pile / messy stack ---- */
       .task-pile {
-        position: relative;
         cursor: pointer;
         -webkit-user-select: none;
         user-select: none;
-        padding-bottom: 10px;
-      }
-      /* stacked paper layers behind collapsed pile */
-      .task-pile.pile-collapsed::before,
-      .task-pile.pile-collapsed::after {
-        content: "";
-        position: absolute;
-        left: 14px; right: 10px;
-        height: 100%;
-        border-radius: 3px;
-        background: var(--surface2);
-        border: 1px solid var(--border);
-      }
-      .task-pile.pile-collapsed::before {
-        bottom: -5px;
-        transform: rotate(1.2deg);
-        z-index: -1;
-      }
-      .task-pile.pile-collapsed::after {
-        bottom: -9px;
-        transform: rotate(-1.8deg);
-        z-index: -2;
+        /* extra bottom space so the paper layers peek out below */
+        padding-bottom: 12px;
+        position: relative;
       }
       .pile-header-row {
         display: flex;
         align-items: center;
         gap: 8px;
         padding: 9px 14px;
-        background: var(--surface);
+        background: var(--surface2);
         border-radius: 3px;
         border: 1px solid var(--border);
         position: relative;
-        z-index: 1;
+        z-index: 3;
       }
       .task-pile:not(.pile-collapsed) .pile-header-row {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
         border-bottom-color: transparent;
+      }
+      /* paper layers — always rendered, opacity 0 when expanded */
+      .pile-paper-1,
+      .pile-paper-2 {
+        position: absolute;
+        left: 0; right: 0;
+        height: 38px;
+        border-radius: 3px;
+        border: 1px solid var(--border);
+        transition: opacity 0.15s;
+      }
+      .pile-paper-1 {
+        background: color-mix(in srgb, var(--surface2) 80%, transparent);
+        bottom: 4px;
+        transform: rotate(1.4deg);
+        transform-origin: left center;
+        z-index: 2;
+      }
+      .pile-paper-2 {
+        background: color-mix(in srgb, var(--surface2) 55%, transparent);
+        bottom: 0;
+        transform: rotate(-2.1deg);
+        transform-origin: right center;
+        z-index: 1;
+      }
+      .task-pile:not(.pile-collapsed) .pile-paper-1,
+      .task-pile:not(.pile-collapsed) .pile-paper-2 {
+        opacity: 0;
+        pointer-events: none;
       }
       .pile-icon { color: var(--text-muted); font-size: 15px; flex-shrink: 0; }
       .pile-name { flex: 1; font-size: 13px; color: var(--text); }
@@ -5696,6 +5705,8 @@
             const childCount = (task.subtasks || []).length;
             const childrenHtml = collapsed ? "" : `<div class="pile-children">${renderPileChildren(task)}</div>`;
             return `<div class="task-pile${collapsed ? " pile-collapsed" : ""}" data-id="${esc(task.id)}" data-pile-toggle="${esc(task.id)}">
+              <div class="pile-paper-1"></div>
+              <div class="pile-paper-2"></div>
               <div class="pile-header-row">
                 <span class="drag-handle" title="drag to reorder">&#x22ee;&#x22ee;</span>
                 <span class="pile-icon">&#x25a4;</span>
