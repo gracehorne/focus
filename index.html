@@ -1517,6 +1517,162 @@
         background: rgba(202, 158, 230, 0.22);
         border-color: var(--accent);
       }
+      .template-toolbar .journal-prompt-btn {
+        background: rgba(129, 200, 190, 0.1);
+        border: 1px solid rgba(129, 200, 190, 0.3);
+        border-radius: 3px;
+        color: #81c8be;
+        cursor: pointer;
+        font-family: var(--font);
+        font-size: 12px;
+        padding: 3px 10px;
+        margin-left: 6px;
+      }
+      .template-toolbar .journal-prompt-btn:hover {
+        background: rgba(129, 200, 190, 0.22);
+        border-color: #81c8be;
+      }
+      .journal-prompt-display {
+        font-size: 14px;
+        color: var(--text);
+        line-height: 1.65;
+        margin-bottom: 16px;
+        min-height: 60px;
+      }
+
+      /* ---- pin badges ---- */
+      .pin-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 15px;
+        height: 15px;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 700;
+        font-family: var(--font-mono);
+        flex-shrink: 0;
+        margin-right: 4px;
+        vertical-align: middle;
+      }
+      .pin-A { background: rgba(166,218,149,0.18); color: #a6da95; border: 1px solid rgba(166,218,149,0.3); }
+      .pin-B { background: rgba(138,173,244,0.18); color: #8aadf4; border: 1px solid rgba(138,173,244,0.3); }
+      .pin-C { background: rgba(245,169,127,0.18); color: #f5a97f; border: 1px solid rgba(245,169,127,0.3); }
+      .task-item.pinned { border-left: 2px solid var(--accent); padding-left: 12px; }
+
+      /* ---- pile / messy stack ---- */
+      .task-pile {
+        border-left: 2px solid rgba(198,160,246,0.4);
+        padding-left: 12px;
+        cursor: pointer;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      .task-pile:hover { background: rgba(255,255,255,0.03); }
+      .task-pile.pile-collapsed { opacity: 0.82; }
+      .pile-icon { color: var(--text-muted); font-size: 17px; flex-shrink: 0; line-height: 1; }
+      .pile-count {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        margin-left: 8px;
+        opacity: 0.8;
+      }
+      .pile-child {
+        padding-left: 36px;
+        border-left: 1px solid rgba(198,160,246,0.18);
+        background: rgba(198,160,246,0.03);
+      }
+      .pile-empty {
+        padding: 6px 36px 8px;
+        font-size: 12px;
+        color: var(--text-muted);
+        font-style: italic;
+      }
+      .pile-eject-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 13px;
+        padding: 2px 6px;
+        opacity: 0;
+        flex-shrink: 0;
+      }
+      .pile-child:hover .pile-eject-btn { opacity: 0.6; }
+      .pile-eject-btn:hover { opacity: 1 !important; color: var(--accent); }
+
+      /* ---- stats tab ---- */
+      .stats-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--border);
+        flex-shrink: 0;
+      }
+      .stats-label {
+        font-size: 10px;
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .stats-refresh-btn {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-family: var(--font);
+        font-size: 11px;
+        padding: 3px 10px;
+      }
+      .stats-refresh-btn:hover { color: var(--text); border-color: var(--text-muted); }
+      .stats-refresh-btn:disabled { opacity: 0.45; cursor: default; }
+      #stats-body { overflow-y: auto; flex: 1; }
+      .stats-section {
+        padding: 14px;
+        border-bottom: 1px solid var(--border);
+      }
+      .stats-section-title {
+        font-size: 10px;
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-muted);
+        margin-bottom: 10px;
+      }
+      .stats-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(81,87,109,0.25);
+      }
+      .stats-row:last-child { border-bottom: none; }
+      .stats-row-label { color: var(--text-muted); font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .stats-row-value { color: var(--text); font-family: var(--font-mono); font-size: 12px; flex-shrink: 0; margin-left: 8px; }
+      .stats-big { font-size: 26px; font-family: var(--font-mono); color: var(--accent); margin-bottom: 2px; }
+      .stats-sub { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+      .stats-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+        font-size: 12px;
+      }
+      .stats-bar-label { color: var(--text-muted); min-width: 54px; }
+      .stats-bar-track { flex: 1; height: 6px; background: var(--surface2); border-radius: 999px; overflow: hidden; }
+      .stats-bar-fill { height: 100%; background: var(--accent); border-radius: 999px; opacity: 0.65; transition: width 0.3s; }
+      .stats-bar-value { color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; min-width: 24px; text-align: right; }
+      .stats-cache-note {
+        font-size: 10px;
+        color: var(--text-muted);
+        padding: 8px 14px 14px;
+        font-family: var(--font-mono);
+        opacity: 0.6;
+      }
 
       .template-card {
         position: relative;
@@ -1815,7 +1971,8 @@
 
         /* --- tabs: focus only --- */
         .tab[data-tab="inbox"],
-        .tab[data-tab="templates"] {
+        .tab[data-tab="templates"],
+        .tab[data-tab="stats"] {
           display: none;
         }
 
@@ -2155,6 +2312,7 @@
             <button class="tab active" data-tab="focus">focus</button>
             <button class="tab" data-tab="inbox">kinopio</button>
             <button class="tab" data-tab="templates">templates</button>
+            <button class="tab" data-tab="stats">stats</button>
           </nav>
 
           <div class="quick-add-row" id="quick-add-row">
@@ -2196,8 +2354,18 @@
                   <option value="alpha">alphabetical</option>
                 </select>
                 <button class="new-tpl-btn" id="tpl-new-btn">+ new template</button>
+                <button class="journal-prompt-btn" id="journal-prompt-btn">✦ prompt</button>
               </div>
               <div id="template-grid" class="template-grid"></div>
+            </section>
+            <section id="tab-stats" class="tab-content">
+              <div class="stats-toolbar">
+                <span class="stats-label">last 14 days</span>
+                <button class="stats-refresh-btn" id="stats-refresh-btn">&#x21bb; refresh</button>
+              </div>
+              <div id="stats-body">
+                <div class="cal-loading">click refresh to load stats</div>
+              </div>
             </section>
           </div>
         </div>
@@ -2313,6 +2481,14 @@
       <button data-action="edit-estimate">edit estimate</button>
       <button data-action="breakdown">breakdown</button>
       <button data-action="set-recurring">set recurring</button>
+      <div class="menu-sep"></div>
+      <button data-action="pin-A">pin as A</button>
+      <button data-action="pin-B">pin as B</button>
+      <button data-action="pin-C">pin as C</button>
+      <button data-action="unpin">unpin</button>
+      <div class="menu-sep"></div>
+      <button data-action="new-pile">make a pile</button>
+      <button data-action="add-to-pile" id="menu-add-to-pile" style="display:none">add to pile…</button>
       <div class="menu-sep"></div>
       <button data-action="move-tomorrow">move to tomorrow</button>
       <button data-action="skip" class="danger">remove</button>
@@ -2495,6 +2671,20 @@
       </div>
     </div>
 
+    <!-- journal prompt modal -->
+    <div id="journal-modal" class="modal-backdrop" style="display: none">
+      <div class="modal-box">
+        <p>journal prompt</p>
+        <div id="journal-prompt-text" class="journal-prompt-display"></div>
+        <div class="modal-actions">
+          <button id="journal-new-btn">new prompt</button>
+          <button id="journal-copy-btn">copy</button>
+          <button id="journal-insert-btn" class="primary">insert as task</button>
+          <button id="journal-close-btn">cancel</button>
+        </div>
+      </div>
+    </div>
+
     <script>
       "use strict";
 
@@ -2667,6 +2857,20 @@
           ],
         },
         {
+          id: "tomorrow-prep",
+          name: "tomorrow prep",
+          category: "life",
+          tasks: [
+            "pack your bag or lay out what you'll need",
+            "set out clothes for tomorrow",
+            "prep or plan lunch so morning-you doesn't have to decide",
+            "check your calendar: what's the first thing tomorrow?",
+            "write one thing you want to remember to do first",
+            "charge your phone and anything else that needs it",
+            "close out today: tabs, apps, kitchen, whatever feels open",
+          ],
+        },
+        {
           id: "inbox-zero",
           name: "email",
           category: "life",
@@ -2785,6 +2989,18 @@
         },
 
         {
+          id: "project-startup",
+          name: "project startup",
+          category: "work",
+          tasks: [
+            "read your last session's notes or breadcrumb — where did you leave off?",
+            "name the current blockers: what's actually in the way right now?",
+            "write the 3 most important next actions (not a full list — just 3)",
+            "pick the first one. set a timer for 25 minutes and start",
+            "if you feel stuck: shrink the first step until it's embarrassingly small",
+          ],
+        },
+        {
           id: "movement",
           name: "movement",
           category: "body",
@@ -2868,6 +3084,18 @@
             "write down everything unfinished or weighing on you, then sort it",
             "pick one thing to finish today",
             "be easy on yourself about the week",
+          ],
+        },
+        {
+          id: "project-shutdown",
+          name: "park uphill",
+          category: "liminal",
+          tasks: [
+            "write what you actually did this session (2–3 sentences)",
+            "write where you stopped — the exact sentence, the exact file, the exact thought",
+            "write the very first action for next session: make it tiny enough to start in 30 seconds",
+            "close the open loops: browser tabs, scratch notes, half-written messages",
+            "put your project folder in an obvious place for next time",
           ],
         },
         {
@@ -3370,7 +3598,7 @@
       const TPL_USES_KEY = "df-tpl-uses"; // use counts: { [id]: number }
       const TPL_SORT_KEY = "df-tpl-sort"; // 'popular' | 'alpha'
       const TPL_RESET_VERSION_KEY = "df-tpl-reset-version";
-      const TPL_RESET_VERSION = "2026-04-28-template-refresh-v2";
+      const TPL_RESET_VERSION = "2026-04-30-new-templates-v3";
 
       function loadTemplates() {
         try {
@@ -4537,6 +4765,8 @@
           taskType,
           collection: null,
           tags: [],
+          pin: null,
+          isStack: false,
         };
         state.tasks.push(task);
         await persistTasks(state.currentDate, state.tasks);
@@ -4782,6 +5012,8 @@
             actual: "",
             createdAt: new Date().toISOString(),
             defers: newDefers,
+            pin: null,
+            isStack: false,
           });
           await persistTasks(tomorrowISO, tomorrowTasks);
         }
@@ -5136,6 +5368,8 @@
           priority: null,
           defers: 0,
           taskType: "task",
+          pin: null,
+          isStack: false,
         };
         state.tasks.push(parentTask);
         await persistTasks(state.currentDate, state.tasks);
@@ -5373,75 +5607,92 @@
         const filterTag = state.activeTagFilter;
         const filterFn = filterTag ? (task) => (task.tags || []).includes(filterTag) : () => true;
 
-        const openTasks = state.tasks.filter((task) => task.marker !== "DONE" && filterFn(task));
-        const doneTasks = state.tasks.filter((task) => task.marker === "DONE" && filterFn(task));
-        const orderedTasks = openTasks.concat(doneTasks);
+        // Exclude tasks that live inside a pile (they render via their pile parent)
+        const pileChildIds = new Set(
+          state.tasks.filter((t) => t.isStack).flatMap((t) => (t.subtasks || []).map((s) => s.id))
+        );
 
-        const items = orderedTasks
-          .map((task) => {
-            task.taskType = normalizeTaskType(task.taskType);
-            const isDone = task.marker === "DONE";
-            const taskCanComplete = canCompleteTask(task);
-            const isEditingEst = state.editingEstId === task.id,
-              isEditingContent = state.editingContentId === task.id;
-            const hasSubtasks = task.subtasks && task.subtasks.length > 0,
-              collapsed = state.collapsedTasks.has(task.id);
-            const doingBadge =
-              task.marker === "DOING" ? '<span class="doing-badge">DOING</span>' : "";
-            const deferBadge = "";
-            const recurBadge = task.recurringId
-              ? '<span class="recurring-badge" title="recurring task">&#x21ba;</span>'
-              : "";
-            const collectionBadge = task.collection
-              ? `<span class="collection-badge" title="collection: ${esc(task.collection)}">${esc(task.collection)}</span>`
-              : "";
-            const toggleHtml = hasSubtasks
-              ? `<span class="task-toggle${collapsed ? " collapsed" : ""}" data-toggle-id="${esc(task.id)}" title="${collapsed ? "expand subtasks" : "collapse subtasks"}"></span>`
-              : "";
-            const dueBadge = task.dueDate
-              ? `<span class="due-badge ${dueDateClass(task.dueDate)}">${esc(formatDueDate(task.dueDate))}</span>`
-              : "";
-            const displayContent = task.content;
-            const contentHtml = isEditingContent
-              ? `<input class="task-content-input" type="text" data-edit-id="${esc(task.id)}" value="${esc(task.content)}" autocomplete="off"/>`
-              : `<span class="task-content" data-content-id="${esc(task.id)}" title="double-click to edit">${linkifyContent(displayContent)}</span>`;
-            const estTag =
-              !isDone && !isEditingEst && task.estimate
-                ? `<span class="estimate-badge" data-est-id="${esc(task.id)}" title="click to edit">:${esc(task.estimate)}</span>`
-                : "";
-            const estEdit = isEditingEst
-              ? `<div class="inline-edit" data-id="${esc(task.id)}"><input class="est-input" type="text" value="${esc(task.estimate)}" placeholder="e.g. 25m" autocomplete="off"><button class="save-btn">save</button><button class="cancel-est-btn">&#xd7;</button></div>`
-              : "";
-            const actHtml = task.actual
-              ? `<span class="actual-badge">&#x2713; ${esc(task.actual)}</span>`
-              : "";
-            const taskTitle = task.content;
-            const isScheduled = (state.calendarEvents || []).some(
-              (ev) => ev.title === "Focus: " + taskTitle,
-            );
-            const schedBtn =
-              isDone || !taskCanComplete
-                ? ""
-                : `<button class="sched-btn${isScheduled ? " scheduled" : ""}" data-sched-id="${esc(task.id)}" title="${isScheduled ? "already on calendar" : "schedule as focus time"}">&#x2d35;</button>`;
-            const hasMeta = estEdit || actHtml || dueBadge || collectionBadge;
-            const CATEGORY_TAG_CLASSES = new Set(["life","work","body","mind","liminal"]);
-            const tagsHtml = (task.tags || []).length
-              ? `<div class="task-meta">${(task.tags || []).map((t) => { const catClass = CATEGORY_TAG_CLASSES.has(t) ? ` cat-${t}` : ""; return `<span class="task-tag${state.activeTagFilter === t ? " active-filter" : ""}${catClass}" data-tag="${esc(t)}" title="click to filter">${esc(t)}<span class="tag-remove" data-tag="${esc(t)}" data-tag-remove="1" title="remove tag">&times;</span></span>`; }).join("")}</div>`
-              : "";
-            return `
-      <div class="task-item${task.fromKinopio ? " kn-task" : ""}${isDone ? " done-task" : ""}" data-id="${esc(task.id)}" draggable="true">
+        const pinnedTasks = state.tasks
+          .filter((t) => t.pin && t.marker !== "DONE" && !pileChildIds.has(t.id) && filterFn(t))
+          .sort((a, b) => a.pin.localeCompare(b.pin));
+        const openTasks = state.tasks.filter((t) => !t.pin && t.marker !== "DONE" && !pileChildIds.has(t.id) && filterFn(t));
+        const doneTasks = state.tasks.filter((t) => t.marker === "DONE" && !pileChildIds.has(t.id) && filterFn(t));
+        const orderedTasks = pinnedTasks.concat(openTasks).concat(doneTasks);
+
+        const CATEGORY_TAG_CLASSES = new Set(["life","work","body","mind","liminal"]);
+
+        function renderTaskRow(task) {
+          task.taskType = normalizeTaskType(task.taskType);
+          const isDone = task.marker === "DONE";
+
+          // Pile / stack row — renders header + collapsed/expanded children
+          if (task.isStack) {
+            const collapsed = state.collapsedTasks.has(task.id);
+            const childCount = (task.subtasks || []).length;
+            const childrenHtml = collapsed ? "" : renderPileChildren(task);
+            return `<div class="task-item task-pile${collapsed ? " pile-collapsed" : ""}" data-id="${esc(task.id)}" data-pile-toggle="${esc(task.id)}">
+              <span class="pile-icon">&#x2261;</span>
+              <div class="task-body">
+                <div class="task-text"><span class="task-content">${esc(task.content)}</span><span class="pile-count">${childCount} task${childCount === 1 ? "" : "s"}</span></div>
+              </div>
+              <button class="task-menu-btn" data-menu-id="${esc(task.id)}" title="options">&#x22ef;</button>
+            </div>${childrenHtml}`;
+          }
+
+          const taskCanComplete = canCompleteTask(task);
+          const isEditingEst = state.editingEstId === task.id,
+            isEditingContent = state.editingContentId === task.id;
+          const hasSubtasks = task.subtasks && task.subtasks.length > 0,
+            collapsed = state.collapsedTasks.has(task.id);
+          const pinBadge = task.pin
+            ? `<span class="pin-badge pin-${esc(task.pin)}" title="pinned ${esc(task.pin)}">${esc(task.pin)}</span>`
+            : "";
+          const doingBadge = task.marker === "DOING" ? '<span class="doing-badge">DOING</span>' : "";
+          const recurBadge = task.recurringId
+            ? '<span class="recurring-badge" title="recurring task">&#x21ba;</span>'
+            : "";
+          const collectionBadge = task.collection
+            ? `<span class="collection-badge" title="collection: ${esc(task.collection)}">${esc(task.collection)}</span>`
+            : "";
+          const toggleHtml = hasSubtasks
+            ? `<span class="task-toggle${collapsed ? " collapsed" : ""}" data-toggle-id="${esc(task.id)}" title="${collapsed ? "expand subtasks" : "collapse subtasks"}"></span>`
+            : "";
+          const dueBadge = task.dueDate
+            ? `<span class="due-badge ${dueDateClass(task.dueDate)}">${esc(formatDueDate(task.dueDate))}</span>`
+            : "";
+          const contentHtml = isEditingContent
+            ? `<input class="task-content-input" type="text" data-edit-id="${esc(task.id)}" value="${esc(task.content)}" autocomplete="off"/>`
+            : `<span class="task-content" data-content-id="${esc(task.id)}" title="double-click to edit">${linkifyContent(task.content)}</span>`;
+          const estTag = !isDone && !isEditingEst && task.estimate
+            ? `<span class="estimate-badge" data-est-id="${esc(task.id)}" title="click to edit">:${esc(task.estimate)}</span>`
+            : "";
+          const estEdit = isEditingEst
+            ? `<div class="inline-edit" data-id="${esc(task.id)}"><input class="est-input" type="text" value="${esc(task.estimate)}" placeholder="e.g. 25m" autocomplete="off"><button class="save-btn">save</button><button class="cancel-est-btn">&#xd7;</button></div>`
+            : "";
+          const actHtml = task.actual ? `<span class="actual-badge">&#x2713; ${esc(task.actual)}</span>` : "";
+          const isScheduled = (state.calendarEvents || []).some((ev) => ev.title === "Focus: " + task.content);
+          const schedBtn = isDone || !taskCanComplete
+            ? ""
+            : `<button class="sched-btn${isScheduled ? " scheduled" : ""}" data-sched-id="${esc(task.id)}" title="${isScheduled ? "already on calendar" : "schedule as focus time"}">&#x2d35;</button>`;
+          const hasMeta = estEdit || actHtml || dueBadge || collectionBadge;
+          const tagsHtml = (task.tags || []).length
+            ? `<div class="task-meta">${(task.tags || []).map((t) => { const catClass = CATEGORY_TAG_CLASSES.has(t) ? ` cat-${t}` : ""; return `<span class="task-tag${state.activeTagFilter === t ? " active-filter" : ""}${catClass}" data-tag="${esc(t)}" title="click to filter">${esc(t)}<span class="tag-remove" data-tag="${esc(t)}" data-tag-remove="1" title="remove tag">&times;</span></span>`; }).join("")}</div>`
+            : "";
+          return `
+      <div class="task-item${task.fromKinopio ? " kn-task" : ""}${isDone ? " done-task" : ""}${task.pin ? " pinned" : ""}" data-id="${esc(task.id)}" draggable="true">
         <span class="drag-handle" title="drag to reorder">&#x22ee;&#x22ee;</span>
         <div class="task-check${isDone ? " done" : ""}${taskCanComplete ? "" : " passive"}" data-done-id="${esc(task.id)}" data-done-state="${isDone ? "done" : "todo"}" title="${taskCanComplete ? (isDone ? "completed" : "mark done") : `${task.taskType} entry`}">${taskGlyph(task)}</div>
         <div class="task-body">
-          <div class="task-text">${toggleHtml}${doingBadge}${deferBadge}${recurBadge}${contentHtml}${isEditingContent ? "" : estTag + schedBtn}</div>
+          <div class="task-text">${pinBadge}${toggleHtml}${doingBadge}${recurBadge}${contentHtml}${isEditingContent ? "" : estTag + schedBtn}</div>
           ${hasMeta ? `<div class="task-meta">${estEdit}${actHtml}${dueBadge}${collectionBadge}</div>` : ""}
           ${tagsHtml}
         </div>
         <button class="task-menu-btn" data-menu-id="${esc(task.id)}" title="options">&#x22ef;</button>
       </div>
       ${renderSubtaskList(task)}`;
-          })
-          .join("");
+        }
+
+        const items = orderedTasks.map(renderTaskRow).join("");
 
         if (orderedTasks.length === 0 && filterTag) {
           el.innerHTML = `<div class="empty-state">no tasks tagged <em>${esc(filterTag)}</em>.</div>`;
@@ -5640,6 +5891,270 @@
           </div>`;
       }
 
+      // ============================================================
+      //  journal prompts
+      // ============================================================
+
+      const JOURNAL_PROMPTS = [
+        "What is one thing you've been avoiding, and what's the smallest possible first step into it?",
+        "What does 'enough' look like for you today?",
+        "What are you carrying that isn't yours to carry?",
+        "What would you do differently if you weren't afraid of looking incompetent?",
+        "What has surprised you about yourself in the last month?",
+        "What is one belief you hold that you've never really examined?",
+        "Who do you most want to be like, and what specifically do you admire about them?",
+        "What part of your day feels most like you — most true to who you actually are?",
+        "What are you pretending not to know?",
+        "If you could have a 30-minute conversation with any version of yourself, which would you choose and what would you ask?",
+        "What have you been meaning to say to someone that you haven't said?",
+        "What are you grateful for that you forget to notice?",
+        "When did you last feel genuinely absorbed in something — and what was it?",
+        "What would you do if you knew no one would ever see the result?",
+        "What do you need that you haven't asked for?",
+        "What's one thing you've changed your mind about in the last year?",
+        "What does 'rest' actually feel like for you — not what it looks like, but what it feels like?",
+        "What's a tension you're holding between two things you want?",
+        "What would make this week feel worthwhile, even if nothing else goes right?",
+        "What's something you're proud of that you've never told anyone?",
+        "What are you most afraid of admitting to yourself?",
+        "What story are you telling about why things are the way they are — and is it true?",
+        "What do you wish you'd started earlier?",
+        "What would you protect at all costs, and what does that tell you about what matters?",
+        "Where in your life are you settling, and do you want to keep doing that?",
+      ];
+
+      function getRandomPrompt() {
+        return JOURNAL_PROMPTS[Math.floor(Math.random() * JOURNAL_PROMPTS.length)];
+      }
+
+      function openJournalPrompt() {
+        document.getElementById("journal-prompt-text").textContent = getRandomPrompt();
+        document.getElementById("journal-modal").style.display = "flex";
+      }
+
+      function closeJournalPrompt() {
+        document.getElementById("journal-modal").style.display = "none";
+      }
+
+      // ============================================================
+      //  task pinning (A / B / C)
+      // ============================================================
+
+      async function pinTask(id, pin) {
+        const task = state.tasks.find((t) => t.id === id);
+        if (!task) return;
+        if (pin) {
+          const existing = state.tasks.find((t) => t.pin === pin && t.id !== id);
+          if (existing) existing.pin = null;
+        }
+        task.pin = pin;
+        await persistTasks(state.currentDate, state.tasks);
+        render();
+      }
+
+      // ============================================================
+      //  pile / messy stack
+      // ============================================================
+
+      async function convertToPile(id) {
+        const task = state.tasks.find((t) => t.id === id);
+        if (!task) return;
+        task.isStack = true;
+        if (!task.subtasks) task.subtasks = [];
+        await persistTasks(state.currentDate, state.tasks);
+        render();
+        showToast("converted to pile", "success");
+      }
+
+      async function addToPile(taskId, pileId) {
+        const task = state.tasks.find((t) => t.id === taskId);
+        const pile = state.tasks.find((t) => t.id === pileId && t.isStack);
+        if (!task || !pile) return;
+        pile.subtasks = pile.subtasks || [];
+        pile.subtasks.push({ id: task.id, content: task.content, marker: task.marker || "TODO", estimate: task.estimate || "", actual: task.actual || "", tags: task.tags || [], pin: null, defers: task.defers || 0 });
+        state.tasks = state.tasks.filter((t) => t.id !== taskId);
+        await persistTasks(state.currentDate, state.tasks);
+        render();
+      }
+
+      async function removeFromPile(pileId, subtaskId) {
+        const pile = state.tasks.find((t) => t.id === pileId && t.isStack);
+        if (!pile) return;
+        const subtask = (pile.subtasks || []).find((s) => s.id === subtaskId);
+        if (!subtask) return;
+        pile.subtasks = pile.subtasks.filter((s) => s.id !== subtaskId);
+        state.tasks.push({
+          id: genId(),
+          content: subtask.content,
+          marker: subtask.marker || "TODO",
+          subtasks: [],
+          dueDate: null,
+          carriedFrom: null,
+          estimate: subtask.estimate || "",
+          actual: subtask.actual || "",
+          createdAt: new Date().toISOString(),
+          fromKinopio: false,
+          knCardId: null,
+          priority: null,
+          defers: subtask.defers || 0,
+          taskType: "task",
+          collection: null,
+          tags: subtask.tags || [],
+          pin: null,
+          isStack: false,
+        });
+        await persistTasks(state.currentDate, state.tasks);
+        render();
+      }
+
+      function renderPileChildren(pile) {
+        const children = pile.subtasks || [];
+        if (!children.length) return '<div class="pile-empty">pile is empty</div>';
+        return children.map((sub) => {
+          const isDone = sub.marker === "DONE";
+          return `<div class="task-item pile-child${isDone ? " done-task" : ""}" data-pile-id="${esc(pile.id)}" data-pile-sub-id="${esc(sub.id)}">
+            <div class="task-check${isDone ? " done" : ""}" data-pile-done-id="${esc(sub.id)}" data-pile-parent-id="${esc(pile.id)}" title="${isDone ? "completed" : "mark done"}">${isDone ? "✓" : "○"}</div>
+            <div class="task-body">
+              <div class="task-text"><span class="task-content">${esc(sub.content)}</span>${sub.estimate ? `<span class="estimate-badge">:${esc(sub.estimate)}</span>` : ""}</div>
+            </div>
+            <button class="pile-eject-btn" data-pile-eject-id="${esc(sub.id)}" data-pile-eject-parent="${esc(pile.id)}" title="remove from pile">↑</button>
+          </div>`;
+        }).join("");
+      }
+
+      // ============================================================
+      //  stats tab
+      // ============================================================
+
+      const STATS_CACHE_KEY = "df-stats-cache";
+      const STATS_CACHE_TTL_MS = 60 * 60 * 1000;
+      const STATS_DAYS = 14;
+
+      async function computeStats(forceRefresh = false) {
+        if (!forceRefresh) {
+          try {
+            const cached = JSON.parse(localStorage.getItem(STATS_CACHE_KEY) || "null");
+            if (cached && cached.ts && Date.now() - cached.ts < STATS_CACHE_TTL_MS) return cached.data;
+          } catch {}
+        }
+        const days = [];
+        for (let i = 0; i < STATS_DAYS; i++) {
+          const iso = isoAddDays(state.currentDate, -i);
+          try {
+            const result = await apiPost({ action: "get_tasks", date: iso });
+            days.push({ iso, tasks: result.tasks || [] });
+          } catch {
+            days.push({ iso, tasks: [] });
+          }
+        }
+        let totalTasks = 0, doneTasks = 0, totalWithEst = 0, estAccuracySum = 0, totalDeferred = 0;
+        const tagCounts = { life: 0, work: 0, body: 0, mind: 0, liminal: 0 };
+        const deferMap = {};
+        const taskLoadPerDay = [];
+        for (const { iso, tasks } of days) {
+          const dayCount = tasks.filter((t) => !t.taskType || t.taskType === "task").length;
+          taskLoadPerDay.push({ iso, count: dayCount });
+          for (const t of tasks) {
+            const isTask = !t.taskType || t.taskType === "task";
+            if (isTask) {
+              totalTasks++;
+              if (t.marker === "DONE") doneTasks++;
+              if ((t.defers || 0) > 0) {
+                totalDeferred++;
+                const key = (t.content || "").trim().toLowerCase().slice(0, 60);
+                deferMap[key] = Math.max(deferMap[key] || 0, t.defers);
+              }
+            }
+            for (const tag of t.tags || []) {
+              if (tag in tagCounts) tagCounts[tag]++;
+            }
+            const est = parseMinutes(t.estimate || "");
+            const act = parseMinutes(t.actual || "");
+            if (est > 0 && act > 0) {
+              estAccuracySum += Math.min(est, act) / Math.max(est, act);
+              totalWithEst++;
+            }
+          }
+        }
+        const completionRate = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : null;
+        const estAccuracyPct = totalWithEst >= 2 ? Math.round((estAccuracySum / totalWithEst) * 100) : null;
+        const topDeferred = Object.entries(deferMap).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([content, count]) => ({ content, count }));
+        const skipCount = getGlobalSkippedSet().size;
+        const dailyLoad = taskLoadPerDay.slice(0, 7).reverse();
+        const data = { completionRate, estAccuracyPct, totalDeferred, topDeferred, skipCount, tagCounts, dailyLoad, totalTasks, doneTasks, daysAnalyzed: days.filter((d) => d.tasks.length > 0).length };
+        try { localStorage.setItem(STATS_CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch {}
+        return data;
+      }
+
+      async function renderStatsTab(forceRefresh = false) {
+        if (state.currentTab !== "stats") return;
+        const body = document.getElementById("stats-body");
+        if (!body) return;
+        body.innerHTML = '<div class="cal-loading">computing&#x2026;</div>';
+        const btn = document.getElementById("stats-refresh-btn");
+        if (btn) btn.disabled = true;
+        let data;
+        try { data = await computeStats(forceRefresh); }
+        catch { body.innerHTML = '<div class="cal-loading">error loading stats</div>'; if (btn) btn.disabled = false; return; }
+        if (btn) btn.disabled = false;
+
+        const categories = ["life", "work", "body", "mind", "liminal"];
+        const maxTag = Math.max(...categories.map((c) => data.tagCounts[c] || 0), 1);
+
+        const completionHtml = `<div class="stats-section">
+          <div class="stats-section-title">completion rate &middot; ${data.daysAnalyzed}d of data</div>
+          <div class="stats-big">${data.completionRate !== null ? data.completionRate + "%" : "—"}</div>
+          <div class="stats-sub">${data.doneTasks} of ${data.totalTasks} tasks completed</div>
+        </div>`;
+
+        const topDeferredRows = data.topDeferred.map((d) =>
+          `<div class="stats-row"><span class="stats-row-label" title="${esc(d.content)}">${esc(d.content.slice(0, 40))}</span><span class="stats-row-value">${d.count}&times;</span></div>`
+        ).join("") || '<div class="stats-sub">none — good work</div>';
+
+        const deferHtml = `<div class="stats-section">
+          <div class="stats-section-title">deferred &amp; skipped</div>
+          <div class="stats-row"><span class="stats-row-label">tasks deferred at least once</span><span class="stats-row-value">${data.totalDeferred}</span></div>
+          <div class="stats-row"><span class="stats-row-label">globally skipped / removed</span><span class="stats-row-value">${data.skipCount}</span></div>
+          <div class="stats-section-title" style="margin-top:12px">most deferred</div>
+          ${topDeferredRows}
+        </div>`;
+
+        const tagHtml = `<div class="stats-section">
+          <div class="stats-section-title">task spread by category</div>
+          ${categories.map((c) => {
+            const count = data.tagCounts[c] || 0;
+            const pct = Math.round((count / maxTag) * 100);
+            return `<div class="stats-bar-row"><span class="stats-bar-label">${c}</span><div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div><span class="stats-bar-value">${count}</span></div>`;
+          }).join("")}
+        </div>`;
+
+        const estHtml = `<div class="stats-section">
+          <div class="stats-section-title">estimate accuracy</div>
+          <div class="stats-big">${data.estAccuracyPct !== null ? data.estAccuracyPct + "%" : "—"}</div>
+          <div class="stats-sub">${data.estAccuracyPct !== null ? "avg overlap between estimate and actual" : "need more completed tasks with estimate + actual filled in"}</div>
+        </div>`;
+
+        const maxDay = Math.max(...data.dailyLoad.map((d) => d.count), 1);
+        const loadHtml = `<div class="stats-section">
+          <div class="stats-section-title">daily task load (last 7 days)</div>
+          ${data.dailyLoad.map((d) => {
+            const pct = Math.round((d.count / maxDay) * 100);
+            return `<div class="stats-bar-row"><span class="stats-bar-label">${d.iso.slice(5)}</span><div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div><span class="stats-bar-value">${d.count}</span></div>`;
+          }).join("") || '<div class="stats-sub">no data</div>'}
+        </div>`;
+
+        let cacheNote = "";
+        try {
+          const cached = JSON.parse(localStorage.getItem(STATS_CACHE_KEY) || "null");
+          if (cached && cached.ts) {
+            const mins = Math.round((Date.now() - cached.ts) / 60000);
+            cacheNote = `<div class="stats-cache-note">cached ${mins === 0 ? "just now" : mins + "m ago"} &middot; ${STATS_DAYS} days of data</div>`;
+          }
+        } catch {}
+
+        body.innerHTML = completionHtml + deferHtml + tagHtml + estHtml + loadHtml + cacheNote;
+      }
+
       function render() {
         renderFocusTab();
         renderInboxTab();
@@ -5664,6 +6179,7 @@
         document.getElementById("quick-add-row").style.display =
           name === "focus" ? "flex" : "none";
         state.currentTab = name;
+        if (name === "stats") renderStatsTab(false).catch(() => {});
       }
 
       // ============================================================
@@ -5798,6 +6314,51 @@
             }
           }),
         );
+
+        // pile toggle (click header to expand/collapse)
+        document.querySelectorAll("[data-pile-toggle]").forEach((el) => {
+          el.addEventListener("click", (e) => {
+            if (e.target.closest("[data-menu-id]")) return; // don't toggle when clicking menu
+            e.stopPropagation();
+            const id = el.dataset.pileToggle;
+            if (state.collapsedTasks.has(id)) state.collapsedTasks.delete(id);
+            else state.collapsedTasks.add(id);
+            render();
+          });
+        });
+
+        // pile child done toggle
+        document.querySelectorAll("[data-pile-done-id]").forEach((el) =>
+          el.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const subId = el.dataset.pileDoneId;
+            const pileId = el.dataset.pileParentId;
+            const pile = state.tasks.find((t) => t.id === pileId && t.isStack);
+            if (!pile) return;
+            const sub = (pile.subtasks || []).find((s) => s.id === subId);
+            if (!sub) return;
+            sub.marker = sub.marker === "DONE" ? "TODO" : "DONE";
+            await persistTasks(state.currentDate, state.tasks);
+            render();
+          })
+        );
+
+        // pile eject (remove from pile, restore as top-level task)
+        document.querySelectorAll("[data-pile-eject-id]").forEach((el) =>
+          el.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            await removeFromPile(el.dataset.pileEjectParent, el.dataset.pileEjectId);
+          })
+        );
+
+        // show/hide "add to pile" menu item based on whether piles exist
+        document.querySelectorAll("[data-menu-id]").forEach((el) => {
+          el.addEventListener("click", () => {
+            const hasPiles = state.tasks.some((t) => t.isStack && t.id !== el.dataset.menuId);
+            const addToPileBtn = document.getElementById("menu-add-to-pile");
+            if (addToPileBtn) addToPileBtn.style.display = hasPiles ? "block" : "none";
+          });
+        });
 
         document.querySelectorAll(".subtask-check").forEach((el) =>
           el.addEventListener("click", (e) => {
@@ -6598,7 +7159,22 @@
           setTimeout(() => document.getElementById("breakdown-input").focus(), 50);
         } else if (action === "set-recurring") {
           openRecurringModal(id);
-        } else if (action === "skip") await skipTask(id);
+        } else if (action === "pin-A") await pinTask(id, "A");
+        else if (action === "pin-B") await pinTask(id, "B");
+        else if (action === "pin-C") await pinTask(id, "C");
+        else if (action === "unpin") await pinTask(id, null);
+        else if (action === "new-pile") await convertToPile(id);
+        else if (action === "add-to-pile") {
+          const piles = state.tasks.filter((t) => t.isStack && t.id !== id);
+          if (!piles.length) { showToast("no piles yet — use 'make a pile' first", "info"); return; }
+          if (piles.length === 1) { await addToPile(id, piles[0].id); }
+          else {
+            const name = piles.map((p) => p.content).join(" / ");
+            const chosen = piles.find((p) => p.content === name) || piles[0];
+            await addToPile(id, chosen.id);
+          }
+        }
+        else if (action === "skip") await skipTask(id);
         else if (action === "move-tomorrow") await moveToTomorrow(id);
       });
 
@@ -6756,6 +7332,43 @@
       document.getElementById("recurring-modal").addEventListener("keydown", (e) => {
         if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) saveRecurringFromModal();
         if (e.key === "Escape") closeRecurringModal();
+      });
+
+      // --- journal prompt wiring ---
+      document.getElementById("journal-prompt-btn").addEventListener("click", openJournalPrompt);
+      document.getElementById("journal-close-btn").addEventListener("click", closeJournalPrompt);
+      document.getElementById("journal-new-btn").addEventListener("click", () => {
+        document.getElementById("journal-prompt-text").textContent = getRandomPrompt();
+      });
+      document.getElementById("journal-copy-btn").addEventListener("click", () => {
+        const text = document.getElementById("journal-prompt-text").textContent;
+        navigator.clipboard.writeText(text).then(() => showToast("prompt copied", "success")).catch(() => {});
+      });
+      document.getElementById("journal-insert-btn").addEventListener("click", async () => {
+        const text = document.getElementById("journal-prompt-text").textContent;
+        if (!text) return;
+        state.tasks.push({
+          id: genId(), content: text, marker: "TODO", subtasks: [], dueDate: null,
+          carriedFrom: null, estimate: "", actual: "", createdAt: new Date().toISOString(),
+          fromKinopio: false, knCardId: null, priority: null, defers: 0,
+          taskType: "note", collection: null, tags: ["journal"], pin: null, isStack: false,
+        });
+        await persistTasks(state.currentDate, state.tasks);
+        closeJournalPrompt();
+        switchTab("focus");
+        render();
+        showToast("prompt added as note", "success");
+      });
+      document.getElementById("journal-modal").addEventListener("click", (e) => {
+        if (e.target.id === "journal-modal") closeJournalPrompt();
+      });
+      document.getElementById("journal-modal").addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeJournalPrompt();
+      });
+
+      // --- stats wiring ---
+      document.getElementById("stats-refresh-btn").addEventListener("click", () => {
+        renderStatsTab(true).catch(() => {});
       });
 
       // --- template editor wiring ---
