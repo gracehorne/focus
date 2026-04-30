@@ -1565,119 +1565,6 @@
       .pin-B { background: rgba(138,173,244,0.18); color: #8aadf4; border: 1px solid rgba(138,173,244,0.3); }
       .pin-C { background: rgba(245,169,127,0.18); color: #f5a97f; border: 1px solid rgba(245,169,127,0.3); }
 
-      /* ---- pile / messy stack ---- */
-      .task-pile {
-        cursor: pointer;
-        -webkit-user-select: none;
-        user-select: none;
-        position: relative;
-      }
-      .pile-header-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 9px 14px;
-        background: var(--surface2);
-        border-radius: 3px;
-        border: 1px solid var(--border);
-        position: relative;
-        z-index: 3;
-      }
-      .task-pile:not(.pile-collapsed) .pile-header-row {
-        border-bottom-left-radius: 0;
-        border-bottom-right-radius: 0;
-        border-bottom-color: transparent;
-      }
-      /* paper layers — absolute inside .task-pile, overlap the header */
-      .pile-paper-1,
-      .pile-paper-2 {
-        position: absolute;
-        left: 0; right: 0;
-        top: 0;
-        height: 38px;
-        border-radius: 3px;
-        border: 1px solid var(--border);
-        pointer-events: none;
-        transition: opacity 0.15s;
-      }
-      .pile-paper-1 {
-        background: var(--surface2);
-        transform: rotate(1.2deg);
-        transform-origin: center center;
-        z-index: 1;
-      }
-      .pile-paper-2 {
-        background: var(--surface2);
-        opacity: 0.75;
-        transform: rotate(-1.6deg);
-        transform-origin: center center;
-        z-index: 0;
-      }
-      .task-pile:not(.pile-collapsed) .pile-paper-1,
-      .task-pile:not(.pile-collapsed) .pile-paper-2 {
-        opacity: 0;
-      }
-      .pile-icon { color: var(--text-muted); font-size: 15px; flex-shrink: 0; }
-      .pile-name { flex: 1; font-size: 13px; color: var(--text); }
-      .pile-count {
-        font-size: 11px;
-        color: var(--text-muted);
-        font-family: var(--font-mono);
-        opacity: 0.8;
-      }
-      .task-pile.pile-drop-target .pile-header-row {
-        box-shadow: inset 0 0 0 2px var(--accent);
-      }
-      .pile-children {
-        border: 1px solid var(--border);
-        border-top: none;
-        border-bottom-left-radius: 3px;
-        border-bottom-right-radius: 3px;
-        overflow: hidden;
-      }
-      .pile-child {
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
-        padding: 7px 14px 7px 24px;
-        border-bottom: 1px solid var(--surface2);
-        background: var(--surface);
-        font-size: 13px;
-        position: relative;
-      }
-      .pile-child:last-child { border-bottom: none; }
-      .pile-child.dragging { opacity: 0.35; }
-      .pile-child.drop-above { box-shadow: inset 0 2px 0 0 var(--accent); }
-      .pile-child.drop-below { box-shadow: inset 0 -2px 0 0 var(--accent); }
-      .pile-child-drag { color: var(--text-muted); font-size: 13px; opacity: 0; cursor: grab; flex-shrink: 0; padding-top: 1px; }
-      .pile-child:hover .pile-child-drag { opacity: 0.5; }
-      .pile-child-check { font-size: 13px; color: var(--text-muted); cursor: pointer; flex-shrink: 0; font-family: var(--font-mono); }
-      .pile-child-check:hover { color: var(--accent); }
-      .pile-child-check.done { color: var(--success); }
-      .pile-child-text { flex: 1; color: var(--text); }
-      .pile-child-text.done-text { text-decoration: line-through; opacity: 0.6; }
-      .pile-child-est { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); margin-left: 4px; flex-shrink: 0; }
-      .pile-eject-btn {
-        background: none;
-        border: none;
-        color: var(--text-muted);
-        cursor: pointer;
-        font-size: 12px;
-        padding: 0 4px;
-        opacity: 0;
-        flex-shrink: 0;
-        line-height: 1;
-      }
-      .pile-child:hover .pile-eject-btn { opacity: 0.5; }
-      .pile-eject-btn:hover { opacity: 1 !important; color: var(--accent); }
-      .pile-empty {
-        padding: 10px 24px;
-        font-size: 12px;
-        color: var(--text-muted);
-        font-style: italic;
-        background: var(--surface);
-      }
-
       /* ---- stats tab ---- */
       .stats-toolbar {
         display: flex;
@@ -2557,8 +2444,6 @@
       <button data-action="edit-estimate">edit estimate</button>
       <button data-action="breakdown">breakdown</button>
       <button data-action="set-recurring">set recurring</button>
-      <div class="menu-sep"></div>
-      <button data-action="pile-action" id="menu-pile-action">make a pile</button>
       <div class="menu-sep"></div>
       <button data-action="move-tomorrow">move to tomorrow</button>
       <button data-action="skip" class="danger">remove</button>
@@ -3786,8 +3671,6 @@
         recurringTaskId: null,
         // drag-and-drop
         draggingTaskId: null,
-        draggingPileChildId: null,
-        draggingPileParentId: null,
         draggingKnKey: null,
         draggingTplId: null,
         draggingChipType: null,
@@ -4838,7 +4721,6 @@
           collection: null,
           tags: [],
           pin: null,
-          isStack: false,
         };
         state.tasks.push(task);
         await persistTasks(state.currentDate, state.tasks);
@@ -5085,7 +4967,6 @@
             createdAt: new Date().toISOString(),
             defers: newDefers,
             pin: null,
-            isStack: false,
           });
           await persistTasks(tomorrowISO, tomorrowTasks);
         }
@@ -5441,7 +5322,6 @@
           defers: 0,
           taskType: "task",
           pin: null,
-          isStack: false,
         };
         state.tasks.push(parentTask);
         await persistTasks(state.currentDate, state.tasks);
@@ -5679,16 +5559,11 @@
         const filterTag = state.activeTagFilter;
         const filterFn = filterTag ? (task) => (task.tags || []).includes(filterTag) : () => true;
 
-        // Exclude tasks that live inside a pile (they render via their pile parent)
-        const pileChildIds = new Set(
-          state.tasks.filter((t) => t.isStack).flatMap((t) => (t.subtasks || []).map((s) => s.id))
-        );
-
-        const priorityA = state.tasks.filter((t) => t.pin === "A" && t.marker !== "DONE" && !pileChildIds.has(t.id) && filterFn(t));
-        const priorityB = state.tasks.filter((t) => t.pin === "B" && t.marker !== "DONE" && !pileChildIds.has(t.id) && filterFn(t));
-        const priorityC = state.tasks.filter((t) => t.pin === "C" && t.marker !== "DONE" && !pileChildIds.has(t.id) && filterFn(t));
-        const openTasks = state.tasks.filter((t) => !t.pin && t.marker !== "DONE" && !pileChildIds.has(t.id) && filterFn(t));
-        const doneTasks = state.tasks.filter((t) => t.marker === "DONE" && !pileChildIds.has(t.id) && filterFn(t));
+        const priorityA = state.tasks.filter((t) => t.pin === "A" && t.marker !== "DONE" && filterFn(t));
+        const priorityB = state.tasks.filter((t) => t.pin === "B" && t.marker !== "DONE" && filterFn(t));
+        const priorityC = state.tasks.filter((t) => t.pin === "C" && t.marker !== "DONE" && filterFn(t));
+        const openTasks = state.tasks.filter((t) => !t.pin && t.marker !== "DONE" && filterFn(t));
+        const doneTasks = state.tasks.filter((t) => t.marker === "DONE" && filterFn(t));
         const orderedTasks = priorityA.concat(priorityB).concat(priorityC).concat(openTasks).concat(doneTasks);
 
         const CATEGORY_TAG_CLASSES = new Set(["life","work","body","mind","liminal"]);
@@ -5697,23 +5572,6 @@
           task.taskType = normalizeTaskType(task.taskType);
           const isDone = task.marker === "DONE";
 
-          // Pile / stack row — renders paper-stack header + children
-          if (task.isStack) {
-            const collapsed = state.collapsedTasks.has(task.id);
-            const childCount = (task.subtasks || []).length;
-            const childrenHtml = collapsed ? "" : `<div class="pile-children">${renderPileChildren(task)}</div>`;
-            return `<div class="task-pile${collapsed ? " pile-collapsed" : ""}" data-id="${esc(task.id)}" data-pile-toggle="${esc(task.id)}">
-              <div class="pile-paper-2"></div>
-              <div class="pile-paper-1"></div>
-              <div class="pile-header-row">
-                <span class="drag-handle" title="drag to reorder">&#x22ee;&#x22ee;</span>
-                <span class="pile-icon">&#x25a4;</span>
-                <span class="pile-name">${esc(task.content)}</span>
-                <span class="pile-count">${childCount}</span>
-                <button class="task-menu-btn" data-menu-id="${esc(task.id)}" title="options">&#x22ef;</button>
-              </div>${childrenHtml}
-            </div>`;
-          }
 
           const taskCanComplete = canCompleteTask(task);
           const isEditingEst = state.editingEstId === task.id,
@@ -6023,94 +5881,6 @@
       }
 
       // ============================================================
-      //  pile / messy stack
-      // ============================================================
-
-      async function convertToPile(id) {
-        const task = state.tasks.find((t) => t.id === id);
-        if (!task) return;
-        task.isStack = true;
-        if (!task.subtasks) task.subtasks = [];
-        await persistTasks(state.currentDate, state.tasks);
-        render();
-        showToast("converted to pile", "success");
-      }
-
-      async function addToPile(taskId, pileId) {
-        const task = state.tasks.find((t) => t.id === taskId);
-        const pile = state.tasks.find((t) => t.id === pileId && t.isStack);
-        if (!task || !pile) return;
-        pile.subtasks = pile.subtasks || [];
-        pile.subtasks.push({ id: task.id, content: task.content, marker: task.marker || "TODO", estimate: task.estimate || "", actual: task.actual || "", tags: task.tags || [], pin: null, defers: task.defers || 0 });
-        state.tasks = state.tasks.filter((t) => t.id !== taskId);
-        await persistTasks(state.currentDate, state.tasks);
-        render();
-      }
-
-      async function dissolvePile(pileId) {
-        const pile = state.tasks.find((t) => t.id === pileId && t.isStack);
-        if (!pile) return;
-        const ejected = (pile.subtasks || []).map((sub) => ({
-          id: genId(), content: sub.content, marker: sub.marker || "TODO",
-          subtasks: [], dueDate: null, carriedFrom: null,
-          estimate: sub.estimate || "", actual: sub.actual || "",
-          createdAt: new Date().toISOString(), fromKinopio: false, knCardId: null,
-          priority: null, defers: sub.defers || 0, taskType: "task",
-          collection: null, tags: sub.tags || [], pin: null, isStack: false,
-        }));
-        state.tasks = state.tasks.filter((t) => t.id !== pileId);
-        state.tasks.push(...ejected);
-        await persistTasks(state.currentDate, state.tasks);
-        render();
-        showToast("pile dissolved", "success");
-      }
-
-      async function removeFromPile(pileId, subtaskId) {
-        const pile = state.tasks.find((t) => t.id === pileId && t.isStack);
-        if (!pile) return;
-        const subtask = (pile.subtasks || []).find((s) => s.id === subtaskId);
-        if (!subtask) return;
-        pile.subtasks = pile.subtasks.filter((s) => s.id !== subtaskId);
-        state.tasks.push({
-          id: genId(),
-          content: subtask.content,
-          marker: subtask.marker || "TODO",
-          subtasks: [],
-          dueDate: null,
-          carriedFrom: null,
-          estimate: subtask.estimate || "",
-          actual: subtask.actual || "",
-          createdAt: new Date().toISOString(),
-          fromKinopio: false,
-          knCardId: null,
-          priority: null,
-          defers: subtask.defers || 0,
-          taskType: "task",
-          collection: null,
-          tags: subtask.tags || [],
-          pin: null,
-          isStack: false,
-        });
-        await persistTasks(state.currentDate, state.tasks);
-        render();
-      }
-
-      function renderPileChildren(pile) {
-        const children = pile.subtasks || [];
-        if (!children.length) return '<div class="pile-empty">empty pile</div>';
-        return children.map((sub) => {
-          const isDone = sub.marker === "DONE";
-          return `<div class="pile-child${isDone ? " done-task" : ""}" draggable="true" data-pile-child-id="${esc(sub.id)}" data-pile-parent-id="${esc(pile.id)}">
-            <span class="pile-child-drag" title="drag to reorder">&#x22ee;&#x22ee;</span>
-            <span class="pile-child-check${isDone ? " done" : ""}" data-pile-done-id="${esc(sub.id)}" data-pile-parent-id="${esc(pile.id)}" title="${isDone ? "mark undone" : "mark done"}">${isDone ? "&#x2713;" : "&#x25aa;"}</span>
-            <span class="pile-child-text${isDone ? " done-text" : ""}">${esc(sub.content)}</span>
-            ${sub.estimate ? `<span class="pile-child-est">:${esc(sub.estimate)}</span>` : ""}
-            <button class="pile-eject-btn" data-pile-eject-id="${esc(sub.id)}" data-pile-eject-parent="${esc(pile.id)}" title="move out of pile">&#x2197;</button>
-          </div>`;
-        }).join("");
-      }
-
-      // ============================================================
       //  stats tab
       // ============================================================
 
@@ -6409,113 +6179,12 @@
             e.stopPropagation();
             const PIN_CYCLE = [null, "A", "B", "C"];
             const task = state.tasks.find((t) => t.id === el.dataset.pinId);
-            if (!task || task.isStack) return;
+            if (!task) return;
             const cur = PIN_CYCLE.indexOf(task.pin || null);
             const next = PIN_CYCLE[(cur + 1) % PIN_CYCLE.length];
             await pinTask(el.dataset.pinId, next);
           })
         );
-
-        // pile toggle (click header to expand/collapse)
-        document.querySelectorAll("[data-pile-toggle]").forEach((el) => {
-          el.addEventListener("click", (e) => {
-            if (e.target.closest("[data-menu-id]") || e.target.closest(".pile-eject-btn")) return;
-            e.stopPropagation();
-            const id = el.dataset.pileToggle;
-            if (state.collapsedTasks.has(id)) state.collapsedTasks.delete(id);
-            else state.collapsedTasks.add(id);
-            render();
-          });
-        });
-
-        // drag task onto pile header = add to pile
-        document.querySelectorAll("[data-pile-toggle]").forEach((el) => {
-          el.addEventListener("dragover", (e) => {
-            if (!state.draggingTaskId) return;
-            // don't allow dropping a pile onto itself
-            if (state.draggingTaskId === el.dataset.pileToggle) return;
-            e.preventDefault();
-            e.dataTransfer.dropEffect = "move";
-            el.classList.add("pile-drop-target");
-          });
-          el.addEventListener("dragleave", () => el.classList.remove("pile-drop-target"));
-          el.addEventListener("drop", async (e) => {
-            el.classList.remove("pile-drop-target");
-            if (!state.draggingTaskId || state.draggingTaskId === el.dataset.pileToggle) return;
-            e.preventDefault();
-            e.stopPropagation();
-            await addToPile(state.draggingTaskId, el.dataset.pileToggle);
-          });
-        });
-
-        // pile child done toggle
-        document.querySelectorAll("[data-pile-done-id]").forEach((el) =>
-          el.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            const subId = el.dataset.pileDoneId;
-            const pileId = el.dataset.pileParentId;
-            const pile = state.tasks.find((t) => t.id === pileId && t.isStack);
-            if (!pile) return;
-            const sub = (pile.subtasks || []).find((s) => s.id === subId);
-            if (!sub) return;
-            sub.marker = sub.marker === "DONE" ? "TODO" : "DONE";
-            await persistTasks(state.currentDate, state.tasks);
-            render();
-          })
-        );
-
-        // pile eject (remove from pile, restore as top-level task)
-        document.querySelectorAll("[data-pile-eject-id]").forEach((el) =>
-          el.addEventListener("click", async (e) => {
-            e.stopPropagation();
-            await removeFromPile(el.dataset.pileEjectParent, el.dataset.pileEjectId);
-          })
-        );
-
-        // pile child drag-to-reorder
-        document.querySelectorAll(".pile-child[draggable]").forEach((el) => {
-          el.addEventListener("dragstart", (e) => {
-            state.draggingPileChildId = el.dataset.pileChildId;
-            state.draggingPileParentId = el.dataset.pileParentId;
-            el.classList.add("dragging");
-            try { e.dataTransfer.setData("text/plain", el.dataset.pileChildId); } catch {}
-          });
-          el.addEventListener("dragend", () => {
-            el.classList.remove("dragging");
-            document.querySelectorAll(".pile-child").forEach((c) => c.classList.remove("drop-above", "drop-below"));
-            state.draggingPileChildId = null;
-            state.draggingPileParentId = null;
-          });
-          el.addEventListener("dragover", (e) => {
-            if (!state.draggingPileChildId || state.draggingPileChildId === el.dataset.pileChildId) return;
-            if (state.draggingPileParentId !== el.dataset.pileParentId) return;
-            e.preventDefault();
-            const above = e.clientY - el.getBoundingClientRect().top < el.getBoundingClientRect().height / 2;
-            document.querySelectorAll(".pile-child").forEach((c) => c.classList.remove("drop-above", "drop-below"));
-            el.classList.add(above ? "drop-above" : "drop-below");
-          });
-          el.addEventListener("dragleave", () => el.classList.remove("drop-above", "drop-below"));
-          el.addEventListener("drop", async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            document.querySelectorAll(".pile-child").forEach((c) => c.classList.remove("drop-above", "drop-below"));
-            const srcId = state.draggingPileChildId;
-            const pileId = state.draggingPileParentId;
-            const dstId = el.dataset.pileChildId;
-            if (!srcId || !dstId || srcId === dstId) return;
-            const pile = state.tasks.find((t) => t.id === pileId && t.isStack);
-            if (!pile) return;
-            const above = e.clientY - el.getBoundingClientRect().top < el.getBoundingClientRect().height / 2;
-            const subs = pile.subtasks;
-            const srcIdx = subs.findIndex((s) => s.id === srcId);
-            const [moved] = subs.splice(srcIdx, 1);
-            const dstIdx = subs.findIndex((s) => s.id === dstId);
-            subs.splice(above ? dstIdx : dstIdx + 1, 0, moved);
-            await persistTasks(state.currentDate, state.tasks);
-            render();
-          });
-        });
-
 
         document.querySelectorAll(".subtask-check").forEach((el) =>
           el.addEventListener("click", (e) => {
@@ -6556,13 +6225,6 @@
           el.addEventListener("click", (e) => {
             e.stopPropagation();
             state.activeMenuId = el.dataset.menuId;
-            const menuTask = state.tasks.find((t) => t.id === el.dataset.menuId);
-            const pileBtn = document.getElementById("menu-pile-action");
-            if (pileBtn) {
-              if (menuTask && menuTask.isStack) pileBtn.textContent = "dissolve pile";
-              else if (state.tasks.some((t) => t.isStack && t.id !== el.dataset.menuId)) pileBtn.textContent = "add to pile";
-              else pileBtn.textContent = "make a pile";
-            }
             const rect = el.getBoundingClientRect(),
               menu = document.getElementById("options-menu");
             const menuHeight = 200; // approximate menu height
@@ -7323,17 +6985,6 @@
           setTimeout(() => document.getElementById("breakdown-input").focus(), 50);
         } else if (action === "set-recurring") {
           openRecurringModal(id);
-        } else if (action === "pile-action") {
-          const task = state.tasks.find((t) => t.id === id);
-          if (!task) return;
-          if (task.isStack) {
-            await dissolvePile(id);
-          } else {
-            const piles = state.tasks.filter((t) => t.isStack && t.id !== id);
-            if (piles.length === 0) await convertToPile(id);
-            else if (piles.length === 1) await addToPile(id, piles[0].id);
-            else await addToPile(id, piles[0].id);
-          }
         } else if (action === "skip") await skipTask(id);
         else if (action === "move-tomorrow") await moveToTomorrow(id);
       });
@@ -7511,7 +7162,7 @@
           id: genId(), content: text, marker: "TODO", subtasks: [], dueDate: null,
           carriedFrom: null, estimate: "", actual: "", createdAt: new Date().toISOString(),
           fromKinopio: false, knCardId: null, priority: null, defers: 0,
-          taskType: "note", collection: null, tags: ["journal"], pin: null, isStack: false,
+          taskType: "note", collection: null, tags: ["journal"], pin: null,
         });
         await persistTasks(state.currentDate, state.tasks);
         closeJournalPrompt();
