@@ -1763,6 +1763,21 @@
         color: var(--text-muted);
         opacity: 0.7;
       }
+      .zombie-reset-btn {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-family: var(--font);
+        font-size: 10px;
+        padding: 2px 6px;
+        opacity: 0.6;
+        margin-left: auto;
+      }
+      .zombie-reset-btn:hover {
+        color: var(--danger);
+        opacity: 1;
+      }
       .zombie-kickoff-bar {
         padding: 12px 14px;
         border-bottom: 1px solid var(--border);
@@ -6967,6 +6982,7 @@
           <div class="zombie-header">
             <span class="zombie-header-title">zombie mode</span>
             <span class="zombie-header-date">${esc(state.currentDate)}</span>
+            <button class="zombie-reset-btn" id="zombie-reset-btn" title="reset today's day">reset</button>
           </div>
           ${calBtn}
           <div class="zombie-blocks">
@@ -7285,6 +7301,22 @@
             scheduleZombieDay().catch((err) =>
               showToast("calendar error: " + err.message, "error"),
             );
+            return;
+          }
+
+          // Reset day — clears decisions and progress, keeps times and tomorrow pre-loads
+          if (e.target.id === "zombie-reset-btn") {
+            if (!confirm("Reset today's zombie day? Your decisions and progress will be cleared.")) return;
+            const day = getZombieDay();
+            updateZombieDay({
+              paperId: null, paperCustom: null,
+              projectId: null, projectCustom: null,
+              movementChoice: null,
+              paperRead: false, reactionNote: "",
+              focusBlockStarted: false,
+              movementDone: false,
+              housekeepingDone: false,
+            });
             return;
           }
 
