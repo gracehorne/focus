@@ -1347,11 +1347,31 @@
         background: var(--surface2);
         margin-left: 3px;
       }
-      .task-tag.cat-life   { color: #a6d189; border-color: rgba(166,209,137,0.3); background: rgba(166,209,137,0.12); }
-      .task-tag.cat-work   { color: #8caaee; border-color: rgba(140,170,238,0.3); background: rgba(140,170,238,0.12); }
-      .task-tag.cat-body   { color: #e5c890; border-color: rgba(229,200,144,0.3); background: rgba(229,200,144,0.12); }
-      .task-tag.cat-mind   { color: #ca9ee6; border-color: rgba(202,158,230,0.3); background: rgba(202,158,230,0.12); }
-      .task-tag.cat-liminal{ color: #81c8be; border-color: rgba(129,200,190,0.3); background: rgba(129,200,190,0.12); }
+      .task-tag.cat-life {
+        color: #a6d189;
+        border-color: rgba(166, 209, 137, 0.3);
+        background: rgba(166, 209, 137, 0.12);
+      }
+      .task-tag.cat-work {
+        color: #8caaee;
+        border-color: rgba(140, 170, 238, 0.3);
+        background: rgba(140, 170, 238, 0.12);
+      }
+      .task-tag.cat-body {
+        color: #e5c890;
+        border-color: rgba(229, 200, 144, 0.3);
+        background: rgba(229, 200, 144, 0.12);
+      }
+      .task-tag.cat-mind {
+        color: #ca9ee6;
+        border-color: rgba(202, 158, 230, 0.3);
+        background: rgba(202, 158, 230, 0.12);
+      }
+      .task-tag.cat-liminal {
+        color: #81c8be;
+        border-color: rgba(129, 200, 190, 0.3);
+        background: rgba(129, 200, 190, 0.12);
+      }
       .tag-remove {
         display: none;
         margin-left: 3px;
@@ -1360,8 +1380,12 @@
         font-size: 10px;
         line-height: 1;
       }
-      .task-tag:hover .tag-remove { display: inline; }
-      .tag-remove:hover { opacity: 1; }
+      .task-tag:hover .tag-remove {
+        display: inline;
+      }
+      .tag-remove:hover {
+        opacity: 1;
+      }
 
       .integrations-inline-section {
         display: none;
@@ -1558,12 +1582,33 @@
         cursor: pointer;
         transition: opacity 0.1s;
       }
-      .pin-empty { opacity: 0; background: none; border: 1px solid transparent; color: var(--text-muted); }
-      .task-item:hover .pin-empty { opacity: 0.3; }
-      .pin-empty:hover { opacity: 0.65 !important; }
-      .pin-A { background: rgba(166,218,149,0.18); color: #a6da95; border: 1px solid rgba(166,218,149,0.3); }
-      .pin-B { background: rgba(138,173,244,0.18); color: #8aadf4; border: 1px solid rgba(138,173,244,0.3); }
-      .pin-C { background: rgba(245,169,127,0.18); color: #f5a97f; border: 1px solid rgba(245,169,127,0.3); }
+      .pin-empty {
+        opacity: 0;
+        background: none;
+        border: 1px solid transparent;
+        color: var(--text-muted);
+      }
+      .task-item:hover .pin-empty {
+        opacity: 0.3;
+      }
+      .pin-empty:hover {
+        opacity: 0.65 !important;
+      }
+      .pin-A {
+        background: rgba(166, 218, 149, 0.18);
+        color: #a6da95;
+        border: 1px solid rgba(166, 218, 149, 0.3);
+      }
+      .pin-B {
+        background: rgba(138, 173, 244, 0.18);
+        color: #8aadf4;
+        border: 1px solid rgba(138, 173, 244, 0.3);
+      }
+      .pin-C {
+        background: rgba(245, 169, 127, 0.18);
+        color: #f5a97f;
+        border: 1px solid rgba(245, 169, 127, 0.3);
+      }
 
       /* ---- stats tab ---- */
       .stats-toolbar {
@@ -1591,9 +1636,18 @@
         font-size: 11px;
         padding: 3px 10px;
       }
-      .stats-refresh-btn:hover { color: var(--text); border-color: var(--text-muted); }
-      .stats-refresh-btn:disabled { opacity: 0.45; cursor: default; }
-      #stats-body { overflow-y: auto; flex: 1; }
+      .stats-refresh-btn:hover {
+        color: var(--text);
+        border-color: var(--text-muted);
+      }
+      .stats-refresh-btn:disabled {
+        opacity: 0.45;
+        cursor: default;
+      }
+      #stats-body {
+        overflow-y: auto;
+        flex: 1;
+      }
       .stats-section {
         padding: 14px;
         border-bottom: 1px solid var(--border);
@@ -1611,13 +1665,37 @@
         justify-content: space-between;
         align-items: baseline;
         padding: 4px 0;
-        border-bottom: 1px solid rgba(81,87,109,0.25);
+        border-bottom: 1px solid rgba(81, 87, 109, 0.25);
       }
-      .stats-row:last-child { border-bottom: none; }
-      .stats-row-label { color: var(--text-muted); font-size: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .stats-row-value { color: var(--text); font-family: var(--font-mono); font-size: 12px; flex-shrink: 0; margin-left: 8px; }
-      .stats-big { font-size: 26px; font-family: var(--font-mono); color: var(--accent); margin-bottom: 2px; }
-      .stats-sub { font-size: 11px; color: var(--text-muted); line-height: 1.5; }
+      .stats-row:last-child {
+        border-bottom: none;
+      }
+      .stats-row-label {
+        color: var(--text-muted);
+        font-size: 12px;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .stats-row-value {
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        flex-shrink: 0;
+        margin-left: 8px;
+      }
+      .stats-big {
+        font-size: 26px;
+        font-family: var(--font-mono);
+        color: var(--accent);
+        margin-bottom: 2px;
+      }
+      .stats-sub {
+        font-size: 11px;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
       .stats-bar-row {
         display: flex;
         align-items: center;
@@ -1625,10 +1703,31 @@
         padding: 4px 0;
         font-size: 12px;
       }
-      .stats-bar-label { color: var(--text-muted); min-width: 54px; }
-      .stats-bar-track { flex: 1; height: 6px; background: var(--surface2); border-radius: 999px; overflow: hidden; }
-      .stats-bar-fill { height: 100%; background: var(--accent); border-radius: 999px; opacity: 0.65; transition: width 0.3s; }
-      .stats-bar-value { color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; min-width: 24px; text-align: right; }
+      .stats-bar-label {
+        color: var(--text-muted);
+        min-width: 54px;
+      }
+      .stats-bar-track {
+        flex: 1;
+        height: 6px;
+        background: var(--surface2);
+        border-radius: 999px;
+        overflow: hidden;
+      }
+      .stats-bar-fill {
+        height: 100%;
+        background: var(--accent);
+        border-radius: 999px;
+        opacity: 0.65;
+        transition: width 0.3s;
+      }
+      .stats-bar-value {
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        min-width: 24px;
+        text-align: right;
+      }
       .stats-cache-note {
         font-size: 10px;
         color: var(--text-muted);
@@ -1688,7 +1787,9 @@
         padding: 6px 14px;
         font-weight: 600;
       }
-      .zombie-start-btn:hover { opacity: 0.88; }
+      .zombie-start-btn:hover {
+        opacity: 0.88;
+      }
       .zombie-blocks {
         display: flex;
         flex-direction: column;
@@ -1706,7 +1807,9 @@
         border-left: 3px solid var(--accent);
         padding-left: 11px;
       }
-      .zombie-block.done-block { opacity: 0.55; }
+      .zombie-block.done-block {
+        opacity: 0.55;
+      }
       .zombie-block-head {
         display: flex;
         align-items: baseline;
@@ -1737,13 +1840,13 @@
       }
       .zombie-block-status.status-active {
         color: var(--accent);
-        border: 1px solid rgba(202,158,230,0.4);
-        background: rgba(202,158,230,0.08);
+        border: 1px solid rgba(202, 158, 230, 0.4);
+        background: rgba(202, 158, 230, 0.08);
       }
       .zombie-block-status.status-complete {
         color: var(--success);
-        border: 1px solid rgba(166,209,137,0.4);
-        background: rgba(166,209,137,0.07);
+        border: 1px solid rgba(166, 209, 137, 0.4);
+        background: rgba(166, 209, 137, 0.07);
       }
       .zombie-block-body {
         font-size: 12px;
@@ -1777,7 +1880,9 @@
         border-color: var(--accent-dim);
         color: var(--accent);
       }
-      .zombie-action-btn.primary:hover { background: rgba(202,158,230,0.1); }
+      .zombie-action-btn.primary:hover {
+        background: rgba(202, 158, 230, 0.1);
+      }
       .zombie-movement-picker {
         display: flex;
         flex-wrap: wrap;
@@ -1800,7 +1905,7 @@
       .zombie-movement-chip.selected {
         border-color: var(--peach);
         color: var(--peach);
-        background: rgba(239,159,118,0.1);
+        background: rgba(239, 159, 118, 0.1);
       }
       .zombie-note-input {
         width: 100%;
@@ -1816,7 +1921,9 @@
         min-height: 64px;
         outline: none;
       }
-      .zombie-note-input:focus { border-color: var(--accent); }
+      .zombie-note-input:focus {
+        border-color: var(--accent);
+      }
       .zombie-list-section {
         padding: 14px;
         border-bottom: 1px solid var(--border);
@@ -1834,10 +1941,12 @@
         align-items: center;
         gap: 6px;
         padding: 5px 0;
-        border-bottom: 1px solid rgba(81,87,109,0.18);
+        border-bottom: 1px solid rgba(81, 87, 109, 0.18);
         font-size: 12px;
       }
-      .zombie-list-item:last-child { border-bottom: none; }
+      .zombie-list-item:last-child {
+        border-bottom: none;
+      }
       .zombie-list-item-label {
         flex: 1;
         color: var(--text);
@@ -1864,7 +1973,9 @@
         line-height: 1;
         flex-shrink: 0;
       }
-      .zombie-list-del-btn:hover { color: var(--danger); }
+      .zombie-list-del-btn:hover {
+        color: var(--danger);
+      }
       .zombie-add-row {
         display: flex;
         gap: 6px;
@@ -1883,7 +1994,9 @@
         padding: 5px 9px;
         outline: none;
       }
-      .zombie-add-input:focus { border-color: var(--accent); }
+      .zombie-add-input:focus {
+        border-color: var(--accent);
+      }
       .zombie-add-btn {
         background: none;
         border: 1px solid var(--border);
@@ -1895,12 +2008,14 @@
         padding: 5px 12px;
         flex-shrink: 0;
       }
-      .zombie-add-btn:hover { background: rgba(202,158,230,0.1); }
+      .zombie-add-btn:hover {
+        background: rgba(202, 158, 230, 0.1);
+      }
       .zombie-preload-section {
         margin-top: 10px;
         padding: 10px;
-        background: rgba(202,158,230,0.05);
-        border: 1px solid rgba(202,158,230,0.18);
+        background: rgba(202, 158, 230, 0.05);
+        border: 1px solid rgba(202, 158, 230, 0.18);
         border-radius: var(--radius);
         display: flex;
         flex-direction: column;
@@ -2212,7 +2327,6 @@
           min-height: 36px;
         }
 
-
         /* --- tabs: focus only --- */
         .tab[data-tab="inbox"],
         .tab[data-tab="templates"],
@@ -2390,7 +2504,6 @@
           font-size: 11px;
           min-height: 30px;
         }
-
       }
 
       /* ---- tag filter bar ---- */
@@ -2963,14 +3076,14 @@
       // ---- calendar event types ----
       const CAL_EVENT_TYPES_KEY = "df-cal-event-types";
       const CAL_EVENT_TYPE_DEFS = {
-        default:  { icon: null,                    color: null       },
-        movement: { icon: "bi-person-arms-up",     color: "#e5c890" },
-        focus:    { icon: "bi-bell-slash-fill",    color: "#ca9ee6" },
-        meal:     { icon: "bi-egg-fried",          color: "#ef9f76" },
-        social:   { icon: "bi-emoji-smile-fill",   color: "#81c8be" },
-        hobby:    { icon: "bi-palette",            color: "#ca9ee6" },
-        meeting:  { icon: "bi-person-fill",        color: "#8caaee" },
-        work:     { icon: "bi-buildings-fill",     color: "#8caaee" },
+        default: { icon: null, color: null },
+        movement: { icon: "bi-person-arms-up", color: "#e5c890" },
+        focus: { icon: "bi-bell-slash-fill", color: "#ca9ee6" },
+        meal: { icon: "bi-egg-fried", color: "#ef9f76" },
+        social: { icon: "bi-emoji-smile-fill", color: "#81c8be" },
+        hobby: { icon: "bi-palette", color: "#ca9ee6" },
+        meeting: { icon: "bi-person-fill", color: "#8caaee" },
+        work: { icon: "bi-buildings-fill", color: "#8caaee" },
       };
       const CAL_EVENT_TYPE_ORDER = [
         "default",
@@ -3086,17 +3199,6 @@
           ],
         },
         {
-          id: "house-cleaning",
-          name: "house cleaning",
-          category: "life",
-          tasks: [
-            "start with the most visible mess",
-            "move through rooms in one direction",
-            "put on something good to listen to",
-            "do a final walk-through before stopping",
-          ],
-        },
-        {
           id: "tomorrow-prep",
           name: "tomorrow prep",
           category: "life",
@@ -3111,14 +3213,14 @@
           ],
         },
         {
-          id: "inbox-zero",
-          name: "email",
+          id: "house-cleaning",
+          name: "house cleaning",
           category: "life",
           tasks: [
-            "archive or delete anything older than two weeks that needs no action",
-            "for each remaining email: reply, flag, or delete",
-            "unsubscribe from anything you've been skipping",
-            "close email when done",
+            "start with the most visible mess",
+            "move through rooms in one direction",
+            "put on something good to listen to",
+            "do a final walk-through before stopping",
           ],
         },
         {
@@ -3191,53 +3293,15 @@
           ],
         },
         {
-          id: "peer-review",
-          name: "peer review",
+          id: "project-shutdown",
+          name: "park uphill",
           category: "work",
           tasks: [
-            "read the paper once through without taking notes",
-            "read again: is the question clear? do the methods fit? do the results support the claims?",
-            "identify the 2–3 most important issues",
-            "note smaller things separately: writing, framing, missing references",
-            "lead your review with what the paper does well",
-            "check your tone. be direct but fair",
-          ],
-        },
-        {
-          id: "writing-a-blog-post",
-          name: "writing a blog post",
-          category: "work",
-          tasks: [
-            "know who you're writing for and what they'll walk away with",
-            "write the opening first. if it's boring, the rest won't matter",
-            "outline the main points before drafting",
-            "draft fast and get to the end before going back",
-            "read it aloud before publishing",
-          ],
-        },
-        {
-          id: "talk-prep",
-          name: "talk prep",
-          category: "work",
-          tasks: [
-            "write the one thing you want the audience to leave knowing",
-            "sketch the structure: how does it open, what are the main points, how does it end",
-            "do a full out-loud run-through, timed",
-            "think through the moments most likely to make you nervous",
-            "the night before: one slow read-through, then stop. you're ready enough",
-          ],
-        },
-
-        {
-          id: "project-startup",
-          name: "project startup",
-          category: "work",
-          tasks: [
-            "read your last session's notes or breadcrumb — where did you leave off?",
-            "name the current blockers: what's actually in the way right now?",
-            "write the 3 most important next actions (not a full list — just 3)",
-            "pick the first one. set a timer for 25 minutes and start",
-            "if you feel stuck: shrink the first step until it's embarrassingly small",
+            "write what you actually did this session (2–3 sentences)",
+            "write where you stopped — the exact sentence, the exact file, the exact thought",
+            "write the very first action for next session: make it tiny enough to start in 30 seconds",
+            "close the open loops: browser tabs, scratch notes, half-written messages",
+            "put your project folder in an obvious place for next time",
           ],
         },
         {
@@ -3248,17 +3312,6 @@
             "pick the form of movement you'll actually do today",
             "even 10 minutes counts",
             "leave your phone behind if you can",
-          ],
-        },
-        {
-          id: "pt-stretches",
-          name: "PT stretches",
-          category: "body",
-          tasks: [
-            "do these before the day gets busy",
-            "move slowly. don't rush through them",
-            "breathe through each stretch",
-            "note anything uneven or uncomfortable",
           ],
         },
         {
@@ -3273,85 +3326,21 @@
             "is everything feeling like too much? close extra tabs, dim your screen, put on headphones",
           ],
         },
-        {
-          id: "social-recharge",
-          name: "time alone",
-          category: "mind",
-          tasks: [
-            "spend some time in real quiet",
-            "do one thing that's entirely for you",
-            "let yourself be slow for a bit",
-          ],
-        },
-        {
-          id: "feedback-separation",
-          name: "getting feedback",
-          category: "mind",
-          tasks: [
-            "read it all the way through before reacting",
-            "write down what's actually useful",
-            "pick one thing to act on",
-            "set the rest aside. it'll read differently tomorrow",
-          ],
-        },
-        {
-          id: "minimum-viable-response",
-          name: "when you're going quiet",
-          category: "mind",
-          tasks: [
-            "notice if you're going quiet. it's a reflex, not a decision",
-            "send something short to keep the conversation open",
-            "write your real response once you've had some time",
-          ],
-        },
-        {
-          id: "context-switch-field-to-desk",
-          name: "field to desk",
-          category: "liminal",
-          tasks: [
-            "give yourself time before opening your laptop",
-            "write rough field notes while everything is fresh",
-            "write one sentence about what question you're working on today",
-            "start with the easiest writing task",
-          ],
-        },
-        {
-          id: "recalibration-after-an-off-week",
-          name: "after a hard week",
-          category: "liminal",
-          tasks: [
-            "don't try to catch up on everything at once",
-            "write down everything unfinished or weighing on you, then sort it",
-            "pick one thing to finish today",
-            "be easy on yourself about the week",
-          ],
-        },
-        {
-          id: "project-shutdown",
-          name: "park uphill",
-          category: "liminal",
-          tasks: [
-            "write what you actually did this session (2–3 sentences)",
-            "write where you stopped — the exact sentence, the exact file, the exact thought",
-            "write the very first action for next session: make it tiny enough to start in 30 seconds",
-            "close the open loops: browser tabs, scratch notes, half-written messages",
-            "put your project folder in an obvious place for next time",
-          ],
-        },
-        {
-          id: "post-conflict-reset-liminal",
-          name: "post-conflict reset",
-          category: "liminal",
-          tasks: [
-            "wait until you've calmed down before trying to resolve anything",
-            "ask yourself what you actually want to happen",
-            "go in to understand, not to win",
-            "make one small gesture toward repair",
-          ],
-        },
       ];
 
       const REMOVED_TEMPLATE_IDS = new Set([
+        "inbox-zero",
+        "peer-review",
+        "writing-a-blog-post",
+        "talk-prep",
+        "project-startup",
+        "pt-stretches",
+        "social-recharge",
+        "feedback-separation",
+        "minimum-viable-response",
+        "context-switch-field-to-desk",
+        "recalibration-after-an-off-week",
+        "post-conflict-reset-liminal",
         "connection-deposit",
         "post-conflict-reset-life",
         "morning-light-anchor",
@@ -3361,7 +3350,6 @@
         "knowledge-consolidation-session",
         "low-stakes-sharing-ramp",
         "low-stakes-research-warmup",
-        "post-conflict-reset-liminal",
         "post-fieldwork-decompress",
         "travel-day-protocol",
       ]);
@@ -3838,7 +3826,7 @@
       const TPL_USES_KEY = "df-tpl-uses"; // use counts: { [id]: number }
       const TPL_SORT_KEY = "df-tpl-sort"; // 'popular' | 'alpha'
       const TPL_RESET_VERSION_KEY = "df-tpl-reset-version";
-      const TPL_RESET_VERSION = "2026-04-30-new-templates-v3";
+      const TPL_RESET_VERSION = "2026-05-01-sync-from-library";
 
       function loadTemplates() {
         try {
@@ -3972,9 +3960,9 @@
       // ============================================================
       //  zombie mode constants
       // ============================================================
-      const ZOMBIE_READING_LIST_KEY  = "df-zombie-reading-list";
+      const ZOMBIE_READING_LIST_KEY = "df-zombie-reading-list";
       const ZOMBIE_PROJECT_QUEUE_KEY = "df-zombie-project-queue";
-      const ZOMBIE_DAY_KEY           = "df-zombie-day";
+      const ZOMBIE_DAY_KEY = "df-zombie-day";
       const ZOMBIE_MOVEMENTS = ["frisbee", "rollerblades", "cycling", "yoga", "running"];
 
       function loadCollapsedPanels() {
@@ -4712,7 +4700,12 @@
                 for (const l of d.lists || []) if (l.id) lists[l.id] = l.name || "";
                 // build a map of cardId → card name for connection resolution
                 const cardNameById = {};
-                for (const c of d.cards || []) if (c.id) cardNameById[c.id] = (c.name || "").split("\n")[0].replace(/^\[[ xX]?\]\s*/, "").trim();
+                for (const c of d.cards || [])
+                  if (c.id)
+                    cardNameById[c.id] = (c.name || "")
+                      .split("\n")[0]
+                      .replace(/^\[[ xX]?\]\s*/, "")
+                      .trim();
                 for (const conn of d.connections || []) {
                   const startId = conn.startItemId || conn.startCardId;
                   const endId = conn.endItemId || conn.endCardId;
@@ -4720,7 +4713,8 @@
                     if (!connectionsByCardId[startId]) connectionsByCardId[startId] = [];
                     if (!connectionsByCardId[endId]) connectionsByCardId[endId] = [];
                     if (cardNameById[endId]) connectionsByCardId[startId].push(cardNameById[endId]);
-                    if (cardNameById[startId]) connectionsByCardId[endId].push(cardNameById[startId]);
+                    if (cardNameById[startId])
+                      connectionsByCardId[endId].push(cardNameById[startId]);
                   }
                 }
               } catch {}
@@ -5853,19 +5847,28 @@
         const filterTag = state.activeTagFilter;
         const filterFn = filterTag ? (task) => (task.tags || []).includes(filterTag) : () => true;
 
-        const priorityA = state.tasks.filter((t) => t.pin === "A" && t.marker !== "DONE" && filterFn(t));
-        const priorityB = state.tasks.filter((t) => t.pin === "B" && t.marker !== "DONE" && filterFn(t));
-        const priorityC = state.tasks.filter((t) => t.pin === "C" && t.marker !== "DONE" && filterFn(t));
+        const priorityA = state.tasks.filter(
+          (t) => t.pin === "A" && t.marker !== "DONE" && filterFn(t),
+        );
+        const priorityB = state.tasks.filter(
+          (t) => t.pin === "B" && t.marker !== "DONE" && filterFn(t),
+        );
+        const priorityC = state.tasks.filter(
+          (t) => t.pin === "C" && t.marker !== "DONE" && filterFn(t),
+        );
         const openTasks = state.tasks.filter((t) => !t.pin && t.marker !== "DONE" && filterFn(t));
         const doneTasks = state.tasks.filter((t) => t.marker === "DONE" && filterFn(t));
-        const orderedTasks = priorityA.concat(priorityB).concat(priorityC).concat(openTasks).concat(doneTasks);
+        const orderedTasks = priorityA
+          .concat(priorityB)
+          .concat(priorityC)
+          .concat(openTasks)
+          .concat(doneTasks);
 
-        const CATEGORY_TAG_CLASSES = new Set(["life","work","body","mind","liminal"]);
+        const CATEGORY_TAG_CLASSES = new Set(["life", "work", "body", "mind", "liminal"]);
 
         function renderTaskRow(task) {
           task.taskType = normalizeTaskType(task.taskType);
           const isDone = task.marker === "DONE";
-
 
           const taskCanComplete = canCompleteTask(task);
           const isEditingEst = state.editingEstId === task.id,
@@ -5873,7 +5876,8 @@
           const hasSubtasks = !!(task.subtasks && task.subtasks.length > 0);
           const isCollapsed = state.collapsedTasks.has(task.id);
           const pinBadge = `<span class="pin-badge${task.pin ? " pin-" + esc(task.pin) : " pin-empty"}" data-pin-id="${esc(task.id)}" title="click to pin / cycle (A → B → C → off)">${task.pin ? esc(task.pin) : "·"}</span>`;
-          const doingBadge = task.marker === "DOING" ? '<span class="doing-badge">DOING</span>' : "";
+          const doingBadge =
+            task.marker === "DOING" ? '<span class="doing-badge">DOING</span>' : "";
           const recurBadge = task.recurringId
             ? '<span class="recurring-badge" title="recurring task">&#x21ba;</span>'
             : "";
@@ -5889,20 +5893,31 @@
           const contentHtml = isEditingContent
             ? `<input class="task-content-input" type="text" data-edit-id="${esc(task.id)}" value="${esc(task.content)}" autocomplete="off"/>`
             : `<span class="task-content" data-content-id="${esc(task.id)}" title="double-click to edit">${linkifyContent(task.content)}</span>`;
-          const estTag = !isDone && !isEditingEst && task.estimate
-            ? `<span class="estimate-badge" data-est-id="${esc(task.id)}" title="click to edit">:${esc(task.estimate)}</span>`
-            : "";
+          const estTag =
+            !isDone && !isEditingEst && task.estimate
+              ? `<span class="estimate-badge" data-est-id="${esc(task.id)}" title="click to edit">:${esc(task.estimate)}</span>`
+              : "";
           const estEdit = isEditingEst
             ? `<div class="inline-edit" data-id="${esc(task.id)}"><input class="est-input" type="text" value="${esc(task.estimate)}" placeholder="e.g. 25m" autocomplete="off"><button class="save-btn">save</button><button class="cancel-est-btn">&#xd7;</button></div>`
             : "";
-          const actHtml = task.actual ? `<span class="actual-badge">&#x2713; ${esc(task.actual)}</span>` : "";
-          const isScheduled = (state.calendarEvents || []).some((ev) => ev.title === "Focus: " + task.content);
-          const schedBtn = isDone || !taskCanComplete
-            ? ""
-            : `<button class="sched-btn${isScheduled ? " scheduled" : ""}" data-sched-id="${esc(task.id)}" title="${isScheduled ? "already on calendar" : "schedule as focus time"}">&#x2d35;</button>`;
+          const actHtml = task.actual
+            ? `<span class="actual-badge">&#x2713; ${esc(task.actual)}</span>`
+            : "";
+          const isScheduled = (state.calendarEvents || []).some(
+            (ev) => ev.title === "Focus: " + task.content,
+          );
+          const schedBtn =
+            isDone || !taskCanComplete
+              ? ""
+              : `<button class="sched-btn${isScheduled ? " scheduled" : ""}" data-sched-id="${esc(task.id)}" title="${isScheduled ? "already on calendar" : "schedule as focus time"}">&#x2d35;</button>`;
           const hasMeta = estEdit || actHtml || dueBadge || collectionBadge;
           const tagsHtml = (task.tags || []).length
-            ? `<div class="task-meta">${(task.tags || []).map((t) => { const catClass = CATEGORY_TAG_CLASSES.has(t) ? ` cat-${t}` : ""; return `<span class="task-tag${state.activeTagFilter === t ? " active-filter" : ""}${catClass}" data-tag="${esc(t)}" title="click to filter">${esc(t)}<span class="tag-remove" data-tag="${esc(t)}" data-tag-remove="1" title="remove tag">&times;</span></span>`; }).join("")}</div>`
+            ? `<div class="task-meta">${(task.tags || [])
+                .map((t) => {
+                  const catClass = CATEGORY_TAG_CLASSES.has(t) ? ` cat-${t}` : "";
+                  return `<span class="task-tag${state.activeTagFilter === t ? " active-filter" : ""}${catClass}" data-tag="${esc(t)}" title="click to filter">${esc(t)}<span class="tag-remove" data-tag="${esc(t)}" data-tag-remove="1" title="remove tag">&times;</span></span>`;
+                })
+                .join("")}</div>`
             : "";
           return `
       <div class="task-item${task.fromKinopio ? " kn-task" : ""}${isDone ? " done-task" : ""}${task.pin ? " pinned" : ""}" data-id="${esc(task.id)}" draggable="true">
@@ -5992,7 +6007,9 @@
                   )
                   .join("");
                 const knKey = (space || "") + "::" + textKey(card.text);
-                const statusBadge = card.isDone ? `<span class="inbox-status done">DONE</span>` : "";
+                const statusBadge = card.isDone
+                  ? `<span class="inbox-status done">DONE</span>`
+                  : "";
                 return `<div class="inbox-item" draggable="true" data-kn-key="${esc(knKey)}" data-kn-space="${esc(space)}">
         <span class="drag-handle" title="drag to reorder">&#x22ee;&#x22ee;</span>
         ${statusBadge}
@@ -6186,7 +6203,8 @@
         if (!forceRefresh) {
           try {
             const cached = JSON.parse(localStorage.getItem(STATS_CACHE_KEY) || "null");
-            if (cached && cached.ts && Date.now() - cached.ts < STATS_CACHE_TTL_MS) return cached.data;
+            if (cached && cached.ts && Date.now() - cached.ts < STATS_CACHE_TTL_MS)
+              return cached.data;
           } catch {}
         }
         const days = [];
@@ -6199,7 +6217,11 @@
             days.push({ iso, tasks: [] });
           }
         }
-        let totalTasks = 0, doneTasks = 0, totalWithEst = 0, estAccuracySum = 0, totalDeferred = 0;
+        let totalTasks = 0,
+          doneTasks = 0,
+          totalWithEst = 0,
+          estAccuracySum = 0,
+          totalDeferred = 0;
         const tagCounts = { life: 0, work: 0, body: 0, mind: 0, liminal: 0 };
         const deferMap = {};
         const taskLoadPerDay = [];
@@ -6229,12 +6251,29 @@
           }
         }
         const completionRate = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : null;
-        const estAccuracyPct = totalWithEst >= 2 ? Math.round((estAccuracySum / totalWithEst) * 100) : null;
-        const topDeferred = Object.entries(deferMap).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([content, count]) => ({ content, count }));
+        const estAccuracyPct =
+          totalWithEst >= 2 ? Math.round((estAccuracySum / totalWithEst) * 100) : null;
+        const topDeferred = Object.entries(deferMap)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([content, count]) => ({ content, count }));
         const skipCount = getGlobalSkippedSet().size;
         const dailyLoad = taskLoadPerDay.slice(0, 7).reverse();
-        const data = { completionRate, estAccuracyPct, totalDeferred, topDeferred, skipCount, tagCounts, dailyLoad, totalTasks, doneTasks, daysAnalyzed: days.filter((d) => d.tasks.length > 0).length };
-        try { localStorage.setItem(STATS_CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch {}
+        const data = {
+          completionRate,
+          estAccuracyPct,
+          totalDeferred,
+          topDeferred,
+          skipCount,
+          tagCounts,
+          dailyLoad,
+          totalTasks,
+          doneTasks,
+          daysAnalyzed: days.filter((d) => d.tasks.length > 0).length,
+        };
+        try {
+          localStorage.setItem(STATS_CACHE_KEY, JSON.stringify({ ts: Date.now(), data }));
+        } catch {}
         return data;
       }
 
@@ -6246,8 +6285,13 @@
         const btn = document.getElementById("stats-refresh-btn");
         if (btn) btn.disabled = true;
         let data;
-        try { data = await computeStats(forceRefresh); }
-        catch { body.innerHTML = '<div class="cal-loading">error loading stats</div>'; if (btn) btn.disabled = false; return; }
+        try {
+          data = await computeStats(forceRefresh);
+        } catch {
+          body.innerHTML = '<div class="cal-loading">error loading stats</div>';
+          if (btn) btn.disabled = false;
+          return;
+        }
         if (btn) btn.disabled = false;
 
         const categories = ["life", "work", "body", "mind", "liminal"];
@@ -6259,9 +6303,13 @@
           <div class="stats-sub">${data.doneTasks} of ${data.totalTasks} tasks completed</div>
         </div>`;
 
-        const topDeferredRows = data.topDeferred.map((d) =>
-          `<div class="stats-row"><span class="stats-row-label" title="${esc(d.content)}">${esc(d.content.slice(0, 40))}</span><span class="stats-row-value">${d.count}&times;</span></div>`
-        ).join("") || '<div class="stats-sub">none — good work</div>';
+        const topDeferredRows =
+          data.topDeferred
+            .map(
+              (d) =>
+                `<div class="stats-row"><span class="stats-row-label" title="${esc(d.content)}">${esc(d.content.slice(0, 40))}</span><span class="stats-row-value">${d.count}&times;</span></div>`,
+            )
+            .join("") || '<div class="stats-sub">none — good work</div>';
 
         const deferHtml = `<div class="stats-section">
           <div class="stats-section-title">deferred &amp; skipped</div>
@@ -6273,11 +6321,13 @@
 
         const tagHtml = `<div class="stats-section">
           <div class="stats-section-title">task spread by category</div>
-          ${categories.map((c) => {
-            const count = data.tagCounts[c] || 0;
-            const pct = Math.round((count / maxTag) * 100);
-            return `<div class="stats-bar-row"><span class="stats-bar-label">${c}</span><div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div><span class="stats-bar-value">${count}</span></div>`;
-          }).join("")}
+          ${categories
+            .map((c) => {
+              const count = data.tagCounts[c] || 0;
+              const pct = Math.round((count / maxTag) * 100);
+              return `<div class="stats-bar-row"><span class="stats-bar-label">${c}</span><div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div><span class="stats-bar-value">${count}</span></div>`;
+            })
+            .join("")}
         </div>`;
 
         const estHtml = `<div class="stats-section">
@@ -6289,10 +6339,14 @@
         const maxDay = Math.max(...data.dailyLoad.map((d) => d.count), 1);
         const loadHtml = `<div class="stats-section">
           <div class="stats-section-title">daily task load (last 7 days)</div>
-          ${data.dailyLoad.map((d) => {
-            const pct = Math.round((d.count / maxDay) * 100);
-            return `<div class="stats-bar-row"><span class="stats-bar-label">${d.iso.slice(5)}</span><div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div><span class="stats-bar-value">${d.count}</span></div>`;
-          }).join("") || '<div class="stats-sub">no data</div>'}
+          ${
+            data.dailyLoad
+              .map((d) => {
+                const pct = Math.round((d.count / maxDay) * 100);
+                return `<div class="stats-bar-row"><span class="stats-bar-label">${d.iso.slice(5)}</span><div class="stats-bar-track"><div class="stats-bar-fill" style="width:${pct}%"></div></div><span class="stats-bar-value">${d.count}</span></div>`;
+              })
+              .join("") || '<div class="stats-sub">no data</div>'
+          }
         </div>`;
 
         let cacheNote = "";
@@ -6312,33 +6366,52 @@
       // ============================================================
 
       function loadZombieReadingList() {
-        try { return JSON.parse(localStorage.getItem(ZOMBIE_READING_LIST_KEY) || "[]"); }
-        catch { return []; }
+        try {
+          return JSON.parse(localStorage.getItem(ZOMBIE_READING_LIST_KEY) || "[]");
+        } catch {
+          return [];
+        }
       }
       function saveZombieReadingList(list) {
-        try { localStorage.setItem(ZOMBIE_READING_LIST_KEY, JSON.stringify(list)); } catch {}
+        try {
+          localStorage.setItem(ZOMBIE_READING_LIST_KEY, JSON.stringify(list));
+        } catch {}
       }
 
       function loadZombieProjectQueue() {
-        try { return JSON.parse(localStorage.getItem(ZOMBIE_PROJECT_QUEUE_KEY) || "[]"); }
-        catch { return []; }
+        try {
+          return JSON.parse(localStorage.getItem(ZOMBIE_PROJECT_QUEUE_KEY) || "[]");
+        } catch {
+          return [];
+        }
       }
       function saveZombieProjectQueue(list) {
-        try { localStorage.setItem(ZOMBIE_PROJECT_QUEUE_KEY, JSON.stringify(list)); } catch {}
+        try {
+          localStorage.setItem(ZOMBIE_PROJECT_QUEUE_KEY, JSON.stringify(list));
+        } catch {}
       }
 
       function zombieDayBlank(dateISO, overrides) {
-        return Object.assign({
-          date: dateISO,
-          paperId: null, paperCustom: null,
-          projectId: null, projectCustom: null,
-          movementChoice: null,
-          paperRead: false, reactionNote: "",
-          focusBlockStarted: false,
-          movementDone: false, housekeepingDone: false,
-          tomorrowPaperId: null, tomorrowPaperCustom: null,
-          tomorrowProjectId: null, tomorrowProjectCustom: null,
-        }, overrides || {});
+        return Object.assign(
+          {
+            date: dateISO,
+            paperId: null,
+            paperCustom: null,
+            projectId: null,
+            projectCustom: null,
+            movementChoice: null,
+            paperRead: false,
+            reactionNote: "",
+            focusBlockStarted: false,
+            movementDone: false,
+            housekeepingDone: false,
+            tomorrowPaperId: null,
+            tomorrowPaperCustom: null,
+            tomorrowProjectId: null,
+            tomorrowProjectCustom: null,
+          },
+          overrides || {},
+        );
       }
 
       function loadZombieDay(dateISO) {
@@ -6353,10 +6426,14 @@
             projectId: raw.tomorrowProjectId || null,
             projectCustom: raw.tomorrowProjectCustom || null,
           });
-        } catch { return zombieDayBlank(dateISO); }
+        } catch {
+          return zombieDayBlank(dateISO);
+        }
       }
       function saveZombieDay(day) {
-        try { localStorage.setItem(ZOMBIE_DAY_KEY, JSON.stringify(day)); } catch {}
+        try {
+          localStorage.setItem(ZOMBIE_DAY_KEY, JSON.stringify(day));
+        } catch {}
       }
       function getZombieDay() {
         if (!state.zombieDay || state.zombieDay.date !== state.currentDate) {
@@ -6379,11 +6456,14 @@
           return new Date(y, mo - 1, dd, h, min, 0).toISOString();
         }
         const blocks = [
-          { title: "Zombie: Morning Ignition", start: makeISO(7, 0),   end: makeISO(9, 0)  },
-          { title: "Zombie: Focus Block",      start: makeISO(9, 0),   end: makeISO(12, 0) },
-          { title: `Zombie: Movement — ${day.movementChoice || "TBD"}`,
-                                               start: makeISO(13, 0),  end: makeISO(14, 0) },
-          { title: "Zombie: Housekeeping",     start: makeISO(16, 0),  end: makeISO(17, 30) },
+          { title: "Zombie: Morning Ignition", start: makeISO(7, 0), end: makeISO(9, 0) },
+          { title: "Zombie: Focus Block", start: makeISO(9, 0), end: makeISO(12, 0) },
+          {
+            title: `Zombie: Movement — ${day.movementChoice || "TBD"}`,
+            start: makeISO(13, 0),
+            end: makeISO(14, 0),
+          },
+          { title: "Zombie: Housekeeping", start: makeISO(16, 0), end: makeISO(17, 30) },
         ];
         showToast("scheduling zombie day…", "info", 2500);
         const created = [];
@@ -6414,13 +6494,17 @@
       }
 
       function renderZombieReadingListManager(reading) {
-        const items = reading.map((r) =>
-          `<div class="zombie-list-item" data-reading-id="${esc(r.id)}">
+        const items =
+          reading
+            .map(
+              (r) =>
+                `<div class="zombie-list-item" data-reading-id="${esc(r.id)}">
             <span class="zombie-list-item-label" title="${esc(r.title)}">${esc(r.title)}</span>
             ${r.url ? `<span class="zombie-list-item-url" title="${esc(r.url)}">${esc(r.url.replace(/^https?:\/\//, "").slice(0, 30))}</span>` : ""}
             <button class="zombie-list-del-btn" data-del-reading="${esc(r.id)}" title="remove">&#xd7;</button>
-          </div>`
-        ).join("") || `<div class="zombie-block-body">reading list is empty</div>`;
+          </div>`,
+            )
+            .join("") || `<div class="zombie-block-body">reading list is empty</div>`;
         return `
           <div class="zombie-list-section">
             <div class="zombie-list-title">reading list</div>
@@ -6434,13 +6518,17 @@
       }
 
       function renderZombieProjectQueueManager(queue) {
-        const items = queue.map((p, i) =>
-          `<div class="zombie-list-item" data-project-id="${esc(p.id)}">
+        const items =
+          queue
+            .map(
+              (p, i) =>
+                `<div class="zombie-list-item" data-project-id="${esc(p.id)}">
             <span class="zombie-list-item-label" title="${esc(p.name)}">${esc(i + 1)}. ${esc(p.name)}</span>
             ${p.description ? `<span class="zombie-list-item-url" title="${esc(p.description)}">${esc(p.description.slice(0, 30))}</span>` : ""}
             <button class="zombie-list-del-btn" data-del-project="${esc(p.id)}" title="remove">&#xd7;</button>
-          </div>`
-        ).join("") || `<div class="zombie-block-body">project queue is empty</div>`;
+          </div>`,
+            )
+            .join("") || `<div class="zombie-block-body">project queue is empty</div>`;
         return `
           <div class="zombie-list-section">
             <div class="zombie-list-title">project queue (ordered priority)</div>
@@ -6470,13 +6558,14 @@
             <input type="text" id="zombie-project-custom" class="zombie-add-input" placeholder="or type project name manually" value="${esc(day.projectCustom || "")}">`
           : `<input type="text" id="zombie-project-custom" class="zombie-add-input" placeholder="project name (no queue yet)" value="${esc(day.projectCustom || "")}">`;
 
-        const movChips = ZOMBIE_MOVEMENTS.map((m) =>
-          `<button class="zombie-movement-chip${day.movementChoice === m ? " selected" : ""}" data-movement="${esc(m)}">${esc(m)}</button>`
+        const movChips = ZOMBIE_MOVEMENTS.map(
+          (m) =>
+            `<button class="zombie-movement-chip${day.movementChoice === m ? " selected" : ""}" data-movement="${esc(m)}">${esc(m)}</button>`,
         ).join("");
 
-        const hasPaper   = !!(day.paperId || day.paperCustom);
+        const hasPaper = !!(day.paperId || day.paperCustom);
         const hasProject = !!(day.projectId || day.projectCustom);
-        const canStart   = hasPaper && hasProject && !!day.movementChoice;
+        const canStart = hasPaper && hasProject && !!day.movementChoice;
 
         return `
           <div class="zombie-header">
@@ -6504,21 +6593,23 @@
       }
 
       function renderZombieLiveDay(day, reading, queue) {
-        const now  = new Date();
+        const now = new Date();
         const hhmm = now.getHours() * 60 + now.getMinutes();
         const BLOCKS = [
-          { key: "morning",      s: 7*60,       e: 9*60  },
-          { key: "focus",        s: 9*60,       e: 12*60 },
-          { key: "movement",     s: 12*60,      e: 16*60 },
-          { key: "housekeeping", s: 16*60,      e: 17*60+30 },
+          { key: "morning", s: 7 * 60, e: 9 * 60 },
+          { key: "focus", s: 9 * 60, e: 12 * 60 },
+          { key: "movement", s: 12 * 60, e: 16 * 60 },
+          { key: "housekeeping", s: 16 * 60, e: 17 * 60 + 30 },
         ];
         const wallActive = (BLOCKS.find((b) => hhmm >= b.s && hhmm < b.e) || {}).key || null;
 
         function isDone(key) {
-          return { morning: day.paperRead && !!day.reactionNote,
-                   focus: day.focusBlockStarted,
-                   movement: day.movementDone,
-                   housekeeping: day.housekeepingDone }[key];
+          return {
+            morning: day.paperRead && !!day.reactionNote,
+            focus: day.focusBlockStarted,
+            movement: day.movementDone,
+            housekeeping: day.housekeepingDone,
+          }[key];
         }
         function blockCls(key) {
           let c = "zombie-block";
@@ -6527,15 +6618,15 @@
           return c;
         }
         function statusBadge(key) {
-          const s = isDone(key) ? "complete" : (wallActive === key ? "active" : "pending");
+          const s = isDone(key) ? "complete" : wallActive === key ? "active" : "pending";
           return `<span class="zombie-block-status status-${s}">${s}</span>`;
         }
 
         const paperEntry = reading.find((r) => r.id === day.paperId);
-        const paperLabel = paperEntry ? paperEntry.title : (day.paperCustom || "—");
-        const paperUrl   = paperEntry ? paperEntry.url : null;
-        const projEntry  = queue.find((p) => p.id === day.projectId);
-        const projLabel  = projEntry ? projEntry.name : (day.projectCustom || "—");
+        const paperLabel = paperEntry ? paperEntry.title : day.paperCustom || "—";
+        const paperUrl = paperEntry ? paperEntry.url : null;
+        const projEntry = queue.find((p) => p.id === day.projectId);
+        const projLabel = projEntry ? projEntry.name : day.projectCustom || "—";
 
         const morningBlock = `
           <div class="${blockCls("morning")}">
@@ -6545,15 +6636,19 @@
               ${statusBadge("morning")}
             </div>
             <div class="zombie-block-detail">
-              ${paperUrl
-                ? `<a href="${esc(paperUrl)}" target="_blank" rel="noopener">${esc(paperLabel)}</a>`
-                : esc(paperLabel)}
+              ${
+                paperUrl
+                  ? `<a href="${esc(paperUrl)}" target="_blank" rel="noopener">${esc(paperLabel)}</a>`
+                  : esc(paperLabel)
+              }
             </div>
-            ${!day.paperRead
-              ? `<button class="zombie-action-btn primary" data-zombie-action="mark-paper-read">mark paper read</button>`
-              : `<label class="modal-label">reaction note (1–2 sentences)</label>
+            ${
+              !day.paperRead
+                ? `<button class="zombie-action-btn primary" data-zombie-action="mark-paper-read">mark paper read</button>`
+                : `<label class="modal-label">reaction note (1–2 sentences)</label>
                  <textarea class="zombie-note-input" id="zombie-reaction-note" placeholder="your quick take…">${esc(day.reactionNote || "")}</textarea>
-                 <button class="zombie-action-btn" data-zombie-action="save-reaction-note">save note</button>`}
+                 <button class="zombie-action-btn" data-zombie-action="save-reaction-note">save note</button>`
+            }
           </div>`;
 
         const focusDimmed = !day.paperRead;
@@ -6566,9 +6661,11 @@
             </div>
             <div class="zombie-block-body">no email until paper is read — single deliverable</div>
             <div class="zombie-block-detail">${esc(projLabel)}</div>
-            ${!day.focusBlockStarted
-              ? `<button class="zombie-action-btn primary" data-zombie-action="start-focus"${focusDimmed ? ' style="opacity:0.4;cursor:not-allowed" title="read the paper first"' : ""}>start focus</button>`
-              : `<span class="zombie-block-body" style="color:var(--success)">&#x2713; focus block underway</span>`}
+            ${
+              !day.focusBlockStarted
+                ? `<button class="zombie-action-btn primary" data-zombie-action="start-focus"${focusDimmed ? ' style="opacity:0.4;cursor:not-allowed" title="read the paper first"' : ""}>start focus</button>`
+                : `<span class="zombie-block-body" style="color:var(--success)">&#x2713; focus block underway</span>`
+            }
           </div>`;
 
         const movBlock = `
@@ -6579,13 +6676,15 @@
               ${statusBadge("movement")}
             </div>
             <div class="zombie-block-detail">${esc(day.movementChoice || "—")}</div>
-            ${!day.movementDone
-              ? `<button class="zombie-action-btn primary" data-zombie-action="log-movement">log movement done</button>`
-              : ""}
+            ${
+              !day.movementDone
+                ? `<button class="zombie-action-btn primary" data-zombie-action="log-movement">log movement done</button>`
+                : ""
+            }
           </div>`;
 
         const tomorrowReading = loadZombieReadingList();
-        const tomorrowQueue   = loadZombieProjectQueue();
+        const tomorrowQueue = loadZombieProjectQueue();
         const tmrwPaperSel = tomorrowReading.length
           ? `<select id="zombie-tmrw-paper" class="zombie-add-input">
               <option value="">&#x2014; pick for tomorrow &#x2014;</option>
@@ -6607,9 +6706,11 @@
               ${statusBadge("housekeeping")}
             </div>
             <div class="zombie-block-body">email triage &middot; admin &middot; notes cleanup &middot; next-day planning</div>
-            ${!day.housekeepingDone
-              ? `<button class="zombie-action-btn primary" data-zombie-action="complete-housekeeping">complete housekeeping</button>`
-              : ""}
+            ${
+              !day.housekeepingDone
+                ? `<button class="zombie-action-btn primary" data-zombie-action="complete-housekeeping">complete housekeeping</button>`
+                : ""
+            }
             <div class="zombie-preload-section">
               <span class="zombie-preload-title">pre-load tomorrow (zero decisions for morning-you)</span>
               <label class="modal-label">tomorrow's paper</label>
@@ -6643,8 +6744,11 @@
       function bindZombieListEvents() {
         document.getElementById("zombie-reading-add")?.addEventListener("click", () => {
           const title = (document.getElementById("zombie-reading-title")?.value || "").trim();
-          if (!title) { showToast("enter a paper title", "info"); return; }
-          const url  = (document.getElementById("zombie-reading-url")?.value || "").trim();
+          if (!title) {
+            showToast("enter a paper title", "info");
+            return;
+          }
+          const url = (document.getElementById("zombie-reading-url")?.value || "").trim();
           const list = loadZombieReadingList();
           list.push({ id: genId(), title, url, addedAt: new Date().toISOString() });
           saveZombieReadingList(list);
@@ -6652,7 +6756,10 @@
         });
         document.getElementById("zombie-project-add")?.addEventListener("click", () => {
           const name = (document.getElementById("zombie-project-name")?.value || "").trim();
-          if (!name) { showToast("enter a project name", "info"); return; }
+          if (!name) {
+            showToast("enter a project name", "info");
+            return;
+          }
           const desc = (document.getElementById("zombie-project-desc")?.value || "").trim();
           const list = loadZombieProjectQueue();
           list.push({ id: genId(), name, description: desc });
@@ -6670,23 +6777,33 @@
         body.addEventListener("click", (e) => {
           // Movement chips
           const chip = e.target.closest("[data-movement]");
-          if (chip) { updateZombieDay({ movementChoice: chip.dataset.movement }); return; }
+          if (chip) {
+            updateZombieDay({ movementChoice: chip.dataset.movement });
+            return;
+          }
 
           // Start day
           if (e.target.id === "zombie-start-btn") {
             const day = getZombieDay();
-            if (!day.movementChoice || !(day.paperId || day.paperCustom) || !(day.projectId || day.projectCustom)) {
-              showToast("fill in paper, project, and movement first", "info"); return;
+            if (
+              !day.movementChoice ||
+              !(day.paperId || day.paperCustom) ||
+              !(day.projectId || day.projectCustom)
+            ) {
+              showToast("fill in paper, project, and movement first", "info");
+              return;
             }
             renderZombieTab();
-            scheduleZombieDay().catch((err) => showToast("calendar error: " + err.message, "error"));
+            scheduleZombieDay().catch((err) =>
+              showToast("calendar error: " + err.message, "error"),
+            );
             return;
           }
 
           // Delete reading list entry
           const delR = e.target.closest("[data-del-reading]");
           if (delR) {
-            const id  = delR.dataset.delReading;
+            const id = delR.dataset.delReading;
             const list = loadZombieReadingList().filter((r) => r.id !== id);
             saveZombieReadingList(list);
             if (state.zombieDay?.paperId === id) updateZombieDay({ paperId: null });
@@ -6697,7 +6814,7 @@
           // Delete project queue entry
           const delP = e.target.closest("[data-del-project]");
           if (delP) {
-            const id  = delP.dataset.delProject;
+            const id = delP.dataset.delProject;
             const list = loadZombieProjectQueue().filter((p) => p.id !== id);
             saveZombieProjectQueue(list);
             if (state.zombieDay?.projectId === id) updateZombieDay({ projectId: null });
@@ -6742,14 +6859,17 @@
               const note = document.getElementById("zombie-reaction-note")?.value.trim() || "";
               updateZombieDay({ reactionNote: note });
             } else if (action === "start-focus") {
-              if (!getZombieDay().paperRead) { showToast("read the paper first", "info"); return; }
+              if (!getZombieDay().paperRead) {
+                showToast("read the paper first", "info");
+                return;
+              }
               updateZombieDay({ focusBlockStarted: true });
             } else if (action === "log-movement") {
               updateZombieDay({ movementDone: true });
             } else if (action === "complete-housekeeping") {
               updateZombieDay({ housekeepingDone: true });
             } else if (action === "save-tomorrow") {
-              const tPaper   = document.getElementById("zombie-tmrw-paper")?.value || null;
+              const tPaper = document.getElementById("zombie-tmrw-paper")?.value || null;
               const tProject = document.getElementById("zombie-tmrw-project")?.value || null;
               updateZombieDay({ tomorrowPaperId: tPaper, tomorrowProjectId: tProject });
               showToast("tomorrow pre-loaded ✓", "success");
@@ -6759,14 +6879,16 @@
 
           // Calendar button
           if (e.target.id === "zombie-gcal-btn") {
-            scheduleZombieDay().catch((err) => showToast("calendar error: " + err.message, "error"));
+            scheduleZombieDay().catch((err) =>
+              showToast("calendar error: " + err.message, "error"),
+            );
             return;
           }
 
           // Delete reading list entry
           const delR = e.target.closest("[data-del-reading]");
           if (delR) {
-            const id   = delR.dataset.delReading;
+            const id = delR.dataset.delReading;
             const list = loadZombieReadingList().filter((r) => r.id !== id);
             saveZombieReadingList(list);
             if (state.zombieDay?.paperId === id) updateZombieDay({ paperId: null });
@@ -6777,7 +6899,7 @@
           // Delete project queue entry
           const delP = e.target.closest("[data-del-project]");
           if (delP) {
-            const id   = delP.dataset.delProject;
+            const id = delP.dataset.delProject;
             const list = loadZombieProjectQueue().filter((p) => p.id !== id);
             saveZombieProjectQueue(list);
             if (state.zombieDay?.projectId === id) updateZombieDay({ projectId: null });
@@ -6794,13 +6916,13 @@
         const body = document.getElementById("zombie-body");
         if (!body) return;
 
-        const day     = getZombieDay();
+        const day = getZombieDay();
         const reading = loadZombieReadingList();
-        const queue   = loadZombieProjectQueue();
+        const queue = loadZombieProjectQueue();
 
-        const hasPaper   = !!(day.paperId || day.paperCustom);
+        const hasPaper = !!(day.paperId || day.paperCustom);
         const hasProject = !!(day.projectId || day.projectCustom);
-        const isSetup    = !day.movementChoice || !hasPaper || !hasProject;
+        const isSetup = !day.movementChoice || !hasPaper || !hasProject;
 
         if (isSetup) {
           body.innerHTML = renderZombieSetup(day, reading, queue);
@@ -6832,8 +6954,7 @@
         document
           .querySelectorAll(".tab-content")
           .forEach((c) => c.classList.toggle("active", c.id === "tab-" + name));
-        document.getElementById("quick-add-row").style.display =
-          name === "focus" ? "flex" : "none";
+        document.getElementById("quick-add-row").style.display = name === "focus" ? "flex" : "none";
         state.currentTab = name;
         if (name === "stats") renderStatsTab(false).catch(() => {});
         if (name === "zombie") renderZombieTab();
@@ -6982,7 +7103,7 @@
             const cur = PIN_CYCLE.indexOf(task.pin || null);
             const next = PIN_CYCLE[(cur + 1) % PIN_CYCLE.length];
             await pinTask(el.dataset.pinId, next);
-          })
+          }),
         );
 
         document.querySelectorAll(".subtask-check").forEach((el) =>
@@ -7187,8 +7308,11 @@
         const cardTextKey = knKey.includes("::") ? knKey.slice(knKey.indexOf("::") + 2) : "";
         const card = cardTextKey
           ? cards.find((c) => textKey(c.text) === cardTextKey)
-          : cards.find((c) => textKey(c.text) === textKey(item.querySelector(".inbox-text")?.textContent || ""));
-        const connected = (card && card.connectedCards) ? card.connectedCards.filter(Boolean) : [];
+          : cards.find(
+              (c) =>
+                textKey(c.text) === textKey(item.querySelector(".inbox-text")?.textContent || ""),
+            );
+        const connected = card && card.connectedCards ? card.connectedCards.filter(Boolean) : [];
         if (connected.length === 0) return;
         const tooltip = document.getElementById("kn-tooltip");
         tooltip.innerHTML =
@@ -7682,7 +7806,6 @@
         checkWindowCollapse();
       })();
 
-
       document
         .getElementById("prev-day-btn")
         .addEventListener("click", () => setDate(isoAddDays(state.currentDate, -1)));
@@ -7952,16 +8075,32 @@
       });
       document.getElementById("journal-copy-btn").addEventListener("click", () => {
         const text = document.getElementById("journal-prompt-text").textContent;
-        navigator.clipboard.writeText(text).then(() => showToast("prompt copied", "success")).catch(() => {});
+        navigator.clipboard
+          .writeText(text)
+          .then(() => showToast("prompt copied", "success"))
+          .catch(() => {});
       });
       document.getElementById("journal-insert-btn").addEventListener("click", async () => {
         const text = document.getElementById("journal-prompt-text").textContent;
         if (!text) return;
         state.tasks.push({
-          id: genId(), content: text, marker: "TODO", subtasks: [], dueDate: null,
-          carriedFrom: null, estimate: "", actual: "", createdAt: new Date().toISOString(),
-          fromKinopio: false, knCardId: null, priority: null, defers: 0,
-          taskType: "note", collection: null, tags: ["journal"], pin: null,
+          id: genId(),
+          content: text,
+          marker: "TODO",
+          subtasks: [],
+          dueDate: null,
+          carriedFrom: null,
+          estimate: "",
+          actual: "",
+          createdAt: new Date().toISOString(),
+          fromKinopio: false,
+          knCardId: null,
+          priority: null,
+          defers: 0,
+          taskType: "note",
+          collection: null,
+          tags: ["journal"],
+          pin: null,
         });
         await persistTasks(state.currentDate, state.tasks);
         closeJournalPrompt();
