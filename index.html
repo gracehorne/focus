@@ -2032,6 +2032,95 @@
       [data-theme="light"] .zombie-block.active-block {
         background: rgba(136, 57, 239, 0.04);
       }
+      .zombie-drag-handle {
+        color: var(--text-muted);
+        cursor: grab;
+        font-size: 13px;
+        flex-shrink: 0;
+        opacity: 0.5;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+      .zombie-drag-handle:active {
+        cursor: grabbing;
+      }
+      .zombie-list-item.zombie-drag-ghost {
+        opacity: 0.4;
+      }
+      .zombie-list-item.zombie-drag-over {
+        border-top: 2px solid var(--accent);
+      }
+      .zombie-times-toggle {
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-family: var(--font);
+        font-size: 11px;
+        padding: 0;
+        margin-left: auto;
+      }
+      .zombie-times-toggle:hover {
+        color: var(--text);
+      }
+      .zombie-times-grid {
+        display: grid;
+        grid-template-columns: 80px 1fr auto 1fr;
+        gap: 4px 6px;
+        align-items: center;
+        margin-top: 6px;
+      }
+      .zombie-times-label {
+        font-size: 11px;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+      }
+      .zombie-times-sep {
+        font-size: 11px;
+        color: var(--text-muted);
+        text-align: center;
+      }
+      .zombie-time-input {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        padding: 3px 6px;
+        outline: none;
+        width: 100%;
+        min-width: 0;
+      }
+      .zombie-time-input:focus {
+        border-color: var(--accent);
+      }
+      .zombie-template-swatch {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: inline-block;
+      }
+      .zombie-template-color-picker {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        flex-shrink: 0;
+      }
+      .zombie-template-color-chip {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        cursor: pointer;
+        padding: 0;
+        flex-shrink: 0;
+      }
+      .zombie-template-color-chip.selected,
+      .zombie-template-color-chip:hover {
+        border-color: var(--text);
+      }
 
       .template-card {
         position: relative;
@@ -3963,7 +4052,9 @@
       const ZOMBIE_READING_LIST_KEY = "df-zombie-reading-list";
       const ZOMBIE_PROJECT_QUEUE_KEY = "df-zombie-project-queue";
       const ZOMBIE_DAY_KEY = "df-zombie-day";
+      const ZOMBIE_TEMPLATES_KEY = "df-zombie-templates";
       const ZOMBIE_MOVEMENTS = ["frisbee", "rollerblades", "cycling", "yoga", "running"];
+      const ZOMBIE_TEMPLATE_COLORS = ["#ca9ee6", "#ef9f76", "#a6d189", "#85c1dc", "#e5c890"];
 
       function loadCollapsedPanels() {
         try {
@@ -6391,6 +6482,19 @@
         } catch {}
       }
 
+      function loadZombieTemplates() {
+        try {
+          return JSON.parse(localStorage.getItem(ZOMBIE_TEMPLATES_KEY) || "[]");
+        } catch {
+          return [];
+        }
+      }
+      function saveZombieTemplates(list) {
+        try {
+          localStorage.setItem(ZOMBIE_TEMPLATES_KEY, JSON.stringify(list));
+        } catch {}
+      }
+
       function zombieDayBlank(dateISO, overrides) {
         return Object.assign(
           {
@@ -6405,10 +6509,21 @@
             focusBlockStarted: false,
             movementDone: false,
             housekeepingDone: false,
+            // custom block times
+            morningStart: "07:00", morningEnd: "09:00",
+            focusStart: "09:00",   focusEnd: "12:00",
+            movementStart: "13:00", movementEnd: "14:00",
+            housekeepingStart: "16:00", housekeepingEnd: "17:30",
+            // tomorrow pre-loads
             tomorrowPaperId: null,
             tomorrowPaperCustom: null,
             tomorrowProjectId: null,
             tomorrowProjectCustom: null,
+            tomorrowTemplateId: null,
+            tomorrowMorningStart: null, tomorrowMorningEnd: null,
+            tomorrowFocusStart: null,   tomorrowFocusEnd: null,
+            tomorrowMovementStart: null, tomorrowMovementEnd: null,
+            tomorrowHousekeepingStart: null, tomorrowHousekeepingEnd: null,
           },
           overrides || {},
         );
@@ -6419,12 +6534,20 @@
           const raw = JSON.parse(localStorage.getItem(ZOMBIE_DAY_KEY) || "null");
           if (!raw) return zombieDayBlank(dateISO);
           if (raw.date === dateISO) return raw;
-          // New day — carry forward tomorrow's pre-loads
+          // New day — carry forward tomorrow's pre-loads including times
           return zombieDayBlank(dateISO, {
             paperId: raw.tomorrowPaperId || null,
             paperCustom: raw.tomorrowPaperCustom || null,
             projectId: raw.tomorrowProjectId || null,
             projectCustom: raw.tomorrowProjectCustom || null,
+            morningStart: raw.tomorrowMorningStart || "07:00",
+            morningEnd: raw.tomorrowMorningEnd || "09:00",
+            focusStart: raw.tomorrowFocusStart || "09:00",
+            focusEnd: raw.tomorrowFocusEnd || "12:00",
+            movementStart: raw.tomorrowMovementStart || "13:00",
+            movementEnd: raw.tomorrowMovementEnd || "14:00",
+            housekeepingStart: raw.tomorrowHousekeepingStart || "16:00",
+            housekeepingEnd: raw.tomorrowHousekeepingEnd || "17:30",
           });
         } catch {
           return zombieDayBlank(dateISO);
@@ -6452,18 +6575,19 @@
         if (!requireCalendarConfig(true)) return;
         const day = getZombieDay();
         const [y, mo, dd] = state.currentDate.split("-").map(Number);
-        function makeISO(h, min) {
-          return new Date(y, mo - 1, dd, h, min, 0).toISOString();
+        function makeISO(timeStr) {
+          const { hours: h, minutes: m } = parseHHMM(timeStr);
+          return new Date(y, mo - 1, dd, h, m, 0).toISOString();
         }
         const blocks = [
-          { title: "Zombie: Morning Ignition", start: makeISO(7, 0), end: makeISO(9, 0) },
-          { title: "Zombie: Focus Block", start: makeISO(9, 0), end: makeISO(12, 0) },
+          { title: "Zombie: Morning Ignition", start: makeISO(day.morningStart), end: makeISO(day.morningEnd) },
+          { title: "Zombie: Focus Block", start: makeISO(day.focusStart), end: makeISO(day.focusEnd) },
           {
             title: `Zombie: Movement — ${day.movementChoice || "TBD"}`,
-            start: makeISO(13, 0),
-            end: makeISO(14, 0),
+            start: makeISO(day.movementStart),
+            end: makeISO(day.movementEnd),
           },
-          { title: "Zombie: Housekeeping", start: makeISO(16, 0), end: makeISO(17, 30) },
+          { title: "Zombie: Housekeeping", start: makeISO(day.housekeepingStart), end: makeISO(day.housekeepingEnd) },
         ];
         showToast("scheduling zombie day…", "info", 2500);
         const created = [];
@@ -6498,7 +6622,8 @@
           reading
             .map(
               (r) =>
-                `<div class="zombie-list-item" data-reading-id="${esc(r.id)}">
+                `<div class="zombie-list-item" data-reading-id="${esc(r.id)}" draggable="true">
+            <span class="zombie-drag-handle" title="drag to reorder">&#x283f;</span>
             <span class="zombie-list-item-label" title="${esc(r.title)}">${esc(r.title)}</span>
             ${r.url ? `<span class="zombie-list-item-url" title="${esc(r.url)}">${esc(r.url.replace(/^https?:\/\//, "").slice(0, 30))}</span>` : ""}
             <button class="zombie-list-del-btn" data-del-reading="${esc(r.id)}" title="remove">&#xd7;</button>
@@ -6522,7 +6647,8 @@
           queue
             .map(
               (p, i) =>
-                `<div class="zombie-list-item" data-project-id="${esc(p.id)}">
+                `<div class="zombie-list-item" data-project-id="${esc(p.id)}" draggable="true">
+            <span class="zombie-drag-handle" title="drag to reorder">&#x283f;</span>
             <span class="zombie-list-item-label" title="${esc(p.name)}">${esc(i + 1)}. ${esc(p.name)}</span>
             ${p.description ? `<span class="zombie-list-item-url" title="${esc(p.description)}">${esc(p.description.slice(0, 30))}</span>` : ""}
             <button class="zombie-list-del-btn" data-del-project="${esc(p.id)}" title="remove">&#xd7;</button>
@@ -6541,7 +6667,59 @@
           </div>`;
       }
 
+      function renderZombieTimeInputs(prefix, s1, e1, s2, e2, s3, e3, s4, e4) {
+        return `
+          <div class="zombie-times-grid">
+            <span class="zombie-times-label">morning</span>
+            <input type="time" class="zombie-time-input" id="${prefix}-morning-start" value="${esc(s1)}">
+            <span class="zombie-times-sep">–</span>
+            <input type="time" class="zombie-time-input" id="${prefix}-morning-end" value="${esc(e1)}">
+            <span class="zombie-times-label">focus</span>
+            <input type="time" class="zombie-time-input" id="${prefix}-focus-start" value="${esc(s2)}">
+            <span class="zombie-times-sep">–</span>
+            <input type="time" class="zombie-time-input" id="${prefix}-focus-end" value="${esc(e2)}">
+            <span class="zombie-times-label">movement</span>
+            <input type="time" class="zombie-time-input" id="${prefix}-movement-start" value="${esc(s3)}">
+            <span class="zombie-times-sep">–</span>
+            <input type="time" class="zombie-time-input" id="${prefix}-movement-end" value="${esc(e3)}">
+            <span class="zombie-times-label">housekeeping</span>
+            <input type="time" class="zombie-time-input" id="${prefix}-housekeeping-start" value="${esc(s4)}">
+            <span class="zombie-times-sep">–</span>
+            <input type="time" class="zombie-time-input" id="${prefix}-housekeeping-end" value="${esc(e4)}">
+          </div>`;
+      }
+
+      function renderZombieTemplateManager(templates) {
+        const items = templates.map((t) => `
+          <div class="zombie-list-item" data-template-id="${esc(t.id)}">
+            <span class="zombie-template-swatch" style="background:${esc(t.color)}"></span>
+            <span class="zombie-list-item-label" title="${esc(t.name)}">${esc(t.name)}</span>
+            <button class="zombie-list-del-btn" data-del-template="${esc(t.id)}" title="remove">&#xd7;</button>
+          </div>`).join("") || `<div class="zombie-block-body">no templates yet</div>`;
+
+        const colorSwatches = ZOMBIE_TEMPLATE_COLORS.map((c) =>
+          `<button class="zombie-template-color-chip" data-tpl-color="${esc(c)}" style="background:${esc(c)}" title="${esc(c)}"></button>`
+        ).join("");
+
+        return `
+          <div class="zombie-list-section">
+            <div class="zombie-list-title">day templates</div>
+            <div id="zombie-template-list">${items}</div>
+            <div class="zombie-add-row" style="flex-direction:column;gap:8px;margin-top:10px">
+              <div style="display:flex;gap:6px;align-items:center">
+                <input type="text" id="zombie-tpl-name" class="zombie-add-input" placeholder="template name (e.g. writing day)" autocomplete="off">
+                <div class="zombie-template-color-picker" id="zombie-tpl-color-picker">${colorSwatches}</div>
+              </div>
+              ${renderZombieTimeInputs("tpl",
+                "07:00","09:00","09:00","12:00","13:00","14:00","16:00","17:30")}
+              <button class="zombie-add-btn" id="zombie-tpl-add" style="align-self:flex-start">+ add template</button>
+            </div>
+          </div>`;
+      }
+
       function renderZombieSetup(day, reading, queue) {
+        const templates = loadZombieTemplates();
+
         const paperSel = reading.length
           ? `<select id="zombie-paper-sel" class="zombie-add-input">
               <option value="">&#x2014; pick from reading list &#x2014;</option>
@@ -6567,6 +6745,13 @@
         const hasProject = !!(day.projectId || day.projectCustom);
         const canStart = hasPaper && hasProject && !!day.movementChoice;
 
+        const templateSel = templates.length
+          ? `<select id="zombie-tpl-sel" class="zombie-add-input">
+              <option value="">&#x2014; no template &#x2014;</option>
+              ${templates.map((t) => `<option value="${esc(t.id)}">${esc(t.name)}</option>`).join("")}
+            </select>`
+          : `<span class="zombie-block-body">create a template below to use one</span>`;
+
         return `
           <div class="zombie-header">
             <span class="zombie-header-title">zombie mode</span>
@@ -6575,6 +6760,10 @@
           <div class="zombie-kickoff-bar">
             <span class="zombie-kickoff-label">set up today's three decisions before starting</span>
             ${canStart ? `<button class="zombie-start-btn" id="zombie-start-btn">start day</button>` : ""}
+          </div>
+          <div class="zombie-block">
+            <div class="zombie-block-head"><span class="zombie-block-title">day template</span></div>
+            ${templateSel}
           </div>
           <div class="zombie-block">
             <div class="zombie-block-head"><span class="zombie-block-title">today's paper</span></div>
@@ -6588,18 +6777,45 @@
             <div class="zombie-block-head"><span class="zombie-block-title">movement</span></div>
             <div class="zombie-movement-picker" id="zombie-movement-picker">${movChips}</div>
           </div>
+          <div class="zombie-block">
+            <div class="zombie-block-head">
+              <span class="zombie-block-title">block times</span>
+              <button class="zombie-times-toggle" id="zombie-times-toggle" data-open="false">adjust &#x25be;</button>
+            </div>
+            <div id="zombie-times-panel" style="display:none">
+              ${renderZombieTimeInputs("today",
+                day.morningStart, day.morningEnd,
+                day.focusStart, day.focusEnd,
+                day.movementStart, day.movementEnd,
+                day.housekeepingStart, day.housekeepingEnd)}
+              <button class="zombie-action-btn primary" data-zombie-action="save-today-times" style="margin-top:4px">save times</button>
+            </div>
+          </div>
           ${renderZombieReadingListManager(reading)}
-          ${renderZombieProjectQueueManager(queue)}`;
+          ${renderZombieProjectQueueManager(queue)}
+          ${renderZombieTemplateManager(templates)}`;
+      }
+
+      function parseHHMM(str) {
+        const [h, m] = (str || "00:00").split(":").map(Number);
+        return { hours: h || 0, minutes: m || 0 };
+      }
+
+      function fmtTime(str) {
+        const { hours: h, minutes: m } = parseHHMM(str);
+        return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
       }
 
       function renderZombieLiveDay(day, reading, queue) {
         const now = new Date();
         const hhmm = now.getHours() * 60 + now.getMinutes();
+
+        function toMins(t) { const {hours:h,minutes:m} = parseHHMM(t); return h*60+m; }
         const BLOCKS = [
-          { key: "morning", s: 7 * 60, e: 9 * 60 },
-          { key: "focus", s: 9 * 60, e: 12 * 60 },
-          { key: "movement", s: 12 * 60, e: 16 * 60 },
-          { key: "housekeeping", s: 16 * 60, e: 17 * 60 + 30 },
+          { key: "morning",      s: toMins(day.morningStart),      e: toMins(day.morningEnd) },
+          { key: "focus",        s: toMins(day.focusStart),        e: toMins(day.focusEnd) },
+          { key: "movement",     s: toMins(day.movementStart),     e: toMins(day.movementEnd) },
+          { key: "housekeeping", s: toMins(day.housekeepingStart), e: toMins(day.housekeepingEnd) },
         ];
         const wallActive = (BLOCKS.find((b) => hhmm >= b.s && hhmm < b.e) || {}).key || null;
 
@@ -6632,7 +6848,7 @@
           <div class="${blockCls("morning")}">
             <div class="zombie-block-head">
               <span class="zombie-block-title">morning ignition</span>
-              <span class="zombie-block-time">07:00 – 09:00</span>
+              <span class="zombie-block-time">${esc(fmtTime(day.morningStart))} – ${esc(fmtTime(day.morningEnd))}</span>
               ${statusBadge("morning")}
             </div>
             <div class="zombie-block-detail">
@@ -6656,7 +6872,7 @@
           <div class="${blockCls("focus")}">
             <div class="zombie-block-head">
               <span class="zombie-block-title">focus block</span>
-              <span class="zombie-block-time">09:00 – 12:00</span>
+              <span class="zombie-block-time">${esc(fmtTime(day.focusStart))} – ${esc(fmtTime(day.focusEnd))}</span>
               ${statusBadge("focus")}
             </div>
             <div class="zombie-block-body">no email until paper is read — single deliverable</div>
@@ -6672,7 +6888,7 @@
           <div class="${blockCls("movement")}">
             <div class="zombie-block-head">
               <span class="zombie-block-title">movement</span>
-              <span class="zombie-block-time">flexible</span>
+              <span class="zombie-block-time">${esc(fmtTime(day.movementStart))} – ${esc(fmtTime(day.movementEnd))}</span>
               ${statusBadge("movement")}
             </div>
             <div class="zombie-block-detail">${esc(day.movementChoice || "—")}</div>
@@ -6685,6 +6901,7 @@
 
         const tomorrowReading = loadZombieReadingList();
         const tomorrowQueue = loadZombieProjectQueue();
+        const tomorrowTemplates = loadZombieTemplates();
         const tmrwPaperSel = tomorrowReading.length
           ? `<select id="zombie-tmrw-paper" class="zombie-add-input">
               <option value="">&#x2014; pick for tomorrow &#x2014;</option>
@@ -6697,12 +6914,18 @@
               ${tomorrowQueue.map((p) => `<option value="${esc(p.id)}"${day.tomorrowProjectId === p.id ? " selected" : ""}>${esc(p.name)}</option>`).join("")}
              </select>`
           : `<span class="zombie-block-body">add projects to queue first</span>`;
+        const tmrwTplSel = tomorrowTemplates.length
+          ? `<select id="zombie-tmrw-template" class="zombie-add-input">
+              <option value="">&#x2014; no template &#x2014;</option>
+              ${tomorrowTemplates.map((t) => `<option value="${esc(t.id)}"${day.tomorrowTemplateId === t.id ? " selected" : ""}>${esc(t.name)}</option>`).join("")}
+             </select>`
+          : "";
 
         const hkBlock = `
           <div class="${blockCls("housekeeping")}">
             <div class="zombie-block-head">
               <span class="zombie-block-title">housekeeping</span>
-              <span class="zombie-block-time">16:00 – 17:30</span>
+              <span class="zombie-block-time">${esc(fmtTime(day.housekeepingStart))} – ${esc(fmtTime(day.housekeepingEnd))}</span>
               ${statusBadge("housekeeping")}
             </div>
             <div class="zombie-block-body">email triage &middot; admin &middot; notes cleanup &middot; next-day planning</div>
@@ -6713,16 +6936,31 @@
             }
             <div class="zombie-preload-section">
               <span class="zombie-preload-title">pre-load tomorrow (zero decisions for morning-you)</span>
+              ${tmrwTplSel ? `<label class="modal-label">tomorrow's template</label>${tmrwTplSel}` : ""}
               <label class="modal-label">tomorrow's paper</label>
               ${tmrwPaperSel}
               <label class="modal-label">tomorrow's project</label>
               ${tmrwProjSel}
+              <div style="margin-top:4px">
+                <button class="zombie-times-toggle" id="zombie-tmrw-times-toggle" data-open="false">adjust tomorrow's times &#x25be;</button>
+              </div>
+              <div id="zombie-tmrw-times-panel" style="display:none">
+                ${renderZombieTimeInputs("tmrw",
+                  day.tomorrowMorningStart || day.morningStart,
+                  day.tomorrowMorningEnd || day.morningEnd,
+                  day.tomorrowFocusStart || day.focusStart,
+                  day.tomorrowFocusEnd || day.focusEnd,
+                  day.tomorrowMovementStart || day.movementStart,
+                  day.tomorrowMovementEnd || day.movementEnd,
+                  day.tomorrowHousekeepingStart || day.housekeepingStart,
+                  day.tomorrowHousekeepingEnd || day.housekeepingEnd)}
+              </div>
               <button class="zombie-action-btn primary" data-zombie-action="save-tomorrow">save tomorrow's picks</button>
             </div>
           </div>`;
 
         const calBtn = GCAL_SCRIPT_URL
-          ? `<div style="padding:12px 14px 0"><button class="zombie-action-btn primary" id="zombie-gcal-btn">&#x1f4c5; schedule to calendar</button></div>`
+          ? `<div style="padding:12px 14px 0"><button class="zombie-action-btn primary" id="zombie-gcal-btn"><i class="bi bi-calendar-event"></i> schedule to calendar</button></div>`
           : `<div style="padding:12px 14px 0"><span class="zombie-block-body" style="font-size:11px">connect calendar in settings to schedule zombie blocks</span></div>`;
 
         return `
@@ -6739,6 +6977,73 @@
           </div>
           ${renderZombieReadingListManager(tomorrowReading)}
           ${renderZombieProjectQueueManager(tomorrowQueue)}`;
+      }
+
+      let _zombieDragId = null;
+      let _zombieDragType = null; // "reading" | "project"
+
+      function bindZombieDragDrop(containerId, type) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        container.addEventListener("dragstart", (e) => {
+          const item = e.target.closest("[data-reading-id],[data-project-id]");
+          if (!item) return;
+          _zombieDragId = item.dataset.readingId || item.dataset.projectId;
+          _zombieDragType = type;
+          item.classList.add("zombie-drag-ghost");
+          e.dataTransfer.effectAllowed = "move";
+        });
+        container.addEventListener("dragend", (e) => {
+          e.target.closest("[data-reading-id],[data-project-id]")?.classList.remove("zombie-drag-ghost");
+        });
+        container.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          const over = e.target.closest("[data-reading-id],[data-project-id]");
+          container.querySelectorAll(".zombie-drag-over").forEach((el) => el.classList.remove("zombie-drag-over"));
+          if (over) over.classList.add("zombie-drag-over");
+        });
+        container.addEventListener("dragleave", () => {
+          container.querySelectorAll(".zombie-drag-over").forEach((el) => el.classList.remove("zombie-drag-over"));
+        });
+        container.addEventListener("drop", (e) => {
+          e.preventDefault();
+          container.querySelectorAll(".zombie-drag-over").forEach((el) => el.classList.remove("zombie-drag-over"));
+          const over = e.target.closest("[data-reading-id],[data-project-id]");
+          const overId = over ? (over.dataset.readingId || over.dataset.projectId) : null;
+          if (!_zombieDragId || !overId || _zombieDragId === overId) return;
+
+          if (_zombieDragType === "reading") {
+            const list = loadZombieReadingList();
+            const fromIdx = list.findIndex((r) => r.id === _zombieDragId);
+            const toIdx = list.findIndex((r) => r.id === overId);
+            if (fromIdx < 0 || toIdx < 0) return;
+            list.splice(toIdx, 0, list.splice(fromIdx, 1)[0]);
+            saveZombieReadingList(list);
+          } else {
+            const list = loadZombieProjectQueue();
+            const fromIdx = list.findIndex((p) => p.id === _zombieDragId);
+            const toIdx = list.findIndex((p) => p.id === overId);
+            if (fromIdx < 0 || toIdx < 0) return;
+            list.splice(toIdx, 0, list.splice(fromIdx, 1)[0]);
+            saveZombieProjectQueue(list);
+          }
+          _zombieDragId = null;
+          renderZombieTab();
+        });
+      }
+
+      function bindZombieTimesToggle(toggleId, panelId) {
+        const btn = document.getElementById(toggleId);
+        const panel = document.getElementById(panelId);
+        if (!btn || !panel) return;
+        btn.addEventListener("click", () => {
+          const open = btn.dataset.open === "true";
+          btn.dataset.open = open ? "false" : "true";
+          btn.innerHTML = open ? "adjust &#x25be;" : "hide &#x25b4;";
+          panel.style.display = open ? "none" : "";
+        });
       }
 
       function bindZombieListEvents() {
@@ -6766,19 +7071,70 @@
           saveZombieProjectQueue(list);
           renderZombieTab();
         });
-        // Delegated deletes — these fire on the body element whose innerHTML gets replaced each render
-        // so we use the body-level delegated listener set up in bindZombieDayEvents / bindZombieSetupEvents
+
+        // Template add — track selected color via module var
+        let _tplColor = ZOMBIE_TEMPLATE_COLORS[0];
+        document.querySelectorAll("[data-tpl-color]").forEach((chip) => {
+          if (chip.dataset.tplColor === _tplColor) chip.classList.add("selected");
+          chip.addEventListener("click", () => {
+            _tplColor = chip.dataset.tplColor;
+            document.querySelectorAll("[data-tpl-color]").forEach((c) => c.classList.remove("selected"));
+            chip.classList.add("selected");
+          });
+        });
+        document.getElementById("zombie-tpl-add")?.addEventListener("click", () => {
+          const name = (document.getElementById("zombie-tpl-name")?.value || "").trim();
+          if (!name) { showToast("enter a template name", "info"); return; }
+          const ms = document.getElementById("tpl-morning-start")?.value || "07:00";
+          const me = document.getElementById("tpl-morning-end")?.value || "09:00";
+          const fs = document.getElementById("tpl-focus-start")?.value || "09:00";
+          const fe = document.getElementById("tpl-focus-end")?.value || "12:00";
+          const vs = document.getElementById("tpl-movement-start")?.value || "13:00";
+          const ve = document.getElementById("tpl-movement-end")?.value || "14:00";
+          const hs = document.getElementById("tpl-housekeeping-start")?.value || "16:00";
+          const he = document.getElementById("tpl-housekeeping-end")?.value || "17:30";
+          const list = loadZombieTemplates();
+          list.push({ id: genId(), name, color: _tplColor,
+            morningStart: ms, morningEnd: me,
+            focusStart: fs, focusEnd: fe,
+            movementStart: vs, movementEnd: ve,
+            housekeepingStart: hs, housekeepingEnd: he });
+          saveZombieTemplates(list);
+          renderZombieTab();
+        });
+
+        bindZombieDragDrop("zombie-reading-list", "reading");
+        bindZombieDragDrop("zombie-project-queue", "project");
       }
 
       function bindZombieSetupEvents() {
         const body = document.getElementById("zombie-body");
         if (!body) return;
 
+        bindZombieTimesToggle("zombie-times-toggle", "zombie-times-panel");
+
         body.addEventListener("click", (e) => {
           // Movement chips
           const chip = e.target.closest("[data-movement]");
           if (chip) {
             updateZombieDay({ movementChoice: chip.dataset.movement });
+            return;
+          }
+
+          // Save today's custom times
+          const btn = e.target.closest("[data-zombie-action]");
+          if (btn && btn.dataset.zombieAction === "save-today-times") {
+            updateZombieDay({
+              morningStart:      document.getElementById("today-morning-start")?.value || "07:00",
+              morningEnd:        document.getElementById("today-morning-end")?.value || "09:00",
+              focusStart:        document.getElementById("today-focus-start")?.value || "09:00",
+              focusEnd:          document.getElementById("today-focus-end")?.value || "12:00",
+              movementStart:     document.getElementById("today-movement-start")?.value || "13:00",
+              movementEnd:       document.getElementById("today-movement-end")?.value || "14:00",
+              housekeepingStart: document.getElementById("today-housekeeping-start")?.value || "16:00",
+              housekeepingEnd:   document.getElementById("today-housekeeping-end")?.value || "17:30",
+            });
+            showToast("times saved ✓", "success");
             return;
           }
 
@@ -6821,6 +7177,31 @@
             else renderZombieTab();
             return;
           }
+
+          // Delete template
+          const delT = e.target.closest("[data-del-template]");
+          if (delT) {
+            const id = delT.dataset.delTemplate;
+            const list = loadZombieTemplates().filter((t) => t.id !== id);
+            saveZombieTemplates(list);
+            renderZombieTab();
+            return;
+          }
+        });
+
+        // Template select → apply times
+        document.getElementById("zombie-tpl-sel")?.addEventListener("change", (e) => {
+          const id = e.target.value;
+          if (!id) return;
+          const tpl = loadZombieTemplates().find((t) => t.id === id);
+          if (!tpl) return;
+          updateZombieDay({
+            morningStart: tpl.morningStart, morningEnd: tpl.morningEnd,
+            focusStart: tpl.focusStart, focusEnd: tpl.focusEnd,
+            movementStart: tpl.movementStart, movementEnd: tpl.movementEnd,
+            housekeepingStart: tpl.housekeepingStart, housekeepingEnd: tpl.housekeepingEnd,
+          });
+          showToast(`template "${tpl.name}" applied ✓`, "success");
         });
 
         // Paper select
@@ -6848,6 +7229,8 @@
         const body = document.getElementById("zombie-body");
         if (!body) return;
 
+        bindZombieTimesToggle("zombie-tmrw-times-toggle", "zombie-tmrw-times-panel");
+
         body.addEventListener("click", (e) => {
           // Delegated action buttons
           const btn = e.target.closest("[data-zombie-action]");
@@ -6871,9 +7254,29 @@
             } else if (action === "save-tomorrow") {
               const tPaper = document.getElementById("zombie-tmrw-paper")?.value || null;
               const tProject = document.getElementById("zombie-tmrw-project")?.value || null;
-              updateZombieDay({ tomorrowPaperId: tPaper, tomorrowProjectId: tProject });
+              const tTemplate = document.getElementById("zombie-tmrw-template")?.value || null;
+              const tpl = tTemplate ? loadZombieTemplates().find((t) => t.id === tTemplate) : null;
+              updateZombieDay({
+                tomorrowPaperId: tPaper,
+                tomorrowProjectId: tProject,
+                tomorrowTemplateId: tTemplate,
+                tomorrowMorningStart:      tpl ? tpl.morningStart      : (document.getElementById("tmrw-morning-start")?.value || null),
+                tomorrowMorningEnd:        tpl ? tpl.morningEnd        : (document.getElementById("tmrw-morning-end")?.value || null),
+                tomorrowFocusStart:        tpl ? tpl.focusStart        : (document.getElementById("tmrw-focus-start")?.value || null),
+                tomorrowFocusEnd:          tpl ? tpl.focusEnd          : (document.getElementById("tmrw-focus-end")?.value || null),
+                tomorrowMovementStart:     tpl ? tpl.movementStart     : (document.getElementById("tmrw-movement-start")?.value || null),
+                tomorrowMovementEnd:       tpl ? tpl.movementEnd       : (document.getElementById("tmrw-movement-end")?.value || null),
+                tomorrowHousekeepingStart: tpl ? tpl.housekeepingStart : (document.getElementById("tmrw-housekeeping-start")?.value || null),
+                tomorrowHousekeepingEnd:   tpl ? tpl.housekeepingEnd   : (document.getElementById("tmrw-housekeeping-end")?.value || null),
+              });
               showToast("tomorrow pre-loaded ✓", "success");
             }
+            return;
+          }
+
+          // Tomorrow template select → open times panel with template values
+          if (e.target.id === "zombie-tmrw-template") {
+            // handled via change event below
             return;
           }
 
@@ -6906,6 +7309,21 @@
             else renderZombieTab();
             return;
           }
+        });
+
+        // Tomorrow template → pre-fill time inputs if panel is open
+        document.getElementById("zombie-tmrw-template")?.addEventListener("change", (e) => {
+          const id = e.target.value;
+          const panel = document.getElementById("zombie-tmrw-times-panel");
+          if (!id || !panel || panel.style.display === "none") return;
+          const tpl = loadZombieTemplates().find((t) => t.id === id);
+          if (!tpl) return;
+          ["morning","focus","movement","housekeeping"].forEach((k) => {
+            const s = document.getElementById(`tmrw-${k}-start`);
+            const en = document.getElementById(`tmrw-${k}-end`);
+            if (s) s.value = tpl[`${k}Start`];
+            if (en) en.value = tpl[`${k}End`];
+          });
         });
 
         bindZombieListEvents();
