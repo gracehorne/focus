@@ -309,6 +309,44 @@
         opacity: 1;
       }
 
+      #kinopio-resize-handle {
+        flex: 0 0 5px;
+        background: transparent;
+        cursor: row-resize;
+        position: relative;
+        z-index: 10;
+        transition: background 0.15s;
+        flex-shrink: 0;
+      }
+      #kinopio-resize-handle::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 2px;
+        bottom: 2px;
+        background: var(--border);
+        opacity: 0;
+        transition: opacity 0.15s;
+      }
+      #kinopio-resize-handle:hover::after,
+      #kinopio-resize-handle.dragging::after {
+        opacity: 1;
+      }
+      #kinopio-panel {
+        flex: 0 0 300px;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        min-height: 80px;
+      }
+      #kinopio-frame {
+        flex: 1;
+        width: 100%;
+        border: none;
+        background: var(--bg);
+      }
+
       /* ---- tabs ---- */
 
       .tabs-bar {
@@ -2938,6 +2976,15 @@
           </div>
         </div>
       </div>
+      <div id="kinopio-resize-handle" title="drag to resize"></div>
+      <div id="kinopio-panel">
+        <iframe
+          id="kinopio-frame"
+          title="Kinopio space"
+          src="https://kinopio.club/-broom--5KSgA0YdzcVoevfKlbD1"
+          allow="clipboard-read; clipboard-write"
+        ></iframe>
+      </div>
     </div>
 
     <!-- options menu -->
@@ -4834,8 +4881,9 @@
               // skip cards we already marked done locally this session
               if (_knLocalDone.has(textKey(parsed.text))) continue;
               parsed.connectedCards = connectionsByCardId[rawCard.id] || [];
-              if (!groups[spaceName]) groups[spaceName] = [];
-              groups[spaceName].push(parsed);
+              const groupKey = parsed.list || spaceName;
+              if (!groups[groupKey]) groups[groupKey] = [];
+              groups[groupKey].push(parsed);
             }
           }
           state.kinopioGroups = groups;
@@ -8314,6 +8362,52 @@
         }
         window.addEventListener("resize", checkWindowCollapse);
         checkWindowCollapse();
+      })();
+
+      // ---- kinopio bottom panel resize ----
+      (function initKinopioResize() {
+        const STORAGE_KEY = "df-kinopio-panel-h";
+        const MIN_H = 80;
+        const MAX_H_PCT = 0.85;
+
+        const handle = document.getElementById("kinopio-resize-handle");
+        const panel = document.getElementById("kinopio-panel");
+        if (!handle || !panel) return;
+
+        function applyH(px) {
+          const maxH = window.innerHeight * MAX_H_PCT;
+          const h = Math.min(maxH, Math.max(MIN_H, px));
+          panel.style.flex = `0 0 ${h}px`;
+        }
+
+        const saved = parseFloat(localStorage.getItem(STORAGE_KEY));
+        applyH(!isNaN(saved) ? saved : 300);
+
+        let startY, startH;
+        handle.addEventListener("mousedown", (e) => {
+          e.preventDefault();
+          startY = e.clientY;
+          startH = panel.getBoundingClientRect().height;
+          handle.classList.add("dragging");
+          document.body.style.cursor = "row-resize";
+          document.body.style.userSelect = "none";
+        });
+        document.addEventListener("mousemove", (e) => {
+          if (!handle.classList.contains("dragging")) return;
+          const delta = startY - e.clientY;
+          applyH(startH + delta);
+          localStorage.setItem(STORAGE_KEY, startH + delta);
+        });
+        document.addEventListener("mouseup", () => {
+          if (!handle.classList.contains("dragging")) return;
+          handle.classList.remove("dragging");
+          document.body.style.cursor = "";
+          document.body.style.userSelect = "";
+        });
+        handle.addEventListener("dblclick", () => {
+          applyH(300);
+          localStorage.setItem(STORAGE_KEY, 300);
+        });
       })();
 
       document
