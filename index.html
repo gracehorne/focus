@@ -262,16 +262,11 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        overflow-y: auto;
-        overflow-x: hidden;
-        scrollbar-width: none;
+        overflow: hidden;
         min-width: 280px;
         transition:
           min-width 0.15s,
           opacity 0.15s;
-      }
-      #right-col::-webkit-scrollbar {
-        display: none;
       }
       #right-col.collapsed {
         flex: 0 0 0;
@@ -279,6 +274,22 @@
         overflow: hidden;
         opacity: 0;
         pointer-events: none;
+      }
+      #kinopio-frame {
+        flex: 1;
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: var(--bg);
+      }
+      #left-panels {
+        flex-shrink: 0;
+        border-top: 1px solid var(--border);
+        overflow-y: auto;
+        scrollbar-width: none;
+      }
+      #left-panels::-webkit-scrollbar {
+        display: none;
       }
 
       #col-resize-handle.hidden-handle {
@@ -307,44 +318,6 @@
       #col-resize-handle:hover::after,
       #col-resize-handle.dragging::after {
         opacity: 1;
-      }
-
-      #kinopio-resize-handle {
-        flex: 0 0 5px;
-        background: transparent;
-        cursor: row-resize;
-        position: relative;
-        z-index: 10;
-        transition: background 0.15s;
-        flex-shrink: 0;
-      }
-      #kinopio-resize-handle::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 2px;
-        bottom: 2px;
-        background: var(--border);
-        opacity: 0;
-        transition: opacity 0.15s;
-      }
-      #kinopio-resize-handle:hover::after,
-      #kinopio-resize-handle.dragging::after {
-        opacity: 1;
-      }
-      #kinopio-panel {
-        flex: 0 0 300px;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        min-height: 80px;
-      }
-      #kinopio-frame {
-        flex: 1;
-        width: 100%;
-        border: none;
-        background: var(--bg);
       }
 
       /* ---- tabs ---- */
@@ -2871,120 +2844,119 @@
               <div id="zombie-body"></div>
             </section>
           </div>
-        </div>
 
-        <div id="col-resize-handle" title="drag to resize"></div>
-        <div id="right-col">
-          <div class="right-section" id="panel-calendar">
-            <div class="right-section-title">
-              <span>calendar</span>
-              <span class="panel-actions">
-                <button class="panel-toggle-btn" id="panel-toggle-calendar" title="collapse/expand">
+          <div id="left-panels">
+            <div class="right-section" id="panel-calendar">
+              <div class="right-section-title">
+                <span>calendar</span>
+                <span class="panel-actions">
+                  <button class="panel-toggle-btn" id="panel-toggle-calendar" title="collapse/expand">
+                    &#x2212;
+                  </button>
+                  <button class="cal-refresh-btn" id="cal-refresh-btn">&#x21bb;</button>
+                </span>
+              </div>
+              <div class="right-section-body" id="panel-body-calendar">
+                <div id="cal-events"><div class="cal-loading">loading&#x2026;</div></div>
+              </div>
+            </div>
+            <div class="right-section" id="panel-time">
+              <div class="right-section-title">
+                <span>time</span>
+                <button class="panel-toggle-btn" id="panel-toggle-time" title="collapse/expand">
                   &#x2212;
                 </button>
-                <button class="cal-refresh-btn" id="cal-refresh-btn">&#x21bb;</button>
-              </span>
+              </div>
+              <div class="right-section-body" id="panel-body-time">
+                <div id="time-summary-body"><div class="cal-loading">no estimates set</div></div>
+              </div>
             </div>
-            <div class="right-section-body" id="panel-body-calendar">
-              <div id="cal-events"><div class="cal-loading">loading&#x2026;</div></div>
-            </div>
-          </div>
-          <div class="right-section" id="panel-time">
-            <div class="right-section-title">
-              <span>time</span>
-              <button class="panel-toggle-btn" id="panel-toggle-time" title="collapse/expand">
-                &#x2212;
-              </button>
-            </div>
-            <div class="right-section-body" id="panel-body-time">
-              <div id="time-summary-body"><div class="cal-loading">no estimates set</div></div>
-            </div>
-          </div>
-          <div class="right-section" id="panel-tags">
-            <div class="right-section-title">
-              <span>tags</span>
-              <button
-                type="button"
-                class="panel-toggle-btn"
-                id="panel-toggle-tags"
-                title="collapse/expand"
-              >
-                &#x2212;
-              </button>
-            </div>
-            <div class="right-section-body" id="panel-body-tags">
-              <div id="tag-palette-container"></div>
-            </div>
-          </div>
-          <div class="right-section integrations-inline-section" id="panel-integrations">
-            <div class="right-section-title">
-              <span>integrations</span>
-              <span class="panel-actions">
+            <div class="right-section" id="panel-tags">
+              <div class="right-section-title">
+                <span>tags</span>
                 <button
+                  type="button"
                   class="panel-toggle-btn"
-                  id="panel-toggle-integrations"
+                  id="panel-toggle-tags"
                   title="collapse/expand"
                 >
                   &#x2212;
                 </button>
-                <button class="cal-refresh-btn" id="integrations-inline-close-btn" title="hide">
-                  hide
-                </button>
-              </span>
-            </div>
-            <div class="right-section-body" id="panel-body-integrations">
-              <div class="integrations-inline-fields">
-                <label class="modal-label" for="kn-api-key-inline">kinopio api key</label>
-                <input
-                  type="password"
-                  id="kn-api-key-inline"
-                  placeholder="paste kinopio api key"
-                  autocomplete="off"
-                  autocorrect="off"
-                  spellcheck="false"
-                />
-                <label class="modal-label" for="gcal-script-url-inline"
-                  >calendar integration script url</label
-                >
-                <input
-                  type="text"
-                  id="gcal-script-url-inline"
-                  placeholder="https://script.google.com/macros/s/.../exec"
-                  autocomplete="off"
-                  autocorrect="off"
-                  spellcheck="false"
-                  inputmode="url"
-                />
-                <label class="modal-label" for="log-webhook-url-inline"
-                  >time tracking webhook url <span style="opacity: 0.5">(optional)</span></label
-                >
-                <input
-                  type="text"
-                  id="log-webhook-url-inline"
-                  placeholder="https://script.google.com/macros/s/.../exec"
-                  autocomplete="off"
-                  autocorrect="off"
-                  spellcheck="false"
-                  inputmode="url"
-                />
               </div>
-              <div class="integrations-inline-actions">
-                <button id="integrations-inline-test-btn">test time tracking</button>
-                <button id="integrations-inline-save-btn" class="primary">save</button>
+              <div class="right-section-body" id="panel-body-tags">
+                <div id="tag-palette-container"></div>
+              </div>
+            </div>
+            <div class="right-section integrations-inline-section" id="panel-integrations">
+              <div class="right-section-title">
+                <span>integrations</span>
+                <span class="panel-actions">
+                  <button
+                    class="panel-toggle-btn"
+                    id="panel-toggle-integrations"
+                    title="collapse/expand"
+                  >
+                    &#x2212;
+                  </button>
+                  <button class="cal-refresh-btn" id="integrations-inline-close-btn" title="hide">
+                    hide
+                  </button>
+                </span>
+              </div>
+              <div class="right-section-body" id="panel-body-integrations">
+                <div class="integrations-inline-fields">
+                  <label class="modal-label" for="kn-api-key-inline">kinopio api key</label>
+                  <input
+                    type="password"
+                    id="kn-api-key-inline"
+                    placeholder="paste kinopio api key"
+                    autocomplete="off"
+                    autocorrect="off"
+                    spellcheck="false"
+                  />
+                  <label class="modal-label" for="gcal-script-url-inline"
+                    >calendar integration script url</label
+                  >
+                  <input
+                    type="text"
+                    id="gcal-script-url-inline"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    autocomplete="off"
+                    autocorrect="off"
+                    spellcheck="false"
+                    inputmode="url"
+                  />
+                  <label class="modal-label" for="log-webhook-url-inline"
+                    >time tracking webhook url <span style="opacity: 0.5">(optional)</span></label
+                  >
+                  <input
+                    type="text"
+                    id="log-webhook-url-inline"
+                    placeholder="https://script.google.com/macros/s/.../exec"
+                    autocomplete="off"
+                    autocorrect="off"
+                    spellcheck="false"
+                    inputmode="url"
+                  />
+                </div>
+                <div class="integrations-inline-actions">
+                  <button id="integrations-inline-test-btn">test time tracking</button>
+                  <button id="integrations-inline-save-btn" class="primary">save</button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div id="kinopio-resize-handle" title="drag to resize"></div>
-      <div id="kinopio-panel">
-        <iframe
-          id="kinopio-frame"
-          title="Kinopio space"
-          src="https://kinopio.club/-broom--5KSgA0YdzcVoevfKlbD1"
-          allow="clipboard-read; clipboard-write"
-        ></iframe>
-      </div>
+
+        <div id="col-resize-handle" title="drag to resize"></div>
+        <div id="right-col">
+          <iframe
+            id="kinopio-frame"
+            title="Kinopio space"
+            src="https://kinopio.club/-broom--5KSgA0YdzcVoevfKlbD1"
+            allow="clipboard-read; clipboard-write"
+          ></iframe>
+        </div>
     </div>
 
     <!-- options menu -->
@@ -8364,51 +8336,6 @@
         checkWindowCollapse();
       })();
 
-      // ---- kinopio bottom panel resize ----
-      (function initKinopioResize() {
-        const STORAGE_KEY = "df-kinopio-panel-h";
-        const MIN_H = 80;
-        const MAX_H_PCT = 0.85;
-
-        const handle = document.getElementById("kinopio-resize-handle");
-        const panel = document.getElementById("kinopio-panel");
-        if (!handle || !panel) return;
-
-        function applyH(px) {
-          const maxH = window.innerHeight * MAX_H_PCT;
-          const h = Math.min(maxH, Math.max(MIN_H, px));
-          panel.style.flex = `0 0 ${h}px`;
-        }
-
-        const saved = parseFloat(localStorage.getItem(STORAGE_KEY));
-        applyH(!isNaN(saved) ? saved : 300);
-
-        let startY, startH;
-        handle.addEventListener("mousedown", (e) => {
-          e.preventDefault();
-          startY = e.clientY;
-          startH = panel.getBoundingClientRect().height;
-          handle.classList.add("dragging");
-          document.body.style.cursor = "row-resize";
-          document.body.style.userSelect = "none";
-        });
-        document.addEventListener("mousemove", (e) => {
-          if (!handle.classList.contains("dragging")) return;
-          const delta = startY - e.clientY;
-          applyH(startH + delta);
-          localStorage.setItem(STORAGE_KEY, startH + delta);
-        });
-        document.addEventListener("mouseup", () => {
-          if (!handle.classList.contains("dragging")) return;
-          handle.classList.remove("dragging");
-          document.body.style.cursor = "";
-          document.body.style.userSelect = "";
-        });
-        handle.addEventListener("dblclick", () => {
-          applyH(300);
-          localStorage.setItem(STORAGE_KEY, 300);
-        });
-      })();
 
       document
         .getElementById("prev-day-btn")
