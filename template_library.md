@@ -1,7 +1,6 @@
 # Template Library
 
-Reference document. Edit this first, then apply changes to `DEFAULT_TEMPLATES` in `index.html`.
-After any changes, bump `TPL_RESET_VERSION` in `index.html` to force a cache refresh for all users.
+The dashboard reads this file when it loads, so upload it next to `index.html`. Edit it and refresh to update the templates.
 
 Format: each template has a heading with its display name and `id` in backticks, followed by a bullet list of steps.
 
@@ -100,7 +99,7 @@ Format: each template has a heading with its display name and `id` in backticks,
 
 ## Notes for editing
 
-- To add a template: add it here, then add the object to `DEFAULT_TEMPLATES` in `index.html`, then bump `TPL_RESET_VERSION`.
-- To remove a template: add its `id` to `REMOVED_TEMPLATE_IDS` in `index.html` (don't delete from `DEFAULT_TEMPLATES` directly, to preserve history).
+- To add a template: add it here.
+- To remove a template: delete it here.
 - Categories are: `life`, `work`, `body`, `mind`, `liminal`.
 - The `id` must be unique, kebab-case, and stable — it's used as a key in localStorage for use counts.
